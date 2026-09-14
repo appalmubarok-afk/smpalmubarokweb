@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SMP IT AL MUBAROK</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <meta name="description" content="Website Resmi SMP Islam Terpadu Al Mubarok Kras Kediri. Berkomitmen menyelenggarakan pendidikan unggul berbasis Islam terpadu dan teknologi masa depan. Pendaftaran PPDB, Profil, dan Kabar Berita Sekolah.">
+    <meta name="keywords" content="SMP IT AL MUBAROK, SMP Al Mubarok Kras, SMP IT Kediri, Sekolah Menengah Pertama, PPDB SMP, EduDigital, Sekolah Berbasis Teknologi">
+    <meta name="author" content="SMP IT Al Mubarok">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="id">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.smpitalmubarok.sch.id/">
+    <meta property="og:title" content="SMP IT AL MUBAROK">
+    <meta property="og:description" content="Website Resmi SMP Islam Terpadu Al Mubarok Kras Kediri.">
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #ffffff; }
+        iframe { border: none; width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+    <script>
+        const URL_PARAMETER = window.location.search;
+
+        // ⚠️ GANTI DENGAN LINK EXEC APPS SCRIPT WEB SMP INI (Deploy > Manage deployments)
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/GANTI_DENGAN_ID_DEPLOYMENT_SMP/exec";
+
+        const LINK_AKHIR = GOOGLE_SCRIPT_URL + URL_PARAMETER;
+
+        // Tambah id="app-frame" dan allow="geolocation" (selain clipboard) supaya
+        // browser mengizinkan permintaan lokasi GPS yang didelegasikan ke iframe ini.
+        document.write('<iframe id="app-frame" src="' + LINK_AKHIR + '" allow="clipboard-read; clipboard-write; geolocation *"></iframe>');
+    </script>
+
+    <script>
+        // ================================================================
+        // SINKRONISASI URL ALAMAT BROWSER DENGAN MENU YANG SEDANG DIBUKA
+        // ================================================================
+        // Apps Script (di dalam iframe) tidak bisa langsung mengubah address bar
+        // halaman ini karena beda origin (cross-origin). Jadi Apps Script mengirim
+        // status menu yang sedang aktif lewat postMessage (tipe 'NAV_STATE'), lalu
+        // DI SINI (halaman induk/GitHub) address bar-nya yang diupdate pakai
+        // history.replaceState — tanpa reload halaman/iframe sama sekali.
+        //
+        // CATATAN: web SMP ini saat ini BELUM mengirim postMessage 'NAV_STATE' dari
+        // dalam kodenya, jadi bagian ini untuk sekarang tidak akan aktif (tidak error,
+        // cuma diam saja) sampai fitur itu ditambahkan di kode Apps Script-nya. Kasih
+        // tahu saya kalau mau fitur ini juga diaktifkan di web SMP.
+        //
+        // Karena URL_PARAMETER di atas otomatis diteruskan ke Apps Script setiap
+        // kali halaman ini dibuka, alur baliknya juga otomatis jalan: kalau ada
+        // yang membuka link hasil share (mis. ?page=karya), Apps Script akan
+        // otomatis membuka menu itu saat pertama kali dimuat (jika kode Apps
+        // Script-nya sudah mendukung baca parameter URL tersebut).
+        function updateUrlBarFromNavState(data) {
+            const usp = new URLSearchParams();
+            if (data.page && data.page !== 'home') usp.set('page', data.page);
+            if (data.sub) usp.set('sub', data.sub);
+            if (data.berita_id) usp.set('berita_id', data.berita_id);
+            const query = usp.toString();
+            const newUrl = window.location.pathname + (query ? '?' + query : '');
+            history.replaceState(null, '', newUrl);
+        }
+
+        // Apps Script (di dalam iframe) tidak diizinkan memakai navigator.geolocation
+        // secara langsung karena Permissions-Policy bawaan Google saat halamannya
+        // di-embed lewat domain lain (situs GitHub ini). Jadi permintaan lokasi
+        // didelegasikan ke halaman ini (induk/top-level), yang memang diizinkan
+        // meminta GPS, lalu hasilnya dikirim balik ke iframe lewat postMessage.
+        //
+        // CATATAN: web SMP ini saat ini belum memakai fitur lokasi GPS browser,
+        // jadi bagian ini juga aman dibiarkan (tidak aktif, tidak mengganggu apapun).
+        window.addEventListener('message', function (e) {
+            const data = e.data || {};
+
+            if (data.type === 'NAV_STATE') {
+                updateUrlBarFromNavState(data);
+                return;
+            }
+
+            console.log('[GEO] Halaman GitHub menerima pesan:', e.data, 'dari origin:', e.origin);
+            if (data.type !== 'REQUEST_GEO_LOCATION') return;
+
+            // Pakai e.source (referensi persis ke frame pengirim), bukan iframe.contentWindow,
+            // karena kode Apps Script sebenarnya jalan di iframe internal DI DALAM iframe utama
+            // (wrapper bawaan Google untuk google.script.run). iframe.contentWindow cuma nyampe
+            // ke wrapper Google itu, bukan ke frame kode kamu yang sesungguhnya.
+            const target = e.source;
+            if (!target) {
+                console.log('[GEO] e.source kosong, tidak bisa membalas.');
+                return;
+            }
+
+            if (!navigator.geolocation) {
+                target.postMessage(
+                    { type: 'GEO_LOCATION_RESULT', error: 'Geolocation tidak didukung browser ini.' },
+                    '*'
+                );
+                return;
+            }
+
+            console.log('[GEO] Meminta getCurrentPosition ke browser...');
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    console.log('[GEO] Sukses, mengirim balik ke pengirim...');
+                    target.postMessage({
+                        type: 'GEO_LOCATION_RESULT',
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude
+                    }, '*');
+                },
+                function (err) {
+                    console.log('[GEO] getCurrentPosition error:', err.code, err.message);
+                    target.postMessage(
+                        { type: 'GEO_LOCATION_RESULT', error: err.message },
+                        '*'
+                    );
+                }
+            );
+        });
+    </script>
+</body>
+</html>
