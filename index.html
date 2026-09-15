@@ -35,25 +35,6 @@
     </script>
 
     <script>
-        // ================================================================
-        // SINKRONISASI URL ALAMAT BROWSER DENGAN MENU YANG SEDANG DIBUKA
-        // ================================================================
-        // Apps Script (di dalam iframe) tidak bisa langsung mengubah address bar
-        // halaman ini karena beda origin (cross-origin). Jadi Apps Script mengirim
-        // status menu yang sedang aktif lewat postMessage (tipe 'NAV_STATE'), lalu
-        // DI SINI (halaman induk/GitHub) address bar-nya yang diupdate pakai
-        // history.replaceState — tanpa reload halaman/iframe sama sekali.
-        //
-        // CATATAN: web SMP ini saat ini BELUM mengirim postMessage 'NAV_STATE' dari
-        // dalam kodenya, jadi bagian ini untuk sekarang tidak akan aktif (tidak error,
-        // cuma diam saja) sampai fitur itu ditambahkan di kode Apps Script-nya. Kasih
-        // tahu saya kalau mau fitur ini juga diaktifkan di web SMP.
-        //
-        // Karena URL_PARAMETER di atas otomatis diteruskan ke Apps Script setiap
-        // kali halaman ini dibuka, alur baliknya juga otomatis jalan: kalau ada
-        // yang membuka link hasil share (mis. ?page=karya), Apps Script akan
-        // otomatis membuka menu itu saat pertama kali dimuat (jika kode Apps
-        // Script-nya sudah mendukung baca parameter URL tersebut).
         function updateUrlBarFromNavState(data) {
             const usp = new URLSearchParams();
             if (data.page && data.page !== 'home') usp.set('page', data.page);
@@ -64,14 +45,6 @@
             history.replaceState(null, '', newUrl);
         }
 
-        // Apps Script (di dalam iframe) tidak diizinkan memakai navigator.geolocation
-        // secara langsung karena Permissions-Policy bawaan Google saat halamannya
-        // di-embed lewat domain lain (situs GitHub ini). Jadi permintaan lokasi
-        // didelegasikan ke halaman ini (induk/top-level), yang memang diizinkan
-        // meminta GPS, lalu hasilnya dikirim balik ke iframe lewat postMessage.
-        //
-        // CATATAN: web SMP ini saat ini belum memakai fitur lokasi GPS browser,
-        // jadi bagian ini juga aman dibiarkan (tidak aktif, tidak mengganggu apapun).
         window.addEventListener('message', function (e) {
             const data = e.data || {};
 
@@ -83,10 +56,6 @@
             console.log('[GEO] Halaman GitHub menerima pesan:', e.data, 'dari origin:', e.origin);
             if (data.type !== 'REQUEST_GEO_LOCATION') return;
 
-            // Pakai e.source (referensi persis ke frame pengirim), bukan iframe.contentWindow,
-            // karena kode Apps Script sebenarnya jalan di iframe internal DI DALAM iframe utama
-            // (wrapper bawaan Google untuk google.script.run). iframe.contentWindow cuma nyampe
-            // ke wrapper Google itu, bukan ke frame kode kamu yang sesungguhnya.
             const target = e.source;
             if (!target) {
                 console.log('[GEO] e.source kosong, tidak bisa membalas.');
