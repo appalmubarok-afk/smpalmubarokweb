@@ -72,21 +72,45 @@
             _navStateSaatIni = data;
         }
 
+        // Apps Script (mode sandbox IFRAME) sebenarnya membungkus konten kita
+        // di dalam 1-2 lapis iframe INTERNAL milik Google sendiri
+        // (script.googleusercontent.com), di dalam <iframe id="app-frame">
+        // yang kita buat. Jadi frame.contentWindow BELUM TENTU window tempat
+        // kode aplikasi kita benar-benar jalan -> kirim pesan ke beberapa
+        // lapis sekaligus supaya pasti nyampai ke lapisan manapun kode kita
+        // berada. Membaca properti .frames dari window beda origin itu aman
+        // (diizinkan browser), jadi tidak akan kena error cross-origin.
+        function _kirimKeSemuaLapisIframe_(payload) {
+            const frame = document.getElementById('app-frame');
+            if (!frame || !frame.contentWindow) return;
+
+            const targets = [frame.contentWindow];
+            try {
+                if (frame.contentWindow.frames && frame.contentWindow.frames[0]) {
+                    targets.push(frame.contentWindow.frames[0]);
+                    if (frame.contentWindow.frames[0].frames && frame.contentWindow.frames[0].frames[0]) {
+                        targets.push(frame.contentWindow.frames[0].frames[0]);
+                    }
+                }
+            } catch (e) { /* abaikan diam-diam kalau struktur framenya beda dari dugaan */ }
+
+            targets.forEach(function (t) {
+                try { t.postMessage(payload, '*'); } catch (e) { /* abaikan */ }
+            });
+        }
+
         // Tombol Back/Forward browser ditekan: beri tahu iframe (aplikasi SMP)
         // untuk pindah ke menu sesuai state riwayat ini, supaya kontennya ikut
         // berubah tanpa perlu me-reload ulang seluruh iframe.
         window.addEventListener('popstate', function (e) {
             const state = e.state || {};
             _navStateSaatIni = state;
-            const frame = document.getElementById('app-frame');
-            if (frame && frame.contentWindow) {
-                frame.contentWindow.postMessage({
-                    type: 'NAV_GOTO',
-                    page: state.page || 'home',
-                    sub: state.sub || '',
-                    berita_id: state.berita_id || ''
-                }, '*');
-            }
+            _kirimKeSemuaLapisIframe_({
+                type: 'NAV_GOTO',
+                page: state.page || 'home',
+                sub: state.sub || '',
+                berita_id: state.berita_id || ''
+            });
         });
 
         window.addEventListener('message', function (e) {
