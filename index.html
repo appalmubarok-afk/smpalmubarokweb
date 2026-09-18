@@ -35,6 +35,19 @@
     </script>
 
     <script>
+        // Menyimpan state navigasi terakhir yang diketahui wrapper ini, supaya
+        // tahu kapan harus menambah entri riwayat baru (pushState) vs cuma
+        // memperbarui entri yang sudah ada (replaceState).
+        let _navStateSaatIni = null;
+        let _navPertamaKali = true;
+
+        function _samaNavState(a, b) {
+            if (!a || !b) return false;
+            return (a.page || '') === (b.page || '') &&
+                   (a.sub || '') === (b.sub || '') &&
+                   (a.berita_id || '') === (b.berita_id || '');
+        }
+
         function updateUrlBarFromNavState(data) {
             const usp = new URLSearchParams();
             if (data.page && data.page !== 'home') usp.set('page', data.page);
@@ -42,8 +55,39 @@
             if (data.berita_id) usp.set('berita_id', data.berita_id);
             const query = usp.toString();
             const newUrl = window.location.pathname + (query ? '?' + query : '');
-            history.replaceState(null, '', newUrl);
+
+            if (_navPertamaKali) {
+                // Muat pertama kali (baik dari link yang dibagikan atau Beranda
+                // polos) -> jadi entri riwayat pertama, jangan ditambah dobel.
+                history.replaceState(data, '', newUrl);
+                _navPertamaKali = false;
+            } else if (!_samaNavState(_navStateSaatIni, data)) {
+                // Menu berubah -> tambah entri riwayat baru, supaya tombol
+                // Back/Forward browser bisa pindah antar menu (bukan langsung
+                // keluar dari website).
+                history.pushState(data, '', newUrl);
+            } else {
+                history.replaceState(data, '', newUrl);
+            }
+            _navStateSaatIni = data;
         }
+
+        // Tombol Back/Forward browser ditekan: beri tahu iframe (aplikasi SMP)
+        // untuk pindah ke menu sesuai state riwayat ini, supaya kontennya ikut
+        // berubah tanpa perlu me-reload ulang seluruh iframe.
+        window.addEventListener('popstate', function (e) {
+            const state = e.state || {};
+            _navStateSaatIni = state;
+            const frame = document.getElementById('app-frame');
+            if (frame && frame.contentWindow) {
+                frame.contentWindow.postMessage({
+                    type: 'NAV_GOTO',
+                    page: state.page || 'home',
+                    sub: state.sub || '',
+                    berita_id: state.berita_id || ''
+                }, '*');
+            }
+        });
 
         window.addEventListener('message', function (e) {
             const data = e.data || {};
