@@ -94,6 +94,16 @@
   .admin-btn { transition: all .2s ease; border-left:4px solid transparent; }
   .admin-btn.active { background: linear-gradient(to right, #eef0fb, transparent); color:#1f287d; border-left:4px solid #1f287d; font-weight:700; }
   /* Mode Gelap: override dasar untuk latar & teks paling umum di situs */
+  /* Program Unggulan (Beranda): kartu bergaya banner + lencana ikon */
+  .pu-section { background: linear-gradient(180deg, #ffffff 0%, #eef0fb 100%); }
+  .pu-card { transition: transform .35s ease, box-shadow .35s ease; }
+  .pu-card:hover { transform: translateY(-8px); box-shadow: 0 24px 40px -16px rgba(31,40,125,.30); }
+  .pu-ghost { transition: transform .5s ease; }
+  .pu-card:hover .pu-ghost { transform: scale(1.15) rotate(-8deg); }
+  .pu-bar { transform: scaleX(.25); transform-origin: left; transition: transform .45s ease; }
+  .pu-card:hover .pu-bar { transform: scaleX(1); }
+  body.mode-gelap .pu-section { background: linear-gradient(180deg, #0b1120 0%, #0f172a 100%); }
+  @media (prefers-reduced-motion: reduce) { .pu-card, .pu-ghost, .pu-bar { transition: none; } .pu-card:hover { transform: none; } }
   body.mode-gelap { background:#0b1120; color:#cbd5e1; }
   body.mode-gelap .bg-white { background-color:#161f36 !important; }
   body.mode-gelap .bg-white\/95 { background-color:rgba(22,31,54,.95) !important; }
@@ -709,6 +719,92 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
           <button onclick="geserGuru(1)" aria-label="Geser ke kanan" class="hidden md:flex items-center justify-center absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white text-primary shadow-lg hover:bg-secondary hover:text-white transition-colors">
             <i class="fas fa-chevron-right text-sm"></i>
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Program Unggulan (kartu tetap, bukan dari sheet) -->
+    <div id="beranda-program-unggulan" class="pu-section relative overflow-hidden py-14 md:py-20 scroll-mt-24">
+      <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-secondary/10 blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-80 h-80 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
+      <div class="relative max-w-7xl mx-auto px-4 md:px-6">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+          <span class="inline-flex items-center gap-2 bg-secondary/15 text-secondary-700 font-black text-[11px] uppercase tracking-widest rounded-full px-4 py-1.5"><i class="fas fa-star text-[10px]"></i> Program Unggulan</span>
+          <h2 class="text-2xl md:text-4xl font-black text-primary mt-4 leading-tight">Pembinaan Terpadu untuk <span class="relative inline-block">Generasi Unggul<span class="absolute left-0 -bottom-1 w-full h-1.5 rounded-full bg-secondary"></span></span></h2>
+          <p class="text-sm md:text-base text-slate-500 leading-relaxed mt-5">Empat program andalan SMP IT Al Mubarok yang membentuk siswa berakhlak mulia, cinta Al-Qur'an, percaya diri berbahasa global, dan peduli lingkungan.</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+      <article class="pu-card group relative bg-white rounded-3xl shadow-md border border-slate-100 overflow-hidden flex flex-col">
+        <div class="relative h-32 overflow-hidden" style="background:linear-gradient(135deg,#1f287d 0%,#4d5cc4 100%)">
+          <div class="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10"></div>
+          <div class="absolute -bottom-10 -left-6 w-28 h-28 rounded-full bg-white/10"></div>
+          <i class="pu-ghost fas fa-book-quran absolute right-4 bottom-1 text-[5.5rem] text-white/20" aria-hidden="true"></i>
+          <span class="absolute top-4 left-5 text-white/90 font-black text-xs tracking-[.3em]">01</span>
+        </div>
+        <div class="px-6 pb-6 flex-1 flex flex-col">
+          <div class="-mt-8 mb-4 w-16 h-16 rounded-2xl bg-white shadow-lg border border-slate-100 flex items-center justify-center relative z-10">
+            <i class="fas fa-book-quran text-2xl" style="color:#4d5cc4" aria-hidden="true"></i>
+          </div>
+          <h3 class="text-lg font-black text-primary leading-snug">Tahfidzul Qur'an</h3>
+          <div class="flex flex-wrap gap-1.5 mt-3"><span class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full" style="background:#4d5cc4"></span>Setoran Harian</span><span class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full" style="background:#4d5cc4"></span>Murojaah</span><span class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full" style="background:#4d5cc4"></span>Tahsin</span></div>
+          <p class="text-sm text-slate-500 leading-relaxed mt-4">Pembiasaan menghafal Al-Qur'an secara bertahap bersama guru tahfidz, lewat setoran dan murojaah rutin serta penguatan bacaan (tahsin), agar siswa fasih dan istiqomah bersama Al-Qur'an.</p>
+        </div>
+        <div class="pu-bar h-1.5 w-full" style="background:linear-gradient(135deg,#1f287d 0%,#4d5cc4 100%)"></div>
+      </article>
+      <article class="pu-card group relative bg-white rounded-3xl shadow-md border border-slate-100 overflow-hidden flex flex-col">
+        <div class="relative h-32 overflow-hidden" style="background:linear-gradient(135deg,#0e7490 0%,#22d3ee 100%)">
+          <div class="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10"></div>
+          <div class="absolute -bottom-10 -left-6 w-28 h-28 rounded-full bg-white/10"></div>
+          <i class="pu-ghost fas fa-language absolute right-4 bottom-1 text-[5.5rem] text-white/20" aria-hidden="true"></i>
+          <span class="absolute top-4 left-5 text-white/90 font-black text-xs tracking-[.3em]">02</span>
+        </div>
+        <div class="px-6 pb-6 flex-1 flex flex-col">
+          <div class="-mt-8 mb-4 w-16 h-16 rounded-2xl bg-white shadow-lg border border-slate-100 flex items-center justify-center relative z-10">
+            <i class="fas fa-language text-2xl" style="color:#0891b2" aria-hidden="true"></i>
+          </div>
+          <h3 class="text-lg font-black text-primary leading-snug">Program Bahasa Inggris</h3>
+          <div class="flex flex-wrap gap-1.5 mt-3"><span class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full" style="background:#0891b2"></span>Speaking</span><span class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full" style="background:#0891b2"></span>English Day</span><span class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full" style="background:#0891b2"></span>Conversation</span></div>
+          <p class="text-sm text-slate-500 leading-relaxed mt-4">Pembelajaran bahasa Inggris yang komunikatif dan menyenangkan, dilengkapi pembiasaan percakapan harian serta English Day, sehingga siswa percaya diri berkomunikasi di tingkat global.</p>
+        </div>
+        <div class="pu-bar h-1.5 w-full" style="background:linear-gradient(135deg,#0e7490 0%,#22d3ee 100%)"></div>
+      </article>
+      <article class="pu-card group relative bg-white rounded-3xl shadow-md border border-slate-100 overflow-hidden flex flex-col">
+        <div class="relative h-32 overflow-hidden" style="background:linear-gradient(135deg,#b97d05 0%,#f5c431 100%)">
+          <div class="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10"></div>
+          <div class="absolute -bottom-10 -left-6 w-28 h-28 rounded-full bg-white/10"></div>
+          <i class="pu-ghost fas fa-mosque absolute right-4 bottom-1 text-[5.5rem] text-white/20" aria-hidden="true"></i>
+          <span class="absolute top-4 left-5 text-white/90 font-black text-xs tracking-[.3em]">03</span>
+        </div>
+        <div class="px-6 pb-6 flex-1 flex flex-col">
+          <div class="-mt-8 mb-4 w-16 h-16 rounded-2xl bg-white shadow-lg border border-slate-100 flex items-center justify-center relative z-10">
+            <i class="fas fa-mosque text-2xl" style="color:#d99a00" aria-hidden="true"></i>
+          </div>
+          <h3 class="text-lg font-black text-primary leading-snug">Sekolah Berbudaya Religi</h3>
+          <div class="flex flex-wrap gap-1.5 mt-3"><span class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full" style="background:#d99a00"></span>Sholat Berjamaah</span><span class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full" style="background:#d99a00"></span>Dhuha</span><span class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full" style="background:#d99a00"></span>Akhlak Mulia</span></div>
+          <p class="text-sm text-slate-500 leading-relaxed mt-4">Pembiasaan Sholat Dhuha dan Dzuhur berjamaah, tadarus Al-Qur'an, serta pembinaan akhlak mulia dalam keseharian siswa, sehingga suasana sekolah selalu bernuansa islami.</p>
+        </div>
+        <div class="pu-bar h-1.5 w-full" style="background:linear-gradient(135deg,#b97d05 0%,#f5c431 100%)"></div>
+      </article>
+      <article class="pu-card group relative bg-white rounded-3xl shadow-md border border-slate-100 overflow-hidden flex flex-col">
+        <div class="relative h-32 overflow-hidden" style="background:linear-gradient(135deg,#047857 0%,#34d399 100%)">
+          <div class="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10"></div>
+          <div class="absolute -bottom-10 -left-6 w-28 h-28 rounded-full bg-white/10"></div>
+          <i class="pu-ghost fas fa-leaf absolute right-4 bottom-1 text-[5.5rem] text-white/20" aria-hidden="true"></i>
+          <span class="absolute top-4 left-5 text-white/90 font-black text-xs tracking-[.3em]">04</span>
+        </div>
+        <div class="px-6 pb-6 flex-1 flex flex-col">
+          <div class="-mt-8 mb-4 w-16 h-16 rounded-2xl bg-white shadow-lg border border-slate-100 flex items-center justify-center relative z-10">
+            <i class="fas fa-leaf text-2xl" style="color:#059669" aria-hidden="true"></i>
+          </div>
+          <h3 class="text-lg font-black text-primary leading-snug">Sekolah Adiwiyata</h3>
+          <div class="flex flex-wrap gap-1.5 mt-3"><span class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full" style="background:#059669"></span>Kampus Hijau</span><span class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full" style="background:#059669"></span>Zero Waste</span><span class="inline-flex items-center gap-1.5 bg-slate-50 border border-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wide rounded-full px-2.5 py-1"><span class="w-1.5 h-1.5 rounded-full" style="background:#059669"></span>3R</span></div>
+          <p class="text-sm text-slate-500 leading-relaxed mt-4">Penghijauan lingkungan sekolah, pembibitan tanaman, dan pemilahan sampah terpadu (3R), untuk menumbuhkan kepedulian dan kebiasaan hidup bersih serta cinta lingkungan sejak dini.</p>
+        </div>
+        <div class="pu-bar h-1.5 w-full" style="background:linear-gradient(135deg,#047857 0%,#34d399 100%)"></div>
+      </article>
+        </div>
+        <div class="text-center mt-10">
+          <button onclick="showSection('program')" class="inline-flex items-center gap-2 text-primary font-black text-xs uppercase tracking-widest hover:text-secondary-600 transition-colors">Lihat Semua Program <i class="fas fa-arrow-right text-[10px]"></i></button>
         </div>
       </div>
     </div>
