@@ -1217,8 +1217,16 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
       </select>
       <input id="karya-kelas" placeholder="Kelas (opsional)" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm">
       <textarea id="karya-deskripsi" placeholder="Deskripsi singkat" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm h-20 resize-y"></textarea>
-      <textarea required id="karya-isi" placeholder="Isi karya (teks puisi/cerpen dsb, atau keterangan gambar)" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm h-32 resize-y"></textarea>
-      <input type="file" id="karya-file" accept="image/*" class="w-full text-xs">
+      <p class="text-[11px] text-slate-400 font-semibold">Isi salah satu atau lebih: teks karya, foto/gambar, atau link YouTube.</p>
+      <textarea id="karya-isi" placeholder="Isi karya (teks puisi/cerpen dsb, atau keterangan gambar/video)" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm h-32 resize-y"></textarea>
+      <div>
+        <label class="block text-[11px] font-bold text-slate-500 mb-1">Foto / gambar karya (opsional)</label>
+        <input type="file" id="karya-file" accept="image/*" class="w-full text-xs">
+      </div>
+      <div>
+        <label class="block text-[11px] font-bold text-slate-500 mb-1"><i class="fab fa-youtube text-red-500 mr-1"></i>Link YouTube (opsional)</label>
+        <input type="url" id="karya-link-yt" placeholder="https://www.youtube.com/watch?v=... atau https://youtu.be/..." class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm">
+      </div>
       <button type="submit" id="karya-submit-btn" class="w-full bg-secondary hover:bg-secondary-400 text-primary py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-md"><i class="fas fa-upload mr-2"></i>Unggah Karya</button>
     </form>
   </div>
@@ -1239,6 +1247,7 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     <div class="relative flex-1 bg-[#fbf7ee] rounded-[1.5rem] shadow-2xl overflow-hidden flex flex-col">
       <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-secondary/40"></div>
       <div class="flex-1 overflow-y-auto px-8 py-10 md:px-14 md:py-14">
+        <div id="book-video-wrap" class="hidden mb-6"></div>
         <div id="book-page-content" class="font-serif text-[15px] md:text-base leading-8 text-slate-700 whitespace-pre-line"></div>
       </div>
       <button id="book-prev-btn" onclick="prevBookPage()" class="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white shadow-lg text-primary items-center justify-center hover:bg-slate-50 disabled:opacity-30"><i class="fas fa-chevron-left"></i></button>
@@ -3168,14 +3177,26 @@ function renderLiveStreaming() {
 // ---------------------------------------------------------------
 // RENDER: KARYA
 // ---------------------------------------------------------------
+// Ambil ID video dari berbagai bentuk link YouTube (watch, youtu.be, shorts, embed, live).
+// Hanya ID 11 karakter yang dipakai untuk membuat pemutar, jadi link sembarang tidak pernah ditanam langsung.
+function ytIdKarya_(url) {
+  const t = (url || '').toString().trim();
+  if (!t) return '';
+  const m = t.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/|v\/)|youtube-nocookie\.com\/embed\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : '';
+}
 function renderKarya() {
   const rows = (DB.karya || []).slice().reverse();
   document.getElementById('karya-grid').innerHTML = rows.map(function (k) {
+    const ytId = ytIdKarya_(k.link_youtube);
+    const cadangan = ytId ? ('https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg') : ('https://placehold.co/300x400/1f287d/e7b10a?text=' + encodeURIComponent(k.jenis_karya || 'Karya'));
     return '<div onclick="openBookReader(' + k._rowId + ')" class="cursor-pointer group">' +
       '<div class="aspect-[3/4] rounded-xl overflow-hidden bg-primary shadow-md relative">' +
-      fotoSliderHtml(k.file_url, 'w-full h-full object-cover group-hover:scale-105 transition-transform', 'https://placehold.co/300x400/1f287d/e7b10a?text=' + encodeURIComponent(k.jenis_karya || 'Karya')) +
+      fotoSliderHtml(k.file_url, 'w-full h-full object-cover group-hover:scale-105 transition-transform', cadangan) +
       '<div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-3 pointer-events-none">' +
-      '<p class="text-white text-[11px] font-bold line-clamp-2">' + (k.judul_karya || '-') + '</p></div></div>' +
+      '<p class="text-white text-[11px] font-bold line-clamp-2">' + (k.judul_karya || '-') + '</p></div>' +
+      (ytId ? '<span class="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center shadow-md pointer-events-none"><i class="fas fa-play text-[10px] ml-0.5"></i></span>' : '') +
+      '</div>' +
       '<p class="text-[10px] text-slate-400 mt-1.5 text-center">' + (k.nama_pembuat || '-') + '</p></div>';
   }).join('') || emptyState('Belum ada karya yang diunggah.');
 }
@@ -3578,6 +3599,20 @@ function openBookReader(rowId) {
   bookPages = teks.match(/[\s\S]{1,900}/g) || [teks];
   bookPageIndex = 0;
   renderBookPage();
+  // Video YouTube (kalau karya ini punya link) ditampilkan di atas teks karya
+  const videoWrap = document.getElementById('book-video-wrap');
+  const ytId = ytIdKarya_(k.link_youtube);
+  if (ytId) {
+    videoWrap.innerHTML = '<div class="aspect-video rounded-xl overflow-hidden bg-black shadow-md"><iframe src="https://www.youtube-nocookie.com/embed/' + ytId + '" title="Video karya" class="w-full h-full" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>';
+    videoWrap.classList.remove('hidden');
+  } else {
+    videoWrap.innerHTML = '';
+    videoWrap.classList.add('hidden');
+  }
+  // Karya tanpa teks (hanya video/foto): sembunyikan area halaman kosong
+  const adaTeks = teks.trim() !== '';
+  document.getElementById('book-page-content').classList.toggle('hidden', !adaTeks);
+  if (!adaTeks) document.getElementById('book-page-indicator').textContent = '';
   openModal('modal-book-reader');
   google.script.run.tambahViewKarya(rowId);
 }
@@ -3589,7 +3624,11 @@ function renderBookPage() {
 }
 function prevBookPage() { if (bookPageIndex > 0) { bookPageIndex--; renderBookPage(); } }
 function nextBookPage() { if (bookPageIndex < bookPages.length - 1) { bookPageIndex++; renderBookPage(); } }
-function closeBookReader() { closeModal('modal-book-reader'); }
+function closeBookReader() {
+  closeModal('modal-book-reader');
+  const vw = document.getElementById('book-video-wrap');
+  if (vw) { vw.innerHTML = ''; vw.classList.add('hidden'); } // hentikan video saat ditutup
+}
 
 function toggleSukaKarya() {
   if (!currentKarya) return;
@@ -3627,6 +3666,15 @@ function openUploadKarya() { openModal('modal-upload-karya'); }
 function submitUploadKarya(e) {
   const btn = document.getElementById('karya-submit-btn');
   const fileInput = document.getElementById('karya-file');
+  const linkYt = document.getElementById('karya-link-yt').value.trim();
+  if (linkYt && !ytIdKarya_(linkYt)) {
+    Swal.fire({ icon: 'warning', title: 'Link YouTube tidak valid', text: 'Tempel link video YouTube yang lengkap, contoh: https://www.youtube.com/watch?v=xxxxxxxxxxx atau https://youtu.be/xxxxxxxxxxx' });
+    return;
+  }
+  if (!document.getElementById('karya-isi').value.trim() && !linkYt && !(fileInput.files && fileInput.files[0])) {
+    Swal.fire({ icon: 'warning', title: 'Karya masih kosong', text: 'Isi teks karya, unggah foto/gambar, atau tempel link YouTube.' });
+    return;
+  }
   const dataObj = {
     judul_karya: document.getElementById('karya-judul').value,
     jenis_karya: document.getElementById('karya-jenis').value,
@@ -3635,6 +3683,7 @@ function submitUploadKarya(e) {
     kelas: document.getElementById('karya-kelas').value,
     deskripsi: document.getElementById('karya-deskripsi').value,
     isi_karya: document.getElementById('karya-isi').value,
+    link_youtube: linkYt,
     tanggal: new Date().toISOString().slice(0, 10)
   };
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengunggah...';
@@ -3819,7 +3868,7 @@ const ADMIN_SHEETS = [
   { key: 'live_streaming', sheet: 'LiveStreaming', label: 'Live Streaming', icon: 'fas fa-tower-broadcast', fields: ['judul', 'url_video', 'status', 'tanggal', 'deskripsi'] },
   { key: 'statistik', sheet: 'Statistik', label: 'Statistik', icon: 'fas fa-chart-simple', fields: ['label', 'jumlah'] },
   { key: 'menu', sheet: 'Menu', label: 'Aplikasi Sekolah', icon: 'fas fa-grid-2', fields: ['nama_menu', 'link', 'deskripsi', 'urutan', 'tampil'] },
-  { key: 'karya', sheet: 'Karya', label: 'Karya', icon: 'fas fa-palette', fields: ['judul_karya', 'jenis_karya', 'nama_pembuat', 'peran', 'kelas', 'deskripsi', 'isi_karya', 'file_url'] },
+  { key: 'karya', sheet: 'Karya', label: 'Karya', icon: 'fas fa-palette', fields: ['judul_karya', 'jenis_karya', 'nama_pembuat', 'peran', 'kelas', 'deskripsi', 'isi_karya', 'file_url', 'link_youtube'] },
   { key: 'profil', sheet: 'Profil', label: 'Profil Sekolah', icon: 'fas fa-building-columns', fields: ['section', 'isi'] },
   { key: 'pengaturan', sheet: 'Pengaturan', label: 'Pengaturan', icon: 'fas fa-gear', fields: ['key', 'value'] },
   { key: 'splash_screen', sheet: 'Pengaturan', label: 'Splash Screen', icon: 'fas fa-bolt', khusus: 'splash' },
