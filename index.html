@@ -518,15 +518,7 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
           </div>
           <button onclick="showSection('kegiatan')" class="hidden md:block text-secondary font-black text-xs uppercase tracking-widest">Tampilkan Selengkapnya &rarr;</button>
         </div>
-        <div class="relative">
-          <button onclick="geserKegiatan(-1)" aria-label="Geser ke kiri" class="flex items-center justify-center absolute -left-2 md:-left-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white text-primary shadow-lg hover:bg-secondary hover:text-white transition-colors">
-            <i class="fas fa-chevron-left text-xs md:text-sm"></i>
-          </button>
-          <div id="beranda-kegiatan-grid" class="flex gap-4 md:gap-5 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide"></div>
-          <button onclick="geserKegiatan(1)" aria-label="Geser ke kanan" class="flex items-center justify-center absolute -right-2 md:-right-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white text-primary shadow-lg hover:bg-secondary hover:text-white transition-colors">
-            <i class="fas fa-chevron-right text-xs md:text-sm"></i>
-          </button>
-        </div>
+        <div id="beranda-kegiatan-grid" class="max-w-3xl mx-auto"></div>
       </div>
     </div>
 
@@ -2648,20 +2640,62 @@ const BULAN_SINGKAT_AGENDA = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', '
 function renderKegiatan() {
   // Preview ringkas untuk beranda (foto + judul), tetap seperti sebelumnya.
   const rows = (DB.kegiatan || []).slice().reverse();
-  const cardHtml = function (k, scrollMode) {
-    return '<div onclick="bukaDetailUmum(\'kegiatan\',' + k._rowId + ')" class="bg-white rounded-2xl shadow-sm overflow-hidden cursor-pointer hover:shadow-lg transition-shadow group' + (scrollMode ? ' flex-shrink-0 w-64 md:w-72 snap-start' : '') + '">' +
-      fotoSliderHtml(k.foto, 'w-full h-44 object-cover', 'https://placehold.co/400x250/1f287d/e7b10a?text=Agenda') +
-      '<div class="p-5"><p class="text-[10px] text-secondary-600 font-bold uppercase tracking-widest">' + (k.tanggal || '') + '</p>' +
-      '<p class="font-black text-primary text-sm mt-1 mb-2">' + (k.judul || '-') + '</p>' +
-      '<p class="text-xs text-slate-500 leading-relaxed line-clamp-3">' + (k.deskripsi || '') + '</p>' +
-      '<div class="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-slate-100">' +
-      '<div class="flex items-center gap-3 text-[10px] text-slate-400 font-semibold">' +
-      '<span><i class="fas fa-eye mr-1"></i>' + (k.dilihat || 0) + '</span>' +
-      '<span><i class="fas fa-heart mr-1"></i>' + (k.suka || 0) + '</span></div>' +
-      '<button onclick="bukaDetailUmum(\'kegiatan\',' + k._rowId + ')" class="text-[10px] font-black text-primary uppercase tracking-widest hover:text-primary-600 whitespace-nowrap">Selengkapnya <i class="fas fa-arrow-right ml-0.5"></i></button>' +
+  // Beranda: TIMELINE agenda (urut tanggal, yang akan datang paling atas).
+  const hariIni = new Date(); hariIni.setHours(0, 0, 0, 0);
+  const semua = (DB.kegiatan || []).map(function (k) { return { data: k, tgl: parseTanggalArtikel_(k.tanggal) }; });
+  let mendatang = semua.filter(function (x) { return x.tgl && x.tgl >= hariIni; }).sort(function (a, b) { return a.tgl - b.tgl; });
+  let tampil = mendatang.slice(0, 5);
+  if (tampil.length < 3) {
+    // Agenda mendatang sedikit -> lengkapi dengan agenda yang baru lewat.
+    const lewat = semua.filter(function (x) { return x.tgl && x.tgl < hariIni; }).sort(function (a, b) { return b.tgl - a.tgl; }).slice(0, 3 - tampil.length).reverse();
+    tampil = lewat.concat(tampil);
+  }
+  if (!tampil.length) tampil = semua.slice(-4).reverse();
+
+  const kotakTimeline = tampil.map(function (x, i) {
+    const k = x.data, tgl = x.tgl;
+    const lewat = tgl && tgl < hariIni;
+    const terakhir = i === tampil.length - 1;
+    const pertama = !lewat && mendatang.length && mendatang[0].data === k;
+    const hari = tgl ? String(tgl.getDate()).padStart(2, '0') : '--';
+    const bulan = tgl ? BULAN_SINGKAT_AGENDA[tgl.getMonth()] : '';
+    const tahun = tgl ? tgl.getFullYear() : '';
+    let label = '';
+    if (lewat) label = 'Sudah lewat';
+    else if (tgl) {
+      const selisih = Math.round((tgl - hariIni) / 86400000);
+      label = selisih === 0 ? 'Hari ini' : (selisih === 1 ? 'Besok' : selisih + ' hari lagi');
+    }
+    return '<div class="flex gap-3 md:gap-5' + (lewat ? ' opacity-60' : '') + '">' +
+      // kolom tanggal
+      '<div class="w-12 md:w-16 flex-shrink-0 text-right pt-0.5">' +
+      '<div class="text-2xl md:text-3xl font-black leading-none text-white">' + hari + '</div>' +
+      '<div class="text-[10px] md:text-xs font-black tracking-widest text-secondary mt-1">' + bulan + '</div>' +
+      '<div class="text-[9px] text-white/50 font-semibold">' + tahun + '</div></div>' +
+      // garis + titik
+      '<div class="flex flex-col items-center flex-shrink-0">' +
+      '<span class="relative flex w-4 h-4 mt-1">' +
+      (pertama ? '<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-60"></span>' : '') +
+      '<span class="relative inline-flex w-4 h-4 rounded-full ' + (lewat ? 'bg-white/40' : 'bg-secondary') + ' ring-4 ring-primary"></span></span>' +
+      (terakhir ? '' : '<span class="flex-1 w-0.5 bg-white/20 mt-1"></span>') + '</div>' +
+      // kartu
+      '<div class="flex-1 min-w-0' + (terakhir ? '' : ' pb-5') + '">' +
+      '<div onclick="bukaDetailUmum(\'kegiatan\',' + k._rowId + ')" class="bg-white rounded-2xl shadow-sm p-4 md:p-5 cursor-pointer hover:shadow-xl hover:-translate-y-0.5 transition-all">' +
+      '<div class="flex flex-wrap items-center gap-2 mb-2">' +
+      (k.kategori ? '<span class="text-[10px] font-black text-secondary-600 bg-secondary/10 uppercase tracking-widest px-2.5 py-1 rounded-full">' + k.kategori + '</span>' : '') +
+      (label ? '<span class="text-[10px] font-bold ' + (pertama ? 'text-white bg-primary' : 'text-slate-500 bg-slate-100') + ' px-2.5 py-1 rounded-full">' + (pertama ? '<i class="fas fa-bell mr-1"></i>' : '') + label + '</span>' : '') +
+      '</div>' +
+      '<h3 class="font-black text-primary text-sm md:text-base leading-snug">' + (k.judul || '-') + '</h3>' +
+      ((k.jam || k.lokasi) ? '<div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[11px] text-slate-500 font-semibold">' +
+        (k.jam ? '<span><i class="far fa-clock mr-1 text-secondary-600"></i>' + k.jam + '</span>' : '') +
+        (k.lokasi ? '<span><i class="fas fa-location-dot mr-1 text-secondary-600"></i>' + k.lokasi + '</span>' : '') + '</div>' : '') +
+      '<div class="flex justify-end mt-2"><span class="text-[10px] font-black text-primary uppercase tracking-widest">Selengkapnya <i class="fas fa-arrow-right ml-0.5"></i></span></div>' +
       '</div></div></div>';
-  };
-  document.getElementById('beranda-kegiatan-grid').innerHTML = rows.slice(0, 6).map(function (k) { return cardHtml(k, true); }).join('') || emptyState('Belum ada agenda yang diunggah.');
+  }).join('');
+
+  document.getElementById('beranda-kegiatan-grid').innerHTML = (kotakTimeline
+    ? kotakTimeline + '<div class="text-center mt-6"><button onclick="showSection(\'kegiatan\')" class="inline-flex items-center gap-2 bg-secondary text-primary-900 font-black text-xs uppercase tracking-widest px-6 py-3 rounded-full hover:bg-white transition-colors">Lihat Semua Agenda <i class="fas fa-arrow-right"></i></button></div>'
+    : emptyState('Belum ada agenda yang diunggah.'));
 
   // Isi dropdown kategori di halaman Agenda penuh dari kategori yang benar-benar ada.
   const selKategori = document.getElementById('agenda-filter-kategori');
