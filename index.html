@@ -84,6 +84,8 @@
   .animate-fadeIn { animation: fadeIn .25s ease-out; }
   .app-section { display:none; }
   .app-section.active { display:block; }
+  /* Navigasi bawah: disembunyikan saat scroll ke atas & saat portal admin terbuka */
+  #bottom-nav-bar.nav-sembunyi-scroll, #bottom-nav-bar.nav-sembunyi-admin { opacity:0; pointer-events:none; }
   .admin-btn { transition: all .2s ease; border-left:4px solid transparent; }
   .admin-btn.active { background: linear-gradient(to right, #eef0fb, transparent); color:#1f287d; border-left:4px solid #1f287d; font-weight:700; }
   /* Mode Gelap: override dasar untuk latar & teks paling umum di situs */
@@ -3377,6 +3379,7 @@ function showSection(name, _dariLuar) {
   tutupSemuaSubmenuMobile_();
   const barNav = document.getElementById('bottom-nav-bar');
   if (barNav) { barNav.classList.remove('opacity-0'); barNav.classList.remove('pointer-events-none'); }
+  _navAbaikanScrollSampai_ = Date.now() + 900; // scroll otomatis ke atas saat pindah menu tidak ikut menyembunyikan bar
   window.scrollTo({ top: 0, behavior: 'smooth' });
   // Viewer 360 baru bisa diukur dengan benar setelah container-nya
   // benar-benar tampil (display:block), makanya diinit di sini, bukan
@@ -3465,6 +3468,34 @@ function tutupSemuaSubmenuMobile_() {
     icon.classList.remove('rotate-180');
   });
 }
+
+// ---------------------------------------------------------------
+// NAVIGASI BAWAH: menghilang saat scroll ke atas (muncul lagi saat scroll
+// ke bawah atau sudah sampai paling atas halaman).
+// Kalau maunya kebalikan (hilang saat scroll ke bawah), ganti NAV_SEMBUNYI_SAAT_ ke 'bawah'.
+// ---------------------------------------------------------------
+const NAV_SEMBUNYI_SAAT_ = 'atas';
+let _navScrollTerakhir_ = window.pageYOffset || 0;
+let _navScrollMenunggu_ = false;
+let _navAbaikanScrollSampai_ = 0;
+window.addEventListener('scroll', function () {
+  if (_navScrollMenunggu_) return;
+  _navScrollMenunggu_ = true;
+  requestAnimationFrame(function () {
+    _navScrollMenunggu_ = false;
+    const bar = document.getElementById('bottom-nav-bar');
+    if (!bar) return;
+    const y = window.pageYOffset || 0;
+    const selisih = y - _navScrollTerakhir_;
+    if (y <= 80) {
+      bar.classList.remove('nav-sembunyi-scroll');
+    } else if (Date.now() >= _navAbaikanScrollSampai_ && Math.abs(selisih) >= 8) {
+      const arahAtas = selisih < 0;
+      bar.classList.toggle('nav-sembunyi-scroll', NAV_SEMBUNYI_SAAT_ === 'atas' ? arahAtas : !arahAtas);
+    }
+    if (Math.abs(selisih) >= 8 || y <= 80) _navScrollTerakhir_ = y;
+  });
+}, { passive: true });
 
 // ---------------------------------------------------------------
 // MODE GELAP (disimpan di localStorage biar diingat kunjungan berikutnya)
@@ -3751,8 +3782,9 @@ function doLoginAdmin(e) {
     }
   }).loginAdmin(u, p);
 }
-function logoutAdmin() { currentAdmin = null; document.getElementById('admin-panel').classList.add('hidden'); }
-function closeAdminPanel() { document.getElementById('admin-panel').classList.add('hidden'); }
+function _navBawahAdmin_(sembunyi) { const b = document.getElementById('bottom-nav-bar'); if (b) b.classList.toggle('nav-sembunyi-admin', sembunyi); }
+function logoutAdmin() { currentAdmin = null; document.getElementById('admin-panel').classList.add('hidden'); _navBawahAdmin_(false); }
+function closeAdminPanel() { document.getElementById('admin-panel').classList.add('hidden'); _navBawahAdmin_(false); }
 
 // ---------------------------------------------------------------
 // ADMIN: DASHBOARD CRUD GENERIK
@@ -3798,6 +3830,7 @@ let adminTableRows = [];
 
 function openAdminPanel() {
   document.getElementById('admin-panel').classList.remove('hidden');
+  _navBawahAdmin_(true);
   const menu = document.getElementById('admin-sidebar-menu');
   const select = document.getElementById('admin-sidebar-select');
   menu.innerHTML = ADMIN_SHEETS.map(function (s) {
