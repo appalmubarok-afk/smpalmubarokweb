@@ -3008,6 +3008,7 @@ function bukaDetailUmum(jenis, rowId) {
   const badge = cfg.badge(r);
   const konten = (r[cfg.content] || '').toString();
 
+  if (jenis === 'kegiatan') { document.getElementById('detail-umum-content').innerHTML = detailAgendaHtml_(r, judul, konten); } else
   document.getElementById('detail-umum-content').innerHTML =
     (badge ? '<p class="text-[10px] text-secondary-600 font-bold uppercase tracking-widest">' + badge + '</p>' : '') +
     '<h1 class="text-2xl md:text-3xl font-black text-primary mt-2 mb-4">' + judul + '</h1>' +
@@ -3023,6 +3024,63 @@ function bukaDetailUmum(jenis, rowId) {
   google.script.run.withSuccessHandler(function (n) {
     document.getElementById('detail-umum-views').textContent = n;
   }).tambahView(cfg.sheet, r._rowId);
+}
+
+// Tampilan detail khusus AGENDA: kartu header tanggal + info ringkas + tombol kalender.
+function detailAgendaHtml_(r, judul, konten) {
+  const BULAN_PANJANG = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  const HARI_PANJANG = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+  const tgl = parseTanggalArtikel_(r.tanggal);
+  const hariIni = new Date(); hariIni.setHours(0, 0, 0, 0);
+  const hari = tgl ? String(tgl.getDate()).padStart(2, '0') : '--';
+  const bulan = tgl ? BULAN_SINGKAT_AGENDA[tgl.getMonth()] : '';
+  const tahun = tgl ? tgl.getFullYear() : '';
+  const tglLengkap = tgl ? (HARI_PANJANG[tgl.getDay()] + ', ' + tgl.getDate() + ' ' + BULAN_PANJANG[tgl.getMonth()] + ' ' + tgl.getFullYear()) : (r.tanggal || '-');
+
+  let status = '';
+  if (tgl) {
+    const selisih = Math.round((tgl - hariIni) / 86400000);
+    status = selisih < 0 ? 'Sudah lewat' : (selisih === 0 ? 'Hari ini' : (selisih === 1 ? 'Besok' : selisih + ' hari lagi'));
+  }
+
+  const info = function (ikon, label, nilai) {
+    return '<div class="flex items-center gap-3 bg-slate-50 rounded-2xl p-4">' +
+      '<div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0"><i class="' + ikon + '"></i></div>' +
+      '<div class="min-w-0"><p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">' + label + '</p>' +
+      '<p class="text-sm font-bold text-primary leading-snug">' + nilai + '</p></div></div>';
+  };
+
+  const adaFoto = (r.foto || '').toString().trim() !== '';
+
+  return '<div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-700 p-6 md:p-8 text-white shadow-lg">' +
+    '<i class="fas fa-calendar-days absolute -right-4 -bottom-4 text-8xl text-white/5"></i>' +
+    '<div class="relative flex items-start gap-4 md:gap-6">' +
+    '<div class="flex-shrink-0 w-16 md:w-20 rounded-2xl bg-white text-center py-3 shadow-md">' +
+    '<div class="text-2xl md:text-3xl font-black text-primary leading-none">' + hari + '</div>' +
+    '<div class="text-[11px] font-black tracking-widest text-secondary-600 mt-1">' + bulan + '</div>' +
+    '<div class="text-[9px] font-bold text-slate-400">' + tahun + '</div></div>' +
+    '<div class="min-w-0">' +
+    '<div class="flex flex-wrap items-center gap-2 mb-2">' +
+    (r.kategori ? '<span class="text-[10px] font-black text-primary bg-secondary uppercase tracking-widest px-3 py-1 rounded-full">' + r.kategori + '</span>' : '') +
+    (status ? '<span class="text-[10px] font-bold bg-white/15 px-3 py-1 rounded-full">' + status + '</span>' : '') +
+    '</div>' +
+    '<h1 class="text-xl md:text-3xl font-black leading-tight">' + judul + '</h1>' +
+    '</div></div></div>' +
+    // info ringkas
+    '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">' +
+    info('fas fa-calendar-day', 'Tanggal', tglLengkap) +
+    info('far fa-clock', 'Waktu', r.jam || 'Sepanjang hari') +
+    (r.lokasi ? info('fas fa-location-dot', 'Lokasi', r.lokasi) : '') +
+    '</div>' +
+    // foto (hanya jika memang ada)
+    (adaFoto ? '<div class="group mt-5">' + fotoSliderHtml(r.foto, 'w-full rounded-2xl', '') + '</div>' : '') +
+    // deskripsi (hanya jika ada)
+    (konten ? '<div class="mt-6"><h2 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Tentang Agenda</h2>' +
+      '<div class="text-sm leading-relaxed text-slate-600 whitespace-pre-line">' + konten + '</div></div>' : '') +
+    // tombol kalender
+    (tgl ? '<div class="flex flex-wrap gap-2 mt-6">' +
+      '<a href="' + buatLinkGoogleCalendar_(r, tgl) + '" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-xs font-bold bg-primary text-white hover:bg-primary-600 rounded-xl px-4 py-2.5 transition-colors"><i class="fab fa-google"></i> Tambah ke Google Calendar</a>' +
+      '<button onclick="unduhIcalAgenda_(\'' + r._rowId + '\')" class="inline-flex items-center gap-2 text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-xl px-4 py-2.5 transition-colors"><i class="fas fa-calendar-plus"></i> iCal</button></div>' : '');
 }
 
 function toggleSukaDetailUmum() {
