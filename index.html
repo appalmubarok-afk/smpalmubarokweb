@@ -1465,21 +1465,50 @@ if (typeof google === 'undefined' || !google.script || !google.script.run) {
           // fetch()-nya.
           return function () {
             const args = Array.prototype.slice.call(arguments);
-            fetch(APPS_SCRIPT_EXEC_URL_, {
-              method: 'POST',
-              // SENGAJA text/plain (bukan application/json) supaya browser
-              // menganggap ini "simple request" dan TIDAK mengirim
-              // preflight OPTIONS -- Apps Script Web App tidak bisa
-              // menjawab preflight itu.
-              headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-              body: JSON.stringify({ fn: String(nama), args: args })
-            })
-              .then(function (r) { return r.json(); })
-              .then(function (json) {
+            const isiJson = JSON.stringify({ fn: String(nama), args: args });
+
+            // Apps Script Web App sering membalas dengan REDIRECT (302) ke
+            // alamat googleusercontent.com -- kalau request awalnya POST,
+            // browser otomatis mengubahnya jadi GET waktu mengikuti
+            // redirect itu (bawaan standar fetch/browser), sehingga isi
+            // body POST-nya HILANG dan permintaan gagal tanpa pesan jelas.
+            // GET tidak kena masalah ini (GET tetap GET walau di-redirect),
+            // jadi dipakai sebisa mungkin -- kecuali kalau datanya kepanjangan
+            // buat muat di URL (misalnya unggah foto/file), baru pakai POST.
+            const pakaiGet = isiJson.length < 6000;
+            const permintaan = pakaiGet
+              ? fetch(APPS_SCRIPT_EXEC_URL_ + '?fn=' + encodeURIComponent(String(nama)) + '&args=' + encodeURIComponent(JSON.stringify(args)))
+              : fetch(APPS_SCRIPT_EXEC_URL_, {
+                method: 'POST',
+                // SENGAJA text/plain (bukan application/json) supaya browser
+                // menganggap ini "simple request" dan TIDAK mengirim
+                // preflight OPTIONS -- Apps Script Web App tidak bisa
+                // menjawab preflight itu.
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: isiJson
+              });
+
+            permintaan
+              .then(function (r) { return r.text(); })
+              .then(function (teks) {
+                let json;
+                try { json = JSON.parse(teks); }
+                catch (e) {
+                  // Bukan JSON -> kemungkinan besar Apps Script belum di-deploy
+                  // ulang (versi lama belum punya doGet/doPost untuk API ini)
+                  // atau URL exec-nya salah/sudah berubah. Tampilkan isi
+                  // balasan aslinya di console supaya gampang dilacak.
+                  console.error('[API ' + nama + '] Balasan server bukan JSON, cek apakah Apps Script sudah di-deploy ulang (New deployment). Isi balasan:', teks.slice(0, 500));
+                  if (gagal) gagal({ message: 'Balasan server tidak valid (lihat console untuk detail).' });
+                  return;
+                }
                 if (json && json.__error) { if (gagal) gagal({ message: json.__error }); return; }
                 if (sukses) sukses(json ? json.__hasil : undefined);
               })
-              .catch(function (err) { if (gagal) gagal({ message: err && err.message ? err.message : String(err) }); });
+              .catch(function (err) {
+                console.error('[API ' + nama + '] Gagal memanggil server:', err);
+                if (gagal) gagal({ message: err && err.message ? err.message : String(err) });
+              });
             return handler;
           };
         }
