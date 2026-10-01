@@ -452,7 +452,7 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     </div>
 
     <button onclick="showSection('karya')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10">Karya</button>
-    <button id="nav-daftar-btn-mobile" onclick="klikPendaftaran()" class="block w-full text-left px-3 py-2.5 rounded-lg bg-secondary text-primary mt-2">PPDB</button>
+    <button id="nav-daftar-btn-mobile" onclick="klikPendaftaran()" class="block w-full text-left px-3 py-2.5 rounded-lg bg-secondary text-primary mt-2">Pendaftaran</button>
     <button onclick="openAdminLogin()" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10"><i class="fas fa-user-shield mr-2"></i>Admin</button>
   </div>
 </header>
@@ -1187,19 +1187,6 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     </div>
   </section>
 
-  <!-- ================= PPDB ================= -->
-  <section id="section-ppdb" class="app-section">
-    <div class="bg-primary py-14 text-center">
-      <h1 class="text-2xl md:text-4xl font-black text-white">PPDB &mdash; Penerimaan Peserta Didik Baru</h1>
-      <p class="text-white/70 text-xs mt-2">Beranda / PPDB</p>
-    </div>
-    <div class="max-w-3xl mx-auto px-4 md:px-6 py-12">
-      <button onclick="kembaliKeBeranda()" class="text-primary hover:text-primary-600 text-xs font-bold inline-flex items-center gap-1.5 mb-6"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
-      <div id="ppdb-content" class="bg-white rounded-[1.75rem] shadow-md p-6 md:p-10 text-sm leading-relaxed text-slate-600 whitespace-pre-line mb-8">Memuat...</div>
-      <a id="ppdb-wa-btn" href="#" target="_blank" class="block text-center w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-md"><i class="fab fa-whatsapp mr-2"></i>Daftar / Tanya via WhatsApp</a>
-    </div>
-  </section>
-
 </main>
 
 <!-- ============================================================ -->
@@ -1227,7 +1214,7 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
         <button onclick="showSection('kegiatan')" class="block hover:text-secondary">Agenda</button>
         <button onclick="showSection('prestasi')" class="block hover:text-secondary">Prestasi</button>
         <button onclick="showSection('alumni')" class="block hover:text-secondary">Alumni</button>
-        <button onclick="showSection('ppdb')" class="block hover:text-secondary">PPDB</button>
+        <button id="nav-daftar-btn-footer" onclick="klikPendaftaran()" class="block hover:text-secondary">Pendaftaran</button>
       </div>
     </div>
     <div>
@@ -2008,7 +1995,6 @@ function onDataLoaded(data) {
   renderVirtualTour();
   renderLiveStreaming();
   renderKarya();
-  renderPpdb();
   renderKepsek();
   renderFasilitas();
   renderLokasi();
@@ -2093,7 +2079,6 @@ function renderPengaturan() {
   const waNumber = cfg('wa_number', '6285936157246');
   document.getElementById('floating-wa-btn').href = 'https://wa.me/' + waNumber.toString().replace(/\D/g, '');
   document.getElementById('bottomnav-wa-btn').href = 'https://wa.me/' + waNumber.toString().replace(/\D/g, '');
-  document.getElementById('ppdb-wa-btn').href = 'https://wa.me/' + waNumber.toString().replace(/\D/g, '') + '?text=' + encodeURIComponent('Saya ingin bertanya seputar PPDB SMP IT Al Mubarok..');
 
   // Tombol Pendaftaran di navbar (label & link diatur dari Admin > Tombol Pendaftaran)
   terapkanTombolPendaftaran_();
@@ -3670,13 +3655,6 @@ setInterval(function () {
 }, 3500);
 
 // ---------------------------------------------------------------
-// RENDER: PPDB
-// ---------------------------------------------------------------
-function renderPpdb() {
-  document.getElementById('ppdb-content').textContent = profilIsi('ppdb', 'Informasi PPDB belum diisi di sheet Profil (baris dengan section = ppdb).');
-}
-
-// ---------------------------------------------------------------
 // NAVIGASI SECTION
 // ---------------------------------------------------------------
 // Dulu situs ini dibuka lewat halaman wrapper di GitHub (custom domain
@@ -3781,6 +3759,7 @@ function _kirimNavStateKeWrapper_(page, extra) {
 // NAV_GOTO (wrapper memberi tahu "user pencet Back/Forward, pindah ke sini")
 // supaya tidak kirim balik NAV_STATE yang bisa bikin loop pesan.
 function showSection(name, _dariLuar) {
+  if (name === 'ppdb') { klikPendaftaran(); return; }   // halaman PPDB sudah dihapus -> ikut link Pendaftaran
   document.querySelectorAll('.app-section').forEach(function (s) { s.classList.remove('active'); });
   const target = document.getElementById('section-' + name);
   if (target) target.classList.add('active');
@@ -4468,7 +4447,7 @@ function simpanSplashAdmin_() {
 // Disimpan sebagai 3 baris key/value di sheet Pengaturan (otomatis
 // dibuat saat pertama kali disimpan, tidak perlu ubah spreadsheet):
 //   pendaftaran_label    -> tulisan di tombol (kosong = "Pendaftaran")
-//   pendaftaran_link     -> alamat tujuan (kosong = buka halaman PPDB bawaan)
+//   pendaftaran_link     -> alamat tujuan (kosong = buka WhatsApp sekolah)
 //   pendaftaran_tab_baru -> "ya" / "tidak" (buka di tab baru atau tab yang sama)
 
 // Rapikan link: tambah https:// kalau lupa, dan tolak skema berbahaya (javascript:, dll).
@@ -4485,12 +4464,18 @@ function terapkanTombolPendaftaran_() {
   const desk = document.getElementById('nav-daftar-btn');
   const hp = document.getElementById('nav-daftar-btn-mobile');
   if (desk) desk.textContent = label || 'Pendaftaran';
-  if (hp) hp.textContent = label || 'PPDB';
+  if (hp) hp.textContent = label || 'Pendaftaran';
+  const ft = document.getElementById('nav-daftar-btn-footer');
+  if (ft) ft.textContent = label || 'Pendaftaran';
 }
 
 function klikPendaftaran() {
   const link = rapikanLinkPendaftaran_(cfg('pendaftaran_link', ''));
-  if (!link) { showSection('ppdb'); return; }            // belum diisi -> perilaku lama
+  if (!link) {                                            // belum diisi -> arahkan ke WhatsApp sekolah
+    const wa = (cfg('wa_number', '6285936157246') || '').toString().replace(/\D/g, '');
+    window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent('Saya ingin bertanya seputar pendaftaran SMP IT Al Mubarok.'), '_blank', 'noopener,noreferrer');
+    return;
+  }
   const tabBaru = (cfg('pendaftaran_tab_baru', 'ya') || 'ya').toString().trim().toLowerCase() !== 'tidak';
   if (tabBaru) { window.open(link, '_blank', 'noopener,noreferrer'); }
   else { window.location.href = link; }
@@ -4506,13 +4491,13 @@ function renderPendaftaranAdminPanel() {
   body.innerHTML =
     '<div class="max-w-2xl space-y-5">' +
     '<div class="bg-primary/5 border border-primary/10 text-primary text-xs font-semibold rounded-xl px-4 py-3">' +
-    '<i class="fas fa-circle-info mr-2"></i>Atur tombol kuning <b>Pendaftaran</b> di menu atas website. Isi link formulir pendaftaran (Google Form, website PPDB, WhatsApp, dll). Kalau link dikosongkan, tombol akan membuka halaman PPDB bawaan website.</div>' +
+    '<i class="fas fa-circle-info mr-2"></i>Atur tombol <b>Pendaftaran</b> (menu atas &amp; footer website). Isi link formulir pendaftaran (Google Form, website PPDB, WhatsApp, dll). Link yang sama dipakai di menu atas (desktop &amp; HP) dan di footer. Kalau link dikosongkan, tombol membuka WhatsApp sekolah.</div>' +
     '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-5">' +
     '<div><label class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1.5">Tulisan di Tombol</label>' +
     '<input id="daftar-label-value" value="' + esc(label) + '" placeholder="Pendaftaran" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm"></div>' +
     '<div><label class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1.5">Link Tujuan</label>' +
     '<input id="daftar-link-value" value="' + esc(link) + '" placeholder="https://forms.gle/xxxx  atau  https://wa.me/628xxxx" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm">' +
-    '<p class="text-[11px] text-slate-400 mt-1.5">Kosongkan untuk membuka halaman PPDB bawaan website.</p></div>' +
+    '<p class="text-[11px] text-slate-400 mt-1.5">Kosongkan untuk membuka WhatsApp sekolah (nomor dari Pengaturan &gt; wa_number).</p></div>' +
     '<div><label class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1.5">Cara Membuka</label>' +
     '<select id="daftar-tab-value" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white">' +
     '<option value="ya"' + (tabBaru ? ' selected' : '') + '>Buka di tab baru (disarankan)</option>' +
@@ -4813,7 +4798,7 @@ function terapkanDataSenyap_(data) {
   renderPengaturan(); renderStatistik(); renderMenuAplikasi(); renderProfil(); renderGuru(); renderProgram(); renderEkstrakurikuler();
   renderPrestasi(); renderAlumni(); renderKegiatan(); renderArtikel(); renderGaleri(); renderGaleriVideo();
   renderVirtualTour(); renderLiveStreaming();
-  renderKarya(); renderPpdb(); renderAkademik(); renderSejarah();
+  renderKarya(); renderAkademik(); renderSejarah();
   if (adminActiveSheet) {
     if (adminActiveSheet.khusus === 'splash') { renderSplashAdminPanel(); }
     else if (adminActiveSheet.khusus === 'pendaftaran') { renderPendaftaranAdminPanel(); }
