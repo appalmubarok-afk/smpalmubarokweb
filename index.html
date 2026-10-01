@@ -1447,72 +1447,57 @@ if (typeof google === 'undefined' || !google.script || !google.script.run) {
   window.google = window.google || {};
   google.script = google.script || {};
   Object.defineProperty(google.script, 'run', {
-    // Pakai getter: setiap kali kode menulis "google.script.run", bagian
-    // ini jalan lagi dari awal dan menghasilkan objek handler yang BARU
-    // (sukses/gagal kosong) -- supaya tiap pemanggilan independen satu
-    // sama lain, persis seperti perilaku asli google.script.run.
     get: function () {
       let sukses = null, gagal = null;
+      let proxy;
       const handler = {
-        withSuccessHandler: function (cb) { sukses = cb; return handler; },
-        withFailureHandler: function (cb) { gagal = cb; return handler; }
+        withSuccessHandler: function (cb) { sukses = cb; return proxy; },
+        withFailureHandler: function (cb) { gagal = cb; return proxy; }
       };
-      return new Proxy(handler, {
+      proxy = new Proxy(handler, {
         get: function (target, nama) {
           if (nama in target) return target[nama];
-          // Properti apa pun selain withSuccessHandler/withFailureHandler
-          // dianggap NAMA FUNGSI SERVER -> kembalikan fungsi pemanggil
-          // fetch()-nya.
+          if (typeof nama !== 'string') return undefined;
           return function () {
             const args = Array.prototype.slice.call(arguments);
             const isiJson = JSON.stringify({ fn: String(nama), args: args });
-
-            // Apps Script Web App sering membalas dengan REDIRECT (302) ke
-            // alamat googleusercontent.com -- kalau request awalnya POST,
-            // browser otomatis mengubahnya jadi GET waktu mengikuti
-            // redirect itu (bawaan standar fetch/browser), sehingga isi
-            // body POST-nya HILANG dan permintaan gagal tanpa pesan jelas.
-            // GET tidak kena masalah ini (GET tetap GET walau di-redirect),
-            // jadi dipakai sebisa mungkin -- kecuali kalau datanya kepanjangan
-            // buat muat di URL (misalnya unggah foto/file), baru pakai POST.
             const pakaiGet = isiJson.length < 6000;
+
+            const ctrl = new AbortController();
+            const timer = setTimeout(function () { ctrl.abort(); }, 25000);
+
             const permintaan = pakaiGet
-              ? fetch(APPS_SCRIPT_EXEC_URL_ + '?fn=' + encodeURIComponent(String(nama)) + '&args=' + encodeURIComponent(JSON.stringify(args)))
+              ? fetch(APPS_SCRIPT_EXEC_URL_ + '?fn=' + encodeURIComponent(String(nama)) + '&args=' + encodeURIComponent(JSON.stringify(args)), { signal: ctrl.signal })
               : fetch(APPS_SCRIPT_EXEC_URL_, {
-                method: 'POST',
-                // SENGAJA text/plain (bukan application/json) supaya browser
-                // menganggap ini "simple request" dan TIDAK mengirim
-                // preflight OPTIONS -- Apps Script Web App tidak bisa
-                // menjawab preflight itu.
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: isiJson
-              });
+                  method: 'POST',
+                  headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                  body: isiJson,
+                  signal: ctrl.signal
+                });
 
             permintaan
-              .then(function (r) { return r.text(); })
+              .then(function (r) { clearTimeout(timer); return r.text(); })
               .then(function (teks) {
                 let json;
                 try { json = JSON.parse(teks); }
                 catch (e) {
-                  // Bukan JSON -> kemungkinan besar Apps Script belum di-deploy
-                  // ulang (versi lama belum punya doGet/doPost untuk API ini)
-                  // atau URL exec-nya salah/sudah berubah. Tampilkan isi
-                  // balasan aslinya di console supaya gampang dilacak.
-                  console.error('[API ' + nama + '] Balasan server bukan JSON, cek apakah Apps Script sudah di-deploy ulang (New deployment). Isi balasan:', teks.slice(0, 500));
-                  if (gagal) gagal({ message: 'Balasan server tidak valid (lihat console untuk detail).' });
+                  console.error('[API ' + nama + '] Balasan bukan JSON:', teks.slice(0, 500));
+                  if (gagal) gagal({ message: 'Balasan server tidak valid.' });
                   return;
                 }
                 if (json && json.__error) { if (gagal) gagal({ message: json.__error }); return; }
                 if (sukses) sukses(json ? json.__hasil : undefined);
               })
               .catch(function (err) {
-                console.error('[API ' + nama + '] Gagal memanggil server:', err);
+                clearTimeout(timer);
+                console.error('[API ' + nama + '] Gagal:', err);
                 if (gagal) gagal({ message: err && err.message ? err.message : String(err) });
               });
-            return handler;
+            return proxy;
           };
         }
       });
+      return proxy;
     }
   });
 }
@@ -4346,6 +4331,19 @@ function renderSejarah() {
 }
 
 loadData();
+  window.addEventListener('error', function (e) {
+  console.error('JS error:', e.message);
+  splashTampilkanError_('Terjadi kesalahan: ' + e.message);
+});
+window.addEventListener('unhandledrejection', function (e) {
+  splashTampilkanError_('Gagal memuat: ' + (e.reason && e.reason.message || e.reason));
+});
+setTimeout(function () {
+  var s = document.getElementById('splash-screen');
+  if (s && s.style.display !== 'none' && !s.classList.contains('splash-hide')) {
+    splashTampilkanError_('Memuat terlalu lama. Periksa koneksi lalu coba lagi.');
+  }
+}, 25000);
 </script>
 
 </body>
