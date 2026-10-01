@@ -85,6 +85,8 @@
   .app-section { display:none; }
   .app-section.active { display:block; }
   /* Navigasi bawah: disembunyikan saat scroll ke atas & saat portal admin terbuka */
+  /* Kotak dialog SweetAlert harus di atas navigasi bawah & semua modal situs */
+  .swal2-container { z-index: 100000000 !important; }
   /* Menu Karya: media kartu (foto tunggal / slider banyak foto) selalu memenuhi bingkai */
   .karya-media > div.relative, .karya-media [data-foto-slider] { height:100%; }
   .karya-media img { height:100%; }
@@ -3741,7 +3743,44 @@ function submitKomentarKarya(e) {
   }).tambahKomentarKarya(currentKarya._rowId, nama, teks);
 }
 
-function openUploadKarya() { openModal('modal-upload-karya'); }
+// Form unggah karya dikunci sandi. Sandi diperiksa di server (Apps Script, fungsi cekSandiKarya),
+// bukan di dalam kode halaman ini, jadi tidak bisa dibaca lewat "view source".
+// Setelah benar, form tetap terbuka sampai halaman dimuat ulang.
+let _karyaTerbuka_ = false;
+function openUploadKarya() {
+  if (_karyaTerbuka_) { openModal('modal-upload-karya'); return; }
+  Swal.fire({
+    title: 'Masukkan Sandi',
+    text: 'Unggah karya hanya untuk siswa dan guru SMP IT Al Mubarok. Minta sandinya ke guru/admin sekolah.',
+    input: 'password',
+    inputPlaceholder: 'Sandi unggah karya',
+    inputAttributes: { autocapitalize: 'off', autocomplete: 'off' },
+    showCancelButton: true,
+    confirmButtonText: 'Buka',
+    cancelButtonText: 'Batal',
+    confirmButtonColor: '#1f287d',
+    showLoaderOnConfirm: true,
+    allowOutsideClick: function () { return !Swal.isLoading(); },
+    preConfirm: function (sandi) {
+      if (!sandi || !sandi.trim()) { Swal.showValidationMessage('Sandi belum diisi.'); return false; }
+      return new Promise(function (resolve) {
+        google.script.run.withSuccessHandler(function (res) {
+          if (res && res.sukses) { resolve(true); return; }
+          Swal.showValidationMessage((res && res.pesan) || 'Sandi salah.');
+          resolve(false);
+        }).withFailureHandler(function () {
+          Swal.showValidationMessage('Gagal memeriksa sandi. Periksa koneksi internet lalu coba lagi.');
+          resolve(false);
+        }).cekSandiKarya(sandi);
+      });
+    }
+  }).then(function (hasil) {
+    if (hasil.isConfirmed && hasil.value === true) {
+      _karyaTerbuka_ = true;
+      openModal('modal-upload-karya');
+    }
+  });
+}
 function submitUploadKarya(e) {
   const btn = document.getElementById('karya-submit-btn');
   const fileInput = document.getElementById('karya-file');
