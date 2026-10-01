@@ -85,6 +85,9 @@
   .app-section { display:none; }
   .app-section.active { display:block; }
   /* Navigasi bawah: disembunyikan saat scroll ke atas & saat portal admin terbuka */
+  /* Menu Karya: media kartu (foto tunggal / slider banyak foto) selalu memenuhi bingkai */
+  .karya-media > div.relative, .karya-media [data-foto-slider] { height:100%; }
+  .karya-media img { height:100%; }
   #bottom-nav-bar.nav-sembunyi-scroll, #bottom-nav-bar.nav-sembunyi-admin { opacity:0; pointer-events:none; }
   .admin-btn { transition: all .2s ease; border-left:4px solid transparent; }
   .admin-btn.active { background: linear-gradient(to right, #eef0fb, transparent); color:#1f287d; border-left:4px solid #1f287d; font-weight:700; }
@@ -1037,16 +1040,23 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
 
   <!-- ================= KARYA ================= -->
   <section id="section-karya" class="app-section">
-    <div class="bg-primary py-14 text-center">
+    <div class="bg-primary py-14 text-center px-4">
       <h1 class="text-2xl md:text-4xl font-black text-white">Karya Siswa &amp; Guru</h1>
-      <p class="text-white/70 text-xs mt-2">Beranda / Karya</p>
+      <p class="text-white/70 text-xs md:text-sm mt-3 max-w-xl mx-auto leading-relaxed">Kumpulan puisi, cerpen, lukisan, gambar, dan video hasil kreativitas keluarga besar SMP IT Al Mubarok.</p>
+      <p class="text-white/50 text-[11px] mt-2">Beranda / Karya</p>
     </div>
-    <div class="max-w-7xl mx-auto px-4 md:px-6 py-12">
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-10 md:py-12">
       <button onclick="kembaliKeBeranda()" class="text-primary hover:text-primary-600 text-xs font-bold inline-flex items-center gap-1.5 mb-6"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
-      <div class="flex justify-end mb-6">
-        <button onclick="openUploadKarya()" class="px-5 py-3 rounded-xl bg-secondary text-primary font-black text-xs uppercase tracking-widest shadow-md"><i class="fas fa-upload mr-2"></i>Unggah Karya</button>
+      <div class="flex flex-col md:flex-row md:items-center gap-3 mb-5">
+        <div class="relative flex-1">
+          <i class="fas fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none"></i>
+          <input id="karya-cari" type="search" oninput="setCariKarya_(this.value)" placeholder="Cari judul atau nama pembuat..." class="w-full bg-white border border-slate-200 rounded-full pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/60">
+        </div>
+        <button onclick="openUploadKarya()" class="px-6 py-3 rounded-full bg-secondary hover:bg-secondary-400 text-primary font-black text-xs uppercase tracking-widest shadow-md transition-colors whitespace-nowrap"><i class="fas fa-upload mr-2"></i>Unggah Karya</button>
       </div>
-      <div id="karya-grid" class="grid grid-cols-2 md:grid-cols-4 gap-5"></div>
+      <div id="karya-filter" class="flex gap-2 overflow-x-auto scrollbar-hide pb-1"></div>
+      <p id="karya-jumlah" class="text-[11px] text-slate-400 font-semibold mt-3 mb-5"></p>
+      <div id="karya-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"></div>
     </div>
   </section>
 
@@ -3185,20 +3195,82 @@ function ytIdKarya_(url) {
   const m = t.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/|v\/)|youtube-nocookie\.com\/embed\/)([A-Za-z0-9_-]{11})/);
   return m ? m[1] : '';
 }
+let karyaFilter_ = 'Semua';
+let karyaCari_ = '';
+function setFilterKarya_(f) { karyaFilter_ = f; renderKarya(); }
+function setCariKarya_(v) { karyaCari_ = (v || '').toString(); renderKarya(); }
+function ikonJenisKarya_(jenis) {
+  const j = (jenis || '').toString().toLowerCase();
+  if (j.indexOf('puisi') !== -1) return 'fas fa-feather-pointed';
+  if (j.indexOf('cerpen') !== -1) return 'fas fa-book-open';
+  if (j.indexOf('komik') !== -1) return 'fas fa-masks-theater';
+  if (j.indexOf('lukis') !== -1) return 'fas fa-palette';
+  if (j.indexOf('gambar') !== -1) return 'fas fa-pencil';
+  return 'fas fa-star';
+}
 function renderKarya() {
-  const rows = (DB.karya || []).slice().reverse();
+  const semua = (DB.karya || []).slice().reverse();
+  const jenisDari = function (k) { return (k.jenis_karya || '').toString().trim(); };
+  const adalahVideo = function (k) { return !!ytIdKarya_(k.link_youtube) || jenisDari(k).toLowerCase() === 'video'; };
+
+  // Chip filter: Semua, Video (kalau ada), lalu tiap jenis karya yang ada di data
+  const jenisList = [];
+  semua.forEach(function (k) { const j = jenisDari(k); if (j && j.toLowerCase() !== 'video' && jenisList.indexOf(j) === -1) jenisList.push(j); });
+  const adaVideo = semua.some(adalahVideo);
+  const chips = ['Semua'].concat(adaVideo ? ['Video'] : []).concat(jenisList);
+  if (chips.indexOf(karyaFilter_) === -1) karyaFilter_ = 'Semua';
+  const hitung = function (c) {
+    if (c === 'Semua') return semua.length;
+    if (c === 'Video') return semua.filter(adalahVideo).length;
+    return semua.filter(function (k) { return jenisDari(k) === c; }).length;
+  };
+  document.getElementById('karya-filter').innerHTML = chips.map(function (c) {
+    const aktif = c === karyaFilter_;
+    return '<button type="button" data-f="' + _ak(c) + '" onclick="setFilterKarya_(this.dataset.f)" class="flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-colors ' +
+      (aktif ? 'bg-primary text-white shadow-md' : 'bg-white text-primary border border-slate-200 hover:border-primary') + '">' +
+      (c === 'Video' ? '<i class="fas fa-circle-play mr-1.5"></i>' : '') + _ak(c) + ' <span class="opacity-60 font-semibold">' + hitung(c) + '</span></button>';
+  }).join('');
+
+  // Terapkan filter + pencarian
+  const q = karyaCari_.trim().toLowerCase();
+  const rows = semua.filter(function (k) {
+    if (karyaFilter_ === 'Video' && !adalahVideo(k)) return false;
+    if (karyaFilter_ !== 'Semua' && karyaFilter_ !== 'Video' && jenisDari(k) !== karyaFilter_) return false;
+    if (q) {
+      const gabung = ((k.judul_karya || '') + ' ' + (k.nama_pembuat || '') + ' ' + (k.jenis_karya || '')).toString().toLowerCase();
+      if (gabung.indexOf(q) === -1) return false;
+    }
+    return true;
+  });
+  document.getElementById('karya-jumlah').textContent = rows.length + ' karya' + (karyaFilter_ !== 'Semua' || q ? ' ditemukan' : '');
+
   document.getElementById('karya-grid').innerHTML = rows.map(function (k) {
     const ytId = ytIdKarya_(k.link_youtube);
-    const cadangan = ytId ? ('https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg') : ('https://placehold.co/300x400/1f287d/e7b10a?text=' + encodeURIComponent(k.jenis_karya || 'Karya'));
-    return '<div onclick="openBookReader(' + k._rowId + ')" class="cursor-pointer group">' +
-      '<div class="aspect-[3/4] rounded-xl overflow-hidden bg-primary shadow-md relative">' +
-      fotoSliderHtml(k.file_url, 'w-full h-full object-cover group-hover:scale-105 transition-transform', cadangan) +
-      '<div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-3 pointer-events-none">' +
-      '<p class="text-white text-[11px] font-bold line-clamp-2">' + (k.judul_karya || '-') + '</p></div>' +
-      (ytId ? '<span class="absolute top-2 right-2 w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center shadow-md pointer-events-none"><i class="fas fa-play text-[10px] ml-0.5"></i></span>' : '') +
-      '</div>' +
-      '<p class="text-[10px] text-slate-400 mt-1.5 text-center">' + (k.nama_pembuat || '-') + '</p></div>';
-  }).join('') || emptyState('Belum ada karya yang diunggah.');
+    const adaFoto = (k.file_url || '').toString().split(',').some(function (u) { return u.trim(); });
+    const jenis = jenisDari(k);
+    let media;
+    if (adaFoto) {
+      media = fotoSliderHtml(k.file_url, 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500', '');
+    } else if (ytId) {
+      media = '<img loading="lazy" decoding="async" src="https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">' +
+        '<div class="absolute inset-0 bg-black/25 flex items-center justify-center pointer-events-none"><span class="w-14 h-14 rounded-full bg-red-600 text-white flex items-center justify-center shadow-xl"><i class="fas fa-play text-lg ml-1"></i></span></div>';
+    } else {
+      const cuplikan = (k.isi_karya || '').toString().replace(/\s+/g, ' ').trim().slice(0, 130);
+      media = '<div class="w-full h-full bg-gradient-to-br from-primary via-primary-600 to-primary-800 p-5 flex flex-col justify-center items-center text-center">' +
+        '<i class="' + ikonJenisKarya_(jenis) + ' text-secondary text-3xl mb-3"></i>' +
+        '<p class="text-white/85 font-serif italic text-xs leading-relaxed line-clamp-4">' + _ak(cuplikan) + (cuplikan.length >= 130 ? '&hellip;' : '') + '</p></div>';
+    }
+    const badgeJenis = jenis ? '<span class="absolute top-2.5 left-2.5 bg-white/90 text-primary text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm pointer-events-none">' + _ak(jenis) + '</span>' : '';
+    const badgeVideo = (ytId && adaFoto) ? '<span class="absolute top-2.5 right-2.5 bg-red-600 text-white text-[10px] font-black px-2.5 py-1 rounded-full shadow-sm pointer-events-none"><i class="fas fa-play mr-1 text-[8px]"></i>VIDEO</span>' : '';
+    return '<article onclick="openBookReader(' + k._rowId + ')" class="group cursor-pointer bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">' +
+      '<div class="karya-media relative aspect-[4/3] overflow-hidden bg-primary">' + media + badgeJenis + badgeVideo + '</div>' +
+      '<div class="p-4 flex flex-col flex-1">' +
+      '<h3 class="font-black text-primary text-sm leading-snug line-clamp-2">' + _ak(k.judul_karya || '-') + '</h3>' +
+      '<p class="text-[11px] text-slate-500 font-semibold mt-1.5 line-clamp-1"><i class="fas fa-user mr-1.5 text-secondary-600"></i>' + _ak(k.nama_pembuat || '-') + (k.kelas ? ' &middot; ' + _ak(k.kelas) : '') + '</p>' +
+      '<div class="mt-auto pt-3 flex items-center justify-between text-[11px] text-slate-400 font-semibold">' +
+      '<span><i class="fas fa-eye mr-1"></i>' + (k.dilihat || 0) + '</span><span><i class="fas fa-heart mr-1"></i>' + (k.suka || 0) + '</span></div>' +
+      '</div></article>';
+  }).join('') || emptyState(semua.length ? 'Tidak ada karya yang cocok dengan pencarian.' : 'Belum ada karya yang diunggah.');
 }
 
 function emptyState(msg) {
@@ -3592,7 +3664,7 @@ function openBookReader(rowId) {
   if (!k) return;
   currentKarya = k;
   document.getElementById('book-title').textContent = k.judul_karya || '-';
-  document.getElementById('book-author').textContent = (k.nama_pembuat || '-') + (k.kelas ? (' &middot; Kelas ' + k.kelas) : '');
+  document.getElementById('book-author').textContent = ((k.jenis_karya || '').toString().trim() ? (k.jenis_karya.toString().trim() + ' \u00b7 ') : '') + (k.nama_pembuat || '-') + (k.kelas ? (' \u00b7 Kelas ' + k.kelas) : '');
   document.getElementById('book-suka-count').textContent = k.suka || 0;
 
   const teks = (k.isi_karya || '').toString();
@@ -3602,13 +3674,20 @@ function openBookReader(rowId) {
   // Video YouTube (kalau karya ini punya link) ditampilkan di atas teks karya
   const videoWrap = document.getElementById('book-video-wrap');
   const ytId = ytIdKarya_(k.link_youtube);
+  const fotoList = (k.file_url || '').toString().split(',').map(function (u) { return u.trim(); }).filter(Boolean);
+  let mediaHtml = fotoList.map(function (u) {
+    return '<img loading="lazy" decoding="async" src="' + _ak(u) + '" alt="" class="w-full max-h-[65vh] object-contain rounded-xl bg-white shadow-md mb-4">';
+  }).join('');
   if (ytId) {
-    videoWrap.innerHTML = '<div class="aspect-video rounded-xl overflow-hidden bg-black shadow-md"><iframe src="https://www.youtube-nocookie.com/embed/' + ytId + '" title="Video karya" class="w-full h-full" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>';
-    videoWrap.classList.remove('hidden');
-  } else {
-    videoWrap.innerHTML = '';
-    videoWrap.classList.add('hidden');
+    mediaHtml += '<div class="aspect-video rounded-xl overflow-hidden bg-black shadow-md mb-4"><iframe src="https://www.youtube-nocookie.com/embed/' + ytId + '" title="Video karya" class="w-full h-full" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe></div>';
   }
+  if ((k.deskripsi || '').toString().trim()) {
+    mediaHtml += '<p class="text-sm text-slate-500 italic leading-relaxed mb-2">' + _ak(k.deskripsi) + '</p>';
+  }
+  videoWrap.innerHTML = mediaHtml;
+  videoWrap.classList.toggle('hidden', !mediaHtml);
+  const _scrollBox = document.getElementById('book-page-content').parentElement;
+  if (_scrollBox) _scrollBox.scrollTop = 0;
   // Karya tanpa teks (hanya video/foto): sembunyikan area halaman kosong
   const adaTeks = teks.trim() !== '';
   document.getElementById('book-page-content').classList.toggle('hidden', !adaTeks);
