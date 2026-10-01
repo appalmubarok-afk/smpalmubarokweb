@@ -2003,6 +2003,14 @@ function iconUntukStatistik(label) {
 // Ikon dipilih otomatis dari kata kunci nama aplikasi, admin cukup isi nama & link
 function iconUntukAplikasi(nama) {
   const n = (nama || '').toLowerCase();
+  if (n.indexOf('supervisi') !== -1 || n.indexOf('monitoring') !== -1 || n.indexOf('evaluasi') !== -1) return 'fas fa-clipboard-user';
+  if (n.indexOf('inventaris') !== -1 || n.indexOf('aset') !== -1 || n.indexOf('barang') !== -1 || n.indexOf('sarpras') !== -1) return 'fas fa-boxes-stacked';
+  if (n.indexOf('persuratan') !== -1 || n.indexOf('surat') !== -1 || n.indexOf('tu ') === 0 || n.indexOf('arsip') !== -1) return 'fas fa-envelope-open-text';
+  if (n.indexOf('lms') !== -1 || n.indexOf('e-learning') !== -1 || n.indexOf('elearning') !== -1 || n.indexOf('belajar') !== -1 || n.indexOf('kelas') !== -1) return 'fas fa-laptop-code';
+  if (n.indexOf('quran') !== -1 || n.indexOf("qur'an") !== -1 || n.indexOf('ngaji') !== -1) return 'fas fa-book-quran';
+  if (n.indexOf('ibadah') !== -1 || n.indexOf('sholat') !== -1 || n.indexOf('shalat') !== -1 || n.indexOf('mutaba') !== -1 || n.indexOf('amalan') !== -1 || n.indexOf('keagamaan') !== -1) return 'fas fa-mosque';
+  if (n.indexOf('konseling') !== -1 || n.indexOf('bk') === 0) return 'fas fa-hands-holding-circle';
+  if (n.indexOf('keuangan') !== -1 || n.indexOf('kas') !== -1) return 'fas fa-wallet';
   if (n.indexOf('absensi') !== -1 || n.indexOf('kehadiran') !== -1) return 'fas fa-clipboard-check';
   if (n.indexOf('kelulusan') !== -1) return 'fas fa-graduation-cap';
   if (n.indexOf('sikap') !== -1) return 'fas fa-heart-circle-check';
@@ -2017,7 +2025,7 @@ function iconUntukAplikasi(nama) {
   if (n.indexOf('perpustakaan') !== -1 || n.indexOf('buku') !== -1) return 'fas fa-book';
   if (n.indexOf('jadwal') !== -1) return 'fas fa-calendar-days';
   if (n.indexOf('nilai') !== -1 || n.indexOf('akademik') !== -1) return 'fas fa-chart-line';
-  return 'fas fa-grid-2';
+  return 'fas fa-laptop-code';
 }
 
 function renderMenuAplikasi() {
@@ -4155,7 +4163,7 @@ const ADMIN_SHEETS = [
   { key: 'virtual_tour', sheet: 'VirtualTour360', label: 'Virtual Tour 360°', icon: 'fas fa-street-view', fields: ['judul', 'gambar', 'deskripsi', 'urutan'] },
   { key: 'live_streaming', sheet: 'LiveStreaming', label: 'Live Streaming', icon: 'fas fa-tower-broadcast', fields: ['judul', 'url_video', 'status', 'tanggal', 'deskripsi'] },
   { key: 'statistik', sheet: 'Statistik', label: 'Statistik', icon: 'fas fa-chart-simple', fields: ['label', 'jumlah'] },
-  { key: 'menu', sheet: 'Menu', label: 'Aplikasi Sekolah', icon: 'fas fa-grid-2', fields: ['nama_menu', 'link', 'deskripsi', 'urutan', 'tampil'] },
+  { key: 'menu', sheet: 'Menu', label: 'Aplikasi Sekolah', icon: 'fas fa-table-cells-large', fields: ['nama_menu', 'link', 'deskripsi', 'urutan', 'tampil'] },
   { key: 'karya', sheet: 'Karya', label: 'Karya', icon: 'fas fa-palette', fields: ['judul_karya', 'jenis_karya', 'nama_pembuat', 'peran', 'kelas', 'deskripsi', 'isi_karya', 'file_url', 'link_youtube'] },
   { key: 'profil', sheet: 'Profil', label: 'Profil Sekolah', icon: 'fas fa-building-columns', fields: ['section', 'isi'] },
   { key: 'pengaturan', sheet: 'Pengaturan', label: 'Pengaturan', icon: 'fas fa-gear', fields: ['key', 'value'] },
