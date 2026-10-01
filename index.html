@@ -395,7 +395,7 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
         </div>
       </div>
       <button onclick="showSection('karya')" class="px-3 py-2 rounded-lg hover:bg-white/10">Karya</button>
-      <button onclick="showSection('ppdb')" class="ml-2 px-4 py-2.5 rounded-full bg-secondary text-primary hover:bg-secondary-400 shadow">Pendaftaran</button>
+      <button id="nav-daftar-btn" onclick="klikPendaftaran()" class="ml-2 px-4 py-2.5 rounded-full bg-secondary text-primary hover:bg-secondary-400 shadow">Pendaftaran</button>
       <button onclick="openAdminLogin()" title="Admin" class="ml-1 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"><i class="fas fa-user-shield text-xs"></i></button>
     </nav>
 
@@ -452,7 +452,7 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     </div>
 
     <button onclick="showSection('karya')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10">Karya</button>
-    <button onclick="showSection('ppdb')" class="block w-full text-left px-3 py-2.5 rounded-lg bg-secondary text-primary mt-2">PPDB</button>
+    <button id="nav-daftar-btn-mobile" onclick="klikPendaftaran()" class="block w-full text-left px-3 py-2.5 rounded-lg bg-secondary text-primary mt-2">PPDB</button>
     <button onclick="openAdminLogin()" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10"><i class="fas fa-user-shield mr-2"></i>Admin</button>
   </div>
 </header>
@@ -2094,6 +2094,9 @@ function renderPengaturan() {
   document.getElementById('floating-wa-btn').href = 'https://wa.me/' + waNumber.toString().replace(/\D/g, '');
   document.getElementById('bottomnav-wa-btn').href = 'https://wa.me/' + waNumber.toString().replace(/\D/g, '');
   document.getElementById('ppdb-wa-btn').href = 'https://wa.me/' + waNumber.toString().replace(/\D/g, '') + '?text=' + encodeURIComponent('Saya ingin bertanya seputar PPDB SMP IT Al Mubarok..');
+
+  // Tombol Pendaftaran di navbar (label & link diatur dari Admin > Tombol Pendaftaran)
+  terapkanTombolPendaftaran_();
 
   // Ikon sosmed dibikin badge kotak rounded warna asli tiap brand
   // (Facebook biru, Instagram gradasi, YouTube merah, WhatsApp hijau,
@@ -4301,6 +4304,7 @@ const ADMIN_SHEETS = [
   { key: 'profil', sheet: 'Profil', label: 'Profil Sekolah', icon: 'fas fa-building-columns', fields: ['section', 'isi'] },
   { key: 'pengaturan', sheet: 'Pengaturan', label: 'Pengaturan', icon: 'fas fa-gear', fields: ['key', 'value'] },
   { key: 'splash_screen', sheet: 'Pengaturan', label: 'Splash Screen', icon: 'fas fa-bolt', khusus: 'splash' },
+  { key: 'tombol_pendaftaran', sheet: 'Pengaturan', label: 'Tombol Pendaftaran', icon: 'fas fa-user-plus', khusus: 'pendaftaran' },
   { key: 'admin', sheet: 'Admin', label: 'Akun Admin', icon: 'fas fa-user-shield', fields: ['username', 'password', 'nama'] }
 ];
 let adminActiveSheet = null;
@@ -4326,6 +4330,7 @@ function adminSelectSheet(key) {
   // Menu "khusus" (bukan sheet biasa yang tabelnya di-generate otomatis)
   // -> pakai renderer sendiri-sendiri, bukan renderAdminTable().
   if (adminActiveSheet.khusus === 'splash') { renderSplashAdminPanel(); return; }
+  if (adminActiveSheet.khusus === 'pendaftaran') { renderPendaftaranAdminPanel(); return; }
   renderAdminTable();
 }
 
@@ -4448,6 +4453,104 @@ function simpanSplashAdmin_() {
   Promise.all(Object.keys(dataKunci).map(function (k) { return simpanSatuKunci(k, dataKunci[k]); }))
     .then(function () {
       Swal.fire({ icon: 'success', title: 'Tersimpan', text: 'Splash screen berhasil diperbarui.', timer: 1200, showConfirmButton: false });
+      loadDataSilent();
+      pulihkanTombol();
+    })
+    .catch(function (err) {
+      Swal.fire({ icon: 'error', title: 'Gagal menyimpan', text: (err && err.message) ? err.message : String(err) });
+      pulihkanTombol();
+    });
+}
+
+// -----------------------------------------------------------------
+// TOMBOL PENDAFTARAN (navbar) -- label & link bisa diubah dari Admin
+// -----------------------------------------------------------------
+// Disimpan sebagai 3 baris key/value di sheet Pengaturan (otomatis
+// dibuat saat pertama kali disimpan, tidak perlu ubah spreadsheet):
+//   pendaftaran_label    -> tulisan di tombol (kosong = "Pendaftaran")
+//   pendaftaran_link     -> alamat tujuan (kosong = buka halaman PPDB bawaan)
+//   pendaftaran_tab_baru -> "ya" / "tidak" (buka di tab baru atau tab yang sama)
+
+// Rapikan link: tambah https:// kalau lupa, dan tolak skema berbahaya (javascript:, dll).
+function rapikanLinkPendaftaran_(url) {
+  url = (url || '').toString().trim();
+  if (!url) return '';
+  if (/^(https?:\/\/|mailto:|tel:)/i.test(url)) return url;
+  if (/^[a-z][a-z0-9+.\-]*:/i.test(url)) return '';      // skema lain (javascript:, data:, dst) ditolak
+  return 'https://' + url.replace(/^\/+/, '');
+}
+
+function terapkanTombolPendaftaran_() {
+  const label = (cfg('pendaftaran_label', '') || '').toString().trim();
+  const desk = document.getElementById('nav-daftar-btn');
+  const hp = document.getElementById('nav-daftar-btn-mobile');
+  if (desk) desk.textContent = label || 'Pendaftaran';
+  if (hp) hp.textContent = label || 'PPDB';
+}
+
+function klikPendaftaran() {
+  const link = rapikanLinkPendaftaran_(cfg('pendaftaran_link', ''));
+  if (!link) { showSection('ppdb'); return; }            // belum diisi -> perilaku lama
+  const tabBaru = (cfg('pendaftaran_tab_baru', 'ya') || 'ya').toString().trim().toLowerCase() !== 'tidak';
+  if (tabBaru) { window.open(link, '_blank', 'noopener,noreferrer'); }
+  else { window.location.href = link; }
+}
+
+function renderPendaftaranAdminPanel() {
+  const body = document.getElementById('admin-panel-body');
+  const esc = function (s) { return (s || '').toString().replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); };
+  const label = adminNilaiPengaturan_('pendaftaran_label', '');
+  const link = adminNilaiPengaturan_('pendaftaran_link', '');
+  const tabBaru = (adminNilaiPengaturan_('pendaftaran_tab_baru', 'ya') || 'ya').toString().toLowerCase() !== 'tidak';
+
+  body.innerHTML =
+    '<div class="max-w-2xl space-y-5">' +
+    '<div class="bg-primary/5 border border-primary/10 text-primary text-xs font-semibold rounded-xl px-4 py-3">' +
+    '<i class="fas fa-circle-info mr-2"></i>Atur tombol kuning <b>Pendaftaran</b> di menu atas website. Isi link formulir pendaftaran (Google Form, website PPDB, WhatsApp, dll). Kalau link dikosongkan, tombol akan membuka halaman PPDB bawaan website.</div>' +
+    '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-5">' +
+    '<div><label class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1.5">Tulisan di Tombol</label>' +
+    '<input id="daftar-label-value" value="' + esc(label) + '" placeholder="Pendaftaran" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm"></div>' +
+    '<div><label class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1.5">Link Tujuan</label>' +
+    '<input id="daftar-link-value" value="' + esc(link) + '" placeholder="https://forms.gle/xxxx  atau  https://wa.me/628xxxx" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm">' +
+    '<p class="text-[11px] text-slate-400 mt-1.5">Kosongkan untuk membuka halaman PPDB bawaan website.</p></div>' +
+    '<div><label class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1.5">Cara Membuka</label>' +
+    '<select id="daftar-tab-value" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm bg-white">' +
+    '<option value="ya"' + (tabBaru ? ' selected' : '') + '>Buka di tab baru (disarankan)</option>' +
+    '<option value="tidak"' + (!tabBaru ? ' selected' : '') + '>Buka di tab yang sama</option>' +
+    '</select></div>' +
+    '<button id="daftar-admin-simpan-btn" onclick="simpanPendaftaranAdmin_()" class="w-full py-3.5 rounded-xl bg-primary hover:bg-primary-600 text-white text-xs font-black uppercase tracking-widest shadow-sm transition-colors"><i class="fas fa-save mr-2"></i>Simpan Tombol Pendaftaran</button>' +
+    '</div></div>';
+}
+
+function simpanPendaftaranAdmin_() {
+  const btn = document.getElementById('daftar-admin-simpan-btn');
+  const linkMentah = ((document.getElementById('daftar-link-value') || {}).value || '').trim();
+  const linkRapi = rapikanLinkPendaftaran_(linkMentah);
+  if (linkMentah && !linkRapi) {
+    Swal.fire({ icon: 'warning', title: 'Link tidak valid', text: 'Gunakan link yang diawali https:// (atau http://).' });
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.dataset.teksAsli = btn.innerHTML; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menyimpan...'; }
+
+  const dataKunci = {
+    pendaftaran_label: ((document.getElementById('daftar-label-value') || {}).value || '').trim(),
+    pendaftaran_link: linkRapi,
+    pendaftaran_tab_baru: (document.getElementById('daftar-tab-value') || {}).value || 'ya'
+  };
+  const rowsPengaturan = DB.pengaturan || [];
+
+  function simpanSatuKunci(k, v) {
+    return new Promise(function (resolve, reject) {
+      const existing = rowsPengaturan.find(function (r) { return (r.key || '').toString().trim().toLowerCase() === k; });
+      google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
+        .saveData('Pengaturan', { key: k, value: v }, existing ? existing._rowId : null);
+    });
+  }
+  function pulihkanTombol() { if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset.teksAsli; } }
+
+  Promise.all(Object.keys(dataKunci).map(function (k) { return simpanSatuKunci(k, dataKunci[k]); }))
+    .then(function () {
+      Swal.fire({ icon: 'success', title: 'Tersimpan', text: 'Tombol Pendaftaran berhasil diperbarui.', timer: 1200, showConfirmButton: false });
       loadDataSilent();
       pulihkanTombol();
     })
@@ -4712,7 +4815,9 @@ function terapkanDataSenyap_(data) {
   renderVirtualTour(); renderLiveStreaming();
   renderKarya(); renderPpdb(); renderAkademik(); renderSejarah();
   if (adminActiveSheet) {
-    if (adminActiveSheet.khusus === 'splash') { renderSplashAdminPanel(); } else { renderAdminTable(); }
+    if (adminActiveSheet.khusus === 'splash') { renderSplashAdminPanel(); }
+    else if (adminActiveSheet.khusus === 'pendaftaran') { renderPendaftaranAdminPanel(); }
+    else { renderAdminTable(); }
   }
 }
 function loadDataSilent() {
