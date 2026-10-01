@@ -98,6 +98,9 @@
   body.mode-gelap .bg-white { background-color:#161f36 !important; }
   body.mode-gelap .bg-white\/95 { background-color:rgba(22,31,54,.95) !important; }
   body.mode-gelap .bg-slate-50 { background-color:#0f172a !important; }
+  body.mode-gelap .bg-emerald-50 { background-color:rgba(16,185,129,.12) !important; }
+  body.mode-gelap .text-emerald-700 { color:#6ee7b7 !important; }
+  body.mode-gelap .bg-slate-100 { background-color:#1e293b !important; }
   body.mode-gelap .text-primary { color:#f1f5f9 !important; }
   body.mode-gelap .text-slate-500, body.mode-gelap .text-slate-400, body.mode-gelap .text-slate-600, body.mode-gelap .text-slate-700 { color:#94a3b8 !important; }
   body.mode-gelap .border-slate-100, body.mode-gelap .border-slate-200 { border-color:#1e293b !important; }
@@ -914,11 +917,12 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     <div class="bg-primary py-14 text-center px-4">
       <h1 class="text-2xl md:text-4xl font-black text-white">Agenda Sekolah</h1>
       <p class="text-white/70 text-xs md:text-sm mt-3 max-w-2xl mx-auto leading-relaxed">Jadwal kegiatan belajar mengajar, ujian, serta agenda sekolah lainnya di SMP Islam Terpadu Al Mubarok.</p>
+      <div id="agenda-ringkasan" class="flex flex-wrap justify-center gap-2.5 mt-6"></div>
     </div>
     <div class="max-w-4xl mx-auto px-4 md:px-6 py-12">
       <button onclick="kembaliKeBeranda('beranda-kegiatan-grid')" class="text-primary hover:text-primary-600 text-xs font-bold inline-flex items-center gap-1.5 mb-6"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
 
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-3 md:p-4 flex flex-col sm:flex-row gap-3 mb-8 sticky top-20 z-10">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-3 md:p-4 flex flex-col sm:flex-row gap-3 mb-4">
         <div class="flex-1 flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-2.5">
           <i class="fas fa-search text-slate-400 text-sm"></i>
           <input id="agenda-cari" type="text" placeholder="Cari agenda (contoh: Ujian, Upacara, Rapat)..." class="flex-1 min-w-0 bg-transparent text-sm focus:outline-none" oninput="renderAgendaList()">
@@ -928,7 +932,9 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
         </select>
       </div>
 
-      <div id="agenda-list" class="space-y-5"></div>
+      <div id="agenda-tab" class="flex gap-2 mb-8 overflow-x-auto scrollbar-hide pb-1"></div>
+
+      <div id="agenda-list"></div>
     </div>
   </section>
 
@@ -2715,74 +2721,146 @@ function renderKegiatan() {
 // Halaman Agenda penuh: daftar agenda diurutkan berdasarkan TANGGAL KEJADIAN
 // (bukan urutan input), yang paling dekat/akan datang ditampilkan lebih dulu.
 // Mendukung pencarian judul/deskripsi dan filter kategori.
+let agendaTab = 'semua';
+function setAgendaTab(t) { agendaTab = t; renderAgendaList(); }
+
+function agendaLalu_(tgl, hariIni) {
+  const n = Math.round((hariIni - tgl) / 86400000);
+  if (n <= 0) return 'hari ini';
+  if (n === 1) return 'kemarin';
+  if (n < 30) return n + ' hari yang lalu';
+  if (n < 365) return Math.floor(n / 30) + ' bulan yang lalu';
+  return Math.floor(n / 365) + ' tahun yang lalu';
+}
+
+function agendaItemHtml_(x, hariIni, opt) {
+  const k = x.data, tgl = x.tgl;
+  const lewat = !!(tgl && tgl < hariIni);
+  const hari = tgl ? String(tgl.getDate()).padStart(2, '0') : '--';
+  const bulan = tgl ? BULAN_SINGKAT_AGENDA[tgl.getMonth()] : (k.tanggal || '-');
+  const tahun = tgl ? tgl.getFullYear() : '';
+  let label = '';
+  if (tgl && !lewat) {
+    const sel = Math.round((tgl - hariIni) / 86400000);
+    label = sel === 0 ? 'Hari ini' : (sel === 1 ? 'Besok' : sel + ' hari lagi');
+  }
+  const kartuClass = lewat
+    ? 'bg-slate-50 border border-slate-200'
+    : ('bg-white border ' + (opt.pertama ? 'border-secondary ring-2 ring-secondary/40' : 'border-slate-100') + ' shadow-sm hover:shadow-lg hover:-translate-y-0.5');
+  const dateClass = lewat ? 'from-slate-400 to-slate-500' : 'from-primary to-primary-600';
+
+  return '<div class="flex gap-3 md:gap-4">' +
+    // titik + garis timeline
+    '<div class="flex flex-col items-center flex-shrink-0 pt-7">' +
+    '<span class="relative flex w-3.5 h-3.5">' +
+    (opt.pertama ? '<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-60"></span>' : '') +
+    '<span class="relative inline-flex w-3.5 h-3.5 rounded-full ' + (lewat ? 'bg-slate-300' : 'bg-secondary') + ' ring-4 ring-white"></span></span>' +
+    (opt.terakhir ? '' : '<span class="flex-1 w-0.5 bg-slate-200 mt-1"></span>') + '</div>' +
+    // kartu
+    '<div class="flex-1 min-w-0 ' + (opt.terakhir ? '' : 'pb-4') + '">' +
+    '<div onclick="bukaDetailUmum(\'kegiatan\',' + k._rowId + ')" class="rounded-2xl p-4 md:p-5 cursor-pointer transition-all flex gap-4 ' + kartuClass + '">' +
+    '<div class="flex-shrink-0 w-14 md:w-[72px] h-fit rounded-2xl bg-gradient-to-br ' + dateClass + ' text-center py-3 shadow-md">' +
+    '<div class="text-white font-black text-xl md:text-2xl leading-none">' + hari + '</div>' +
+    '<div class="text-secondary text-[10px] font-black uppercase tracking-widest mt-1">' + bulan + '</div>' +
+    (tahun ? '<div class="text-white/70 text-[9px] font-bold">' + tahun + '</div>' : '') + '</div>' +
+    '<div class="flex-1 min-w-0">' +
+    '<div class="flex flex-wrap items-center gap-2 mb-1.5">' +
+    (k.kategori ? '<span class="text-[10px] font-black text-secondary-600 bg-secondary/10 uppercase tracking-widest px-2.5 py-1 rounded-full">' + k.kategori + '</span>' : '') +
+    (opt.pertama ? '<span class="text-[10px] font-black text-white bg-primary px-2.5 py-1 rounded-full"><i class="fas fa-bell mr-1"></i>Berikutnya</span>' : '') +
+    (label ? '<span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">' + label + '</span>' : '') +
+    '</div>' +
+    '<h3 class="font-black ' + (lewat ? 'text-slate-600' : 'text-primary') + ' text-sm md:text-base leading-snug">' + (k.judul || '-') + '</h3>' +
+    (k.deskripsi ? '<p class="text-xs md:text-sm text-slate-500 leading-relaxed mt-1 line-clamp-2">' + k.deskripsi + '</p>' : '') +
+    ((k.jam || k.lokasi) ? '<div class="flex flex-wrap gap-x-4 gap-y-1 mt-2 text-[11px] text-slate-500 font-semibold">' +
+      (k.jam ? '<span><i class="far fa-clock mr-1 text-secondary-600"></i>' + k.jam + '</span>' : '') +
+      (k.lokasi ? '<span><i class="fas fa-location-dot mr-1 text-secondary-600"></i>' + k.lokasi + '</span>' : '') + '</div>' : '') +
+    (lewat
+      ? '<div class="flex items-center gap-2 mt-3 bg-emerald-50 text-emerald-700 rounded-xl px-3 py-2 text-[11px] font-bold"><i class="fas fa-circle-check"></i><span>Kegiatan telah terlaksana &middot; ' + agendaLalu_(tgl, hariIni) + '</span></div>'
+      : (tgl ? '<div class="flex flex-wrap items-center gap-2 mt-3">' +
+        '<a href="' + buatLinkGoogleCalendar_(k, tgl) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="inline-flex items-center gap-1.5 text-[10px] font-bold border border-primary text-primary hover:bg-primary hover:text-white rounded-lg px-3 py-1.5 transition-colors"><i class="fab fa-google"></i> Google Calendar</a>' +
+        '<button onclick="event.stopPropagation();unduhIcalAgenda_(\'' + k._rowId + '\')" class="inline-flex items-center gap-1.5 text-[10px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg px-3 py-1.5 transition-colors"><i class="fas fa-calendar-plus"></i> iCal</button>' +
+        '<span class="ml-auto text-[10px] font-black text-primary uppercase tracking-widest">Selengkapnya <i class="fas fa-arrow-right ml-0.5"></i></span></div>' : '')) +
+    '</div></div></div></div>';
+}
+
+// Halaman Agenda penuh: dipisah "Akan Datang" (terdekat dulu) dan "Sudah Terlaksana"
+// (terbaru dulu), dikelompokkan per bulan dalam bentuk timeline.
 function renderAgendaList() {
   const el = document.getElementById('agenda-list');
   if (!el) return;
+  const BULAN_PANJANG = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-  const kataKunci = (document.getElementById('agenda-cari') || {}).value || '';
+  const kk = ((document.getElementById('agenda-cari') || {}).value || '').trim().toLowerCase();
   const kategoriTerpilih = (document.getElementById('agenda-filter-kategori') || {}).value || '';
-  const kk = kataKunci.trim().toLowerCase();
+  const hariIni = new Date(); hariIni.setHours(0, 0, 0, 0);
 
-  const hariIni = new Date();
-  hariIni.setHours(0, 0, 0, 0);
+  const semua = (DB.kegiatan || []).map(function (k) { return { data: k, tgl: parseTanggalArtikel_(k.tanggal) }; });
+  const jml = function (arr) {
+    return { m: arr.filter(function (x) { return !x.tgl || x.tgl >= hariIni; }).length, l: arr.filter(function (x) { return x.tgl && x.tgl < hariIni; }).length };
+  };
 
-  let rows = (DB.kegiatan || []).map(function (k) {
-    return { data: k, tgl: parseTanggalArtikel_(k.tanggal) };
-  });
+  // Ringkasan di header (dari seluruh agenda, tidak terpengaruh filter)
+  const tot = jml(semua);
+  const rg = document.getElementById('agenda-ringkasan');
+  if (rg) rg.innerHTML =
+    '<span class="inline-flex items-center gap-2 bg-white/10 text-white text-xs font-bold rounded-full px-4 py-2"><i class="fas fa-hourglass-half text-secondary"></i>' + tot.m + ' Akan Datang</span>' +
+    '<span class="inline-flex items-center gap-2 bg-white/10 text-white text-xs font-bold rounded-full px-4 py-2"><i class="fas fa-circle-check text-secondary"></i>' + tot.l + ' Sudah Terlaksana</span>';
 
-  if (kk) {
-    rows = rows.filter(function (x) {
-      return ((x.data.judul || '') + ' ' + (x.data.deskripsi || '')).toLowerCase().indexOf(kk) !== -1;
-    });
+  let rows = semua;
+  if (kk) rows = rows.filter(function (x) { return ((x.data.judul || '') + ' ' + (x.data.deskripsi || '')).toLowerCase().indexOf(kk) !== -1; });
+  if (kategoriTerpilih) rows = rows.filter(function (x) { return (x.data.kategori || '') === kategoriTerpilih; });
+
+  const mendatang = rows.filter(function (x) { return !x.tgl || x.tgl >= hariIni; })
+    .sort(function (a, b) { if (!a.tgl) return 1; if (!b.tgl) return -1; return a.tgl - b.tgl; });
+  const lewat = rows.filter(function (x) { return x.tgl && x.tgl < hariIni; })
+    .sort(function (a, b) { return b.tgl - a.tgl; });
+
+  // Tab filter
+  const tabEl = document.getElementById('agenda-tab');
+  if (tabEl) {
+    const tab = function (id, label, n, ikon) {
+      const aktif = agendaTab === id;
+      return '<button onclick="setAgendaTab(\'' + id + '\')" class="flex-shrink-0 inline-flex items-center gap-2 text-xs font-bold rounded-full px-4 py-2.5 transition-colors ' +
+        (aktif ? 'bg-primary text-white shadow-md' : 'bg-white border border-slate-200 text-slate-500 hover:border-primary') + '">' +
+        '<i class="' + ikon + '"></i>' + label + '<span class="' + (aktif ? 'bg-white/20' : 'bg-slate-100') + ' rounded-full px-2 py-0.5 text-[10px]">' + n + '</span></button>';
+    };
+    tabEl.innerHTML = tab('semua', 'Semua', rows.length, 'fas fa-list') +
+      tab('mendatang', 'Akan Datang', mendatang.length, 'fas fa-hourglass-half') +
+      tab('lewat', 'Sudah Terlaksana', lewat.length, 'fas fa-circle-check');
   }
-  if (kategoriTerpilih) {
-    rows = rows.filter(function (x) { return (x.data.kategori || '') === kategoriTerpilih; });
-  }
-
-  // Urutkan berdasarkan tanggal: yang akan datang duluan (ascending dari hari
-  // ini), lalu yang sudah lewat menyusul di bawah (dari yang paling baru lewat).
-  rows.sort(function (a, b) {
-    const aTgl = a.tgl, bTgl = b.tgl;
-    if (!aTgl && !bTgl) return 0;
-    if (!aTgl) return 1;
-    if (!bTgl) return -1;
-    const aMendatang = aTgl >= hariIni, bMendatang = bTgl >= hariIni;
-    if (aMendatang && bMendatang) return aTgl - bTgl;
-    if (!aMendatang && !bMendatang) return bTgl - aTgl;
-    return aMendatang ? -1 : 1;
-  });
 
   if (!rows.length) {
     el.innerHTML = emptyState('Tidak ada agenda yang cocok dengan pencarian/filter ini.');
     return;
   }
 
-  el.innerHTML = rows.map(function (x) {
-    const k = x.data;
-    const tgl = x.tgl;
-    const sudahLewat = tgl && tgl < hariIni;
-    const hari = tgl ? String(tgl.getDate()).padStart(2, '0') : '--';
-    const bulan = tgl ? BULAN_SINGKAT_AGENDA[tgl.getMonth()] : (k.tanggal || '-');
-    const tahun = tgl ? tgl.getFullYear() : '';
+  // Bangun satu blok (judul bagian + timeline per bulan)
+  const blok = function (judul, ikon, warna, arr, tandaiPertama) {
+    if (!arr.length) return '';
+    const grup = [], peta = {};
+    arr.forEach(function (x) {
+      const kunci = x.tgl ? (x.tgl.getFullYear() + '-' + x.tgl.getMonth()) : 'x';
+      if (!peta[kunci]) { peta[kunci] = { nama: x.tgl ? (BULAN_PANJANG[x.tgl.getMonth()] + ' ' + x.tgl.getFullYear()) : 'Tanggal Menyusul', items: [] }; grup.push(peta[kunci]); }
+      peta[kunci].items.push(x);
+    });
+    let pertamaSudah = !tandaiPertama;
+    return '<div class="mb-10">' +
+      '<div class="flex items-center gap-3 mb-5"><div class="w-10 h-10 rounded-xl flex items-center justify-center ' + warna + '"><i class="' + ikon + '"></i></div>' +
+      '<div><h2 class="font-black text-primary text-base md:text-lg leading-tight">' + judul + '</h2>' +
+      '<p class="text-[11px] text-slate-400 font-semibold">' + arr.length + ' agenda</p></div></div>' +
+      grup.map(function (g) {
+        return '<div class="mb-4"><div class="flex items-center gap-3 mb-3 ml-7 md:ml-8"><span class="text-[11px] font-black uppercase tracking-widest text-slate-400">' + g.nama + '</span><span class="flex-1 h-px bg-slate-200"></span></div>' +
+          g.items.map(function (x, i) {
+            const pertama = !pertamaSudah && x.tgl; if (pertama) pertamaSudah = true;
+            return agendaItemHtml_(x, hariIni, { pertama: !!pertama, terakhir: i === g.items.length - 1 });
+          }).join('') + '</div>';
+      }).join('') + '</div>';
+  };
 
-    return '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-lg transition-shadow p-4 md:p-5 flex flex-col sm:flex-row gap-4 sm:gap-5' + (sudahLewat ? ' opacity-60' : '') + '">' +
-      '<div class="flex-shrink-0 w-full sm:w-20 h-16 sm:h-20 rounded-2xl bg-gradient-to-br from-primary to-primary-600 flex sm:flex-col items-center justify-center gap-2 sm:gap-0 shadow-md">' +
-      '<span class="text-white font-black text-xl sm:text-2xl leading-none">' + hari + '</span>' +
-      '<span class="text-secondary text-[10px] sm:text-[11px] font-black uppercase tracking-widest">' + bulan + '</span>' +
-      (tahun ? '<span class="hidden sm:block text-white/60 text-[9px] font-bold mt-0.5">' + tahun + '</span>' : '') +
-      '</div>' +
-      '<div class="flex-1 min-w-0">' +
-      (k.kategori ? '<span class="inline-block text-[10px] font-black text-secondary-600 bg-secondary/10 uppercase tracking-widest px-3 py-1 rounded-full mb-2">' + k.kategori + '</span>' : '') +
-      '<h3 onclick="bukaDetailUmum(\'kegiatan\',' + k._rowId + ')" class="font-black text-primary text-sm md:text-base leading-snug cursor-pointer hover:text-primary-600">' + (k.judul || '-') + '</h3>' +
-      '<p class="text-xs md:text-sm text-slate-500 leading-relaxed mt-1 line-clamp-2">' + (k.deskripsi || '') + '</p>' +
-      '<div class="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 pt-3 border-t border-slate-100">' +
-      (k.jam ? '<span class="text-[11px] text-slate-500 font-semibold"><i class="far fa-clock mr-1 text-secondary-600"></i>' + k.jam + '</span>' : '') +
-      (k.lokasi ? '<span class="text-[11px] text-slate-500 font-semibold"><i class="fas fa-location-dot mr-1 text-secondary-600"></i>' + k.lokasi + '</span>' : '') +
-      '<div class="flex items-center gap-2 ml-auto">' +
-      (tgl ? '<a href="' + buatLinkGoogleCalendar_(k, tgl) + '" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-[10px] font-bold border border-primary text-primary hover:bg-primary hover:text-white rounded-lg px-3 py-1.5 transition-colors"><i class="fab fa-google"></i> Google Calendar</a>' : '') +
-      (tgl ? '<button onclick="unduhIcalAgenda_(\'' + k._rowId + '\')" class="inline-flex items-center gap-1.5 text-[10px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 rounded-lg px-3 py-1.5 transition-colors"><i class="fas fa-calendar-plus"></i> iCal</button>' : '') +
-      '</div></div></div></div>';
-  }).join('');
+  let html = '';
+  if (agendaTab !== 'lewat') html += blok('Akan Datang', 'fas fa-hourglass-half', 'bg-secondary/20 text-secondary-600', mendatang, true);
+  if (agendaTab !== 'mendatang') html += blok('Sudah Terlaksana', 'fas fa-circle-check', 'bg-emerald-50 text-emerald-700', lewat, false);
+  el.innerHTML = html || emptyState(agendaTab === 'mendatang' ? 'Belum ada agenda yang akan datang.' : 'Belum ada agenda yang terlaksana.');
 }
 
 // Bikin link "Tambah ke Google Calendar" (acara sepanjang hari, sesuai tanggal agenda).
