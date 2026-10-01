@@ -2832,10 +2832,11 @@ function openArtikelDetail(rowId) {
   currentArtikelRowId_ = rowId;
   sukaAktifArtikel_ = false;
   document.getElementById('artikel-detail-content').innerHTML =
-    '<p class="text-[10px] text-secondary-600 font-bold uppercase tracking-widest">' + (a.kategori || 'Artikel') + ' &middot; ' + (a.tanggal || '') + '</p>' +
-    '<h1 class="text-2xl md:text-3xl font-black text-primary mt-2 mb-4">' + (a.judul || '-') + '</h1>' +
+    '<p class="text-xs md:text-sm text-secondary-600 font-bold uppercase tracking-widest">' + (a.kategori || 'Artikel') + ' &middot; ' + (a.tanggal || '') + '</p>' +
+    ((a.penulis || '').toString().trim() ? '<p class="text-xs md:text-sm text-slate-500 font-semibold mt-1"><i class="fas fa-user-pen mr-1.5"></i>Penulis: ' + (a.penulis || '').toString().trim() + '</p>' : '') +
+    '<h1 class="text-3xl md:text-4xl font-black text-primary mt-3 mb-5 leading-tight">' + (a.judul || '-') + '</h1>' +
     '<div class="group">' + fotoSliderHtml(a.gambar, 'w-full rounded-2xl mb-6', 'https://placehold.co/800x400/1f287d/e7b10a?text=Artikel') + '</div>' +
-    '<div class="text-sm leading-relaxed text-slate-600 whitespace-pre-line">' + (a.konten || a.ringkasan || '') + '</div>';
+    '<div class="text-base md:text-lg leading-relaxed md:leading-8 text-slate-600 whitespace-pre-line">' + (a.konten || a.ringkasan || '') + '</div>';
   document.getElementById('artikel-detail-views').textContent = a.views || 0;
   document.getElementById('artikel-detail-suka').textContent = a.suka || 0;
   document.getElementById('artikel-detail-like-btn').querySelector('i').className = 'far fa-heart';
