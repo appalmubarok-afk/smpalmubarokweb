@@ -144,10 +144,7 @@
 }
 
 /* ===== Tombol & panel ===== */
-#a11y-fab { position:fixed; left:12px; bottom:96px; z-index:9995; width:52px; height:52px; border-radius:50%; background:#1f287d; color:#fff; border:3px solid #fff; box-shadow:0 6px 20px rgba(31,40,125,.45); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; transition:transform .15s; }
-#a11y-fab:hover { transform:scale(1.07); }
-@media (min-width:768px) { #a11y-fab { left:20px; bottom:24px; } }
-body.splash-aktif #a11y-fab { display:none; }
+#a11y-fab { padding:0; }
 #a11y-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:100000000; opacity:0; visibility:hidden; transition:opacity .2s, visibility .2s; }
 #a11y-overlay.buka { opacity:1; visibility:visible; }
 #a11y-panel { position:fixed; top:0; left:0; bottom:0; width:min(92vw,410px); background:#f8fafc; color:#0f172a; z-index:100000001; transform:translateX(-102%); visibility:hidden; transition:transform .25s ease, visibility .25s; display:flex; flex-direction:column; box-shadow:8px 0 40px rgba(0,0,0,.3); font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; font-size:14px; line-height:1.45; }
@@ -1513,25 +1510,31 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
 <!-- ============================================================ -->
 <!-- BOTTOM NAV BAR (Mobile & Desktop): Menu, Cari, WA + Chatbot, Mode Gelap, Ke Atas -->
 <!-- ============================================================ -->
-<div id="bottom-nav-bar" class="fixed bottom-3 left-1/2 -translate-x-1/2 z-[9996] w-[94%] max-w-[380px] transition-opacity duration-200">
+<div id="bottom-nav-bar" class="fixed bottom-3 left-1/2 -translate-x-1/2 z-[9996] w-[94%] max-w-[440px] transition-opacity duration-200">
   <div class="relative bg-white/95 backdrop-blur-md rounded-full shadow-[0_8px_30px_rgba(31,40,125,0.25)] border border-slate-100 flex items-center justify-between px-3 py-2" style="padding-bottom:max(0.5rem, env(safe-area-inset-bottom));">
-    <button onclick="toggleMobileMenu()" title="Menu" class="w-11 h-11 rounded-full flex items-center justify-center text-primary text-lg active:bg-slate-100 active:scale-95 transition-transform"><i class="fas fa-grip"></i></button>
-    <button onclick="bukaPencarian()" title="Cari" class="w-11 h-11 rounded-full flex items-center justify-center text-primary text-lg active:bg-slate-100 active:scale-95 transition-transform"><i class="fas fa-magnifying-glass"></i></button>
-    <span class="w-[136px] flex-shrink-0"></span>
-    <button onclick="toggleModeGelap()" id="tombol-mode-gelap" title="Mode Gelap" class="w-11 h-11 rounded-full flex items-center justify-center text-primary text-lg active:bg-slate-100 active:scale-95 transition-transform"><i class="fas fa-moon"></i></button>
-    <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Kembali ke Atas" class="w-11 h-11 rounded-full flex items-center justify-center text-primary text-lg active:bg-slate-100 active:scale-95 transition-transform"><i class="fas fa-arrow-up"></i></button>
+    <button onclick="toggleMobileMenu()" title="Menu" class="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-primary text-lg active:bg-slate-100 active:scale-95 transition-transform"><i class="fas fa-grip"></i></button>
+    <button onclick="bukaPencarian()" title="Cari" class="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-primary text-lg active:bg-slate-100 active:scale-95 transition-transform"><i class="fas fa-magnifying-glass"></i></button>
+    <span class="w-[154px] md:w-[196px] flex-shrink-0"></span>
+    <button onclick="toggleModeGelap()" id="tombol-mode-gelap" title="Mode Gelap" class="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-primary text-lg active:bg-slate-100 active:scale-95 transition-transform"><i class="fas fa-moon"></i></button>
+    <button onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Kembali ke Atas" class="w-10 h-10 md:w-11 md:h-11 rounded-full flex items-center justify-center text-primary text-lg active:bg-slate-100 active:scale-95 transition-transform"><i class="fas fa-arrow-up"></i></button>
 
-    <div class="absolute left-1/2 -translate-x-1/2 -top-6 flex items-center gap-3">
+    <div class="absolute left-1/2 -translate-x-1/2 -top-6 flex items-center gap-1.5 md:gap-3">
       <div class="relative flex flex-col items-center">
         <span class="hidden md:inline-block absolute -top-7 whitespace-nowrap bg-primary-900 text-white text-[9px] font-bold px-2.5 py-1 rounded-full shadow-md">WhatsApp</span>
-        <a id="bottomnav-wa-btn" href="https://wa.me/6285936157246" target="_blank" title="Chat WhatsApp" class="w-14 h-14 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white shadow-lg border-4 border-white flex items-center justify-center transition-transform hover:scale-105 active:scale-95">
-          <i class="fab fa-whatsapp text-2xl"></i>
+        <a id="bottomnav-wa-btn" href="https://wa.me/6285936157246" target="_blank" title="Chat WhatsApp" class="w-[46px] h-[46px] md:w-14 md:h-14 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white shadow-lg border-[3px] md:border-4 border-white flex items-center justify-center transition-transform hover:scale-105 active:scale-95">
+          <i class="fab fa-whatsapp text-xl md:text-2xl"></i>
         </a>
       </div>
       <div class="relative flex flex-col items-center">
         <span class="hidden md:inline-block absolute -top-7 whitespace-nowrap bg-primary-900 text-white text-[9px] font-bold px-2.5 py-1 rounded-full shadow-md">Chatbot AI</span>
-        <button onclick="toggleChatbot()" title="Tanya Asisten AI" class="w-14 h-14 rounded-full bg-primary hover:bg-primary-600 text-white shadow-lg border-4 border-white flex items-center justify-center transition-transform hover:scale-105 active:scale-95">
+        <button onclick="toggleChatbot()" title="Tanya Asisten AI" class="w-[46px] h-[46px] md:w-14 md:h-14 rounded-full bg-primary hover:bg-primary-600 text-white shadow-lg border-[3px] md:border-4 border-white flex items-center justify-center transition-transform hover:scale-105 active:scale-95">
           <i id="chatbot-toggle-icon-mobile" class="fas fa-comment-dots text-xl"></i>
+        </button>
+      </div>
+      <div class="relative flex flex-col items-center">
+        <span class="hidden md:inline-block absolute -top-7 whitespace-nowrap bg-primary-900 text-white text-[9px] font-bold px-2.5 py-1 rounded-full shadow-md">Aksesibilitas</span>
+        <button id="a11y-fab" type="button" title="Aksesibilitas (Alt+A)" aria-label="Buka menu aksesibilitas (Alt+A)" aria-haspopup="dialog" aria-expanded="false" class="w-[46px] h-[46px] md:w-14 md:h-14 rounded-full bg-secondary hover:bg-secondary-400 text-primary shadow-lg border-[3px] md:border-4 border-white flex items-center justify-center transition-transform hover:scale-105 active:scale-95">
+          <svg class="w-6 h-6 md:w-7 md:h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="7" r="1.2" fill="currentColor"/><path d="M7 10l5 .8 5-.8M12 10.8V15M9.6 19l2.4-4 2.4 4"/></svg>
         </button>
       </div>
     </div>
@@ -4971,8 +4974,7 @@ setTimeout(function () {
   }
   var skip = el('a', { 'class': 'a11y-skip', href: '#app-root' }, 'Lewati ke konten utama');
   var live = el('div', { id: 'a11y-live', 'class': 'a11y-sr', role: 'status', 'aria-live': 'polite' });
-  var fab = el('button', { id: 'a11y-fab', type: 'button', 'aria-label': 'Buka menu aksesibilitas (Alt+A)', title: 'Aksesibilitas (Alt+A)', 'aria-haspopup': 'dialog', 'aria-expanded': 'false' },
-    '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="7" r="1.2" fill="currentColor"/><path d="M7 10l5 .8 5-.8M12 10.8V15M9.6 19l2.4-4 2.4 4"/></svg>');
+  var fab = document.getElementById('a11y-fab');
   var overlay = el('div', { id: 'a11y-overlay' });
   var panel = el('div', { id: 'a11y-panel', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'a11y-judul', 'aria-hidden': 'true' });
   var rgTop = el('div', { id: 'a11y-rg-top', 'class': 'a11y-rg', 'aria-hidden': 'true' });
@@ -5012,7 +5014,6 @@ setTimeout(function () {
 
   document.body.insertBefore(skip, document.body.firstChild);
   document.body.appendChild(live);
-  document.body.appendChild(fab);
   document.body.appendChild(overlay);
   document.body.appendChild(panel);
   document.body.appendChild(rgTop);
