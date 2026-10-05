@@ -1855,6 +1855,14 @@ if (typeof google === 'undefined' || !google.script || !google.script.run) {
 }
 
 let DB = {};
+// Status navigasi bawah & scroll. SENGAJA dideklarasikan di atas (bukan dekat
+// listener scroll) karena showSection() bisa dipanggil sangat awal saat reload
+// di URL ?page=karya dst; kalau deklarasinya di bawah -> ReferenceError -> script
+// mati -> data tak pernah dimuat -> splash screen muter terus.
+const NAV_SEMBUNYI_SAAT_ = 'atas';
+let _navScrollTerakhir_ = window.pageYOffset || 0;
+let _navScrollMenunggu_ = false;
+let _navAbaikanScrollSampai_ = 0;
 // Menampung artikel_id dari deep-link (share/link luar) yang menunggu
 // data (DB.artikel) selesai dimuat sebelum benar-benar dibuka.
 let __pendingArtikelId__ = null;
@@ -4343,10 +4351,9 @@ function tutupSemuaSubmenuMobile_() {
 // ke bawah atau sudah sampai paling atas halaman).
 // Kalau maunya kebalikan (hilang saat scroll ke bawah), ganti NAV_SEMBUNYI_SAAT_ ke 'bawah'.
 // ---------------------------------------------------------------
-const NAV_SEMBUNYI_SAAT_ = 'atas';
-let _navScrollTerakhir_ = window.pageYOffset || 0;
-let _navScrollMenunggu_ = false;
-let _navAbaikanScrollSampai_ = 0;
+// (variabel _navScrollTerakhir_, _navScrollMenunggu_, _navAbaikanScrollSampai_ dan
+// konstanta NAV_SEMBUNYI_SAAT_ dipindah ke bagian atas script, dekat "let DB",
+// supaya sudah siap sebelum showSection() dipanggil saat halaman dibuka lewat ?page=...)
 window.addEventListener('scroll', function () {
   if (_navScrollMenunggu_) return;
   _navScrollMenunggu_ = true;
