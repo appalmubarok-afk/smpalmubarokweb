@@ -604,27 +604,35 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
       </div>
     </div>
 
-    <!-- Artikel terbaru -->
-    <div class="max-w-7xl mx-auto px-4 md:px-6 py-10 border-t border-slate-100">
+    <!-- Program unggulan -->
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-10">
       <div class="flex items-end justify-between mb-8">
         <div>
-          <span class="text-secondary-600 font-black text-xs uppercase tracking-widest">Kabar Sekolah</span>
-          <h2 class="text-2xl md:text-3xl font-black text-primary mt-2">Artikel Terbaru</h2>
-          <p class="text-xs text-slate-400 mt-1">Artikel Terbaru SMP Islam Terpadu Al Mubarok</p>
+          <span class="text-secondary-600 font-black text-xs uppercase tracking-widest">Unggulan</span>
+          <h2 class="text-2xl md:text-3xl font-black text-primary mt-2">Program</h2>
+          <p class="text-xs text-slate-400 mt-1">Program SMP Islam Terpadu Al Mubarok</p>
         </div>
-        <button onclick="showSection('artikel')" class="hidden md:block text-primary font-black text-xs uppercase tracking-widest">Tampilkan Selengkapnya &rarr;</button>
+        <button onclick="showSection('program')" class="hidden md:block text-primary font-black text-xs uppercase tracking-widest">Tampilkan Selengkapnya &rarr;</button>
       </div>
       <div class="relative">
-        <button onclick="geserArtikel(-1)" aria-label="Geser ke kiri" class="flex items-center justify-center absolute -left-2 md:-left-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white text-primary shadow-lg hover:bg-secondary hover:text-white transition-colors">
-          <i class="fas fa-chevron-left text-xs md:text-sm"></i>
-        </button>
-        <div id="beranda-artikel-grid" class="flex gap-4 md:gap-5 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide"></div>
-        <button onclick="geserArtikel(1)" aria-label="Geser ke kanan" class="flex items-center justify-center absolute -right-2 md:-right-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white text-primary shadow-lg hover:bg-secondary hover:text-white transition-colors">
-          <i class="fas fa-chevron-right text-xs md:text-sm"></i>
-        </button>
-      </div>
-    </div>
+        <!-- DESKTOP/TABLET: carousel berhalaman + panah (tampilan lama, tidak berubah) -->
+        <div class="hidden sm:block">
+          <div class="overflow-hidden">
+            <div id="beranda-program-carousel" class="flex transition-transform duration-500 ease-out"></div>
+          </div>
+          <button onclick="geserProgram(-1)" aria-label="Sebelumnya" class="hidden sm:flex absolute -left-3 md:-left-5 top-1/2 -translate-y-1/2 w-9 h-9 md:w-10 md:h-10 rounded-full bg-white text-primary shadow-lg items-center justify-center hover:bg-secondary hover:text-primary transition-colors z-10"><i class="fas fa-chevron-left text-xs md:text-sm"></i></button>
+          <button onclick="geserProgram(1)" aria-label="Berikutnya" class="hidden sm:flex absolute -right-3 md:-right-5 top-1/2 -translate-y-1/2 w-9 h-9 md:w-10 md:h-10 rounded-full bg-white text-primary shadow-lg items-center justify-center hover:bg-secondary hover:text-primary transition-colors z-10"><i class="fas fa-chevron-right text-xs md:text-sm"></i></button>
+        </div>
 
+        <!-- HP: satu baris scroll horizontal + panah khusus HP -->
+        <div class="sm:hidden">
+          <button onclick="geserProgramMobile(-1)" aria-label="Sebelumnya" class="flex sm:hidden items-center justify-center absolute -left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white text-primary shadow-lg hover:bg-secondary hover:text-white transition-colors"><i class="fas fa-chevron-left text-xs"></i></button>
+          <div id="beranda-program-scroll-mobile" class="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide"></div>
+          <button onclick="geserProgramMobile(1)" aria-label="Berikutnya" class="flex sm:hidden items-center justify-center absolute -right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white text-primary shadow-lg hover:bg-secondary hover:text-white transition-colors"><i class="fas fa-chevron-right text-xs"></i></button>
+        </div>
+      </div>
+      <div id="beranda-program-dots" class="hidden sm:flex items-center justify-center gap-2 mt-8"></div>
+    </div>
 
     <!-- Kegiatan terbaru -->
     <div class="relative overflow-hidden bg-primary py-10">
@@ -809,35 +817,27 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
       </div>
     </div>
 
-    <!-- Program unggulan -->
-    <div class="max-w-7xl mx-auto px-4 md:px-6 py-10">
+    <!-- Artikel terbaru -->
+    <div class="max-w-7xl mx-auto px-4 md:px-6 py-10 border-t border-slate-100">
       <div class="flex items-end justify-between mb-8">
         <div>
-          <span class="text-secondary-600 font-black text-xs uppercase tracking-widest">Unggulan</span>
-          <h2 class="text-2xl md:text-3xl font-black text-primary mt-2">Program</h2>
-          <p class="text-xs text-slate-400 mt-1">Program SMP Islam Terpadu Al Mubarok</p>
+          <span class="text-secondary-600 font-black text-xs uppercase tracking-widest">Kabar Sekolah</span>
+          <h2 class="text-2xl md:text-3xl font-black text-primary mt-2">Artikel Terbaru</h2>
+          <p class="text-xs text-slate-400 mt-1">Artikel Terbaru SMP Islam Terpadu Al Mubarok</p>
         </div>
-        <button onclick="showSection('program')" class="hidden md:block text-primary font-black text-xs uppercase tracking-widest">Tampilkan Selengkapnya &rarr;</button>
+        <button onclick="showSection('artikel')" class="hidden md:block text-primary font-black text-xs uppercase tracking-widest">Tampilkan Selengkapnya &rarr;</button>
       </div>
       <div class="relative">
-        <!-- DESKTOP/TABLET: carousel berhalaman + panah (tampilan lama, tidak berubah) -->
-        <div class="hidden sm:block">
-          <div class="overflow-hidden">
-            <div id="beranda-program-carousel" class="flex transition-transform duration-500 ease-out"></div>
-          </div>
-          <button onclick="geserProgram(-1)" aria-label="Sebelumnya" class="hidden sm:flex absolute -left-3 md:-left-5 top-1/2 -translate-y-1/2 w-9 h-9 md:w-10 md:h-10 rounded-full bg-white text-primary shadow-lg items-center justify-center hover:bg-secondary hover:text-primary transition-colors z-10"><i class="fas fa-chevron-left text-xs md:text-sm"></i></button>
-          <button onclick="geserProgram(1)" aria-label="Berikutnya" class="hidden sm:flex absolute -right-3 md:-right-5 top-1/2 -translate-y-1/2 w-9 h-9 md:w-10 md:h-10 rounded-full bg-white text-primary shadow-lg items-center justify-center hover:bg-secondary hover:text-primary transition-colors z-10"><i class="fas fa-chevron-right text-xs md:text-sm"></i></button>
-        </div>
-
-        <!-- HP: satu baris scroll horizontal + panah khusus HP -->
-        <div class="sm:hidden">
-          <button onclick="geserProgramMobile(-1)" aria-label="Sebelumnya" class="flex sm:hidden items-center justify-center absolute -left-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white text-primary shadow-lg hover:bg-secondary hover:text-white transition-colors"><i class="fas fa-chevron-left text-xs"></i></button>
-          <div id="beranda-program-scroll-mobile" class="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide"></div>
-          <button onclick="geserProgramMobile(1)" aria-label="Berikutnya" class="flex sm:hidden items-center justify-center absolute -right-2 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-white text-primary shadow-lg hover:bg-secondary hover:text-white transition-colors"><i class="fas fa-chevron-right text-xs"></i></button>
-        </div>
+        <button onclick="geserArtikel(-1)" aria-label="Geser ke kiri" class="flex items-center justify-center absolute -left-2 md:-left-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white text-primary shadow-lg hover:bg-secondary hover:text-white transition-colors">
+          <i class="fas fa-chevron-left text-xs md:text-sm"></i>
+        </button>
+        <div id="beranda-artikel-grid" class="flex gap-4 md:gap-5 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide"></div>
+        <button onclick="geserArtikel(1)" aria-label="Geser ke kanan" class="flex items-center justify-center absolute -right-2 md:-right-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white text-primary shadow-lg hover:bg-secondary hover:text-white transition-colors">
+          <i class="fas fa-chevron-right text-xs md:text-sm"></i>
+        </button>
       </div>
-      <div id="beranda-program-dots" class="hidden sm:flex items-center justify-center gap-2 mt-8"></div>
     </div>
+
 
     <!-- Ekstrakurikuler -->
     <div class="bg-slate-50 py-10">
