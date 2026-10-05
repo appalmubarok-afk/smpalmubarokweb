@@ -2322,6 +2322,14 @@ function iconUntukStatistik(label) {
   return 'fas fa-star';
 }
 
+const APLIKASI_WARNA_ = [
+  { g: 'from-indigo-500 to-blue-600',  t: 'text-indigo-600' },
+  { g: 'from-emerald-500 to-teal-600', t: 'text-emerald-600' },
+  { g: 'from-amber-400 to-orange-500', t: 'text-amber-500' },
+  { g: 'from-rose-500 to-pink-600',    t: 'text-rose-500' },
+  { g: 'from-sky-500 to-cyan-600',     t: 'text-sky-600' },
+  { g: 'from-violet-500 to-purple-600', t: 'text-violet-600' }
+];
 // Ikon dipilih otomatis dari kata kunci nama aplikasi, admin cukup isi nama & link
 function iconUntukAplikasi(nama) {
   const n = (nama || '').toLowerCase();
@@ -2380,23 +2388,26 @@ function renderMenuAplikasi() {
   const kolomDesktop = rowsBeranda.length;
   el.className = 'grid gap-3 md:gap-4 grid-cols-' + kolomMobile + ' md:grid-cols-' + kolomDesktop;
 
-  // Ukuran ikon disesuaikan jumlah aplikasi di beranda (maksimal 4);
-  // lebar kartu mengikuti kolom grid (mengisi penuh, tidak ada celah).
-  let ukuran;
-  if (rowsBeranda.length <= 3) {
-    ukuran = { kartu: 'w-full py-7 px-4', ikon: 'w-20 h-20 rounded-[22px]', iconText: 'text-3xl', label: 'text-xs' };
-  } else {
-    ukuran = { kartu: 'w-full py-6 px-3', ikon: 'w-16 h-16 rounded-2xl', iconText: 'text-2xl', label: 'text-[11px]' };
-  }
-
-  el.innerHTML = rowsBeranda.map(function (m) {
-    const link = (m.link || '').trim();
+  // Kartu preview: gaya yang sama dengan halaman Aplikasi (aksen warna, ikon gradasi, watermark).
+  el.innerHTML = rowsBeranda.map(function (m, i) {
+    const w = APLIKASI_WARNA_[i % APLIKASI_WARNA_.length];
+    const link = (m.link || '').toString().trim();
     const tag = link ? 'a' : 'div';
-    const attrLink = link ? ('href="' + link + '" target="_blank" rel="noopener"') : '';
-    return '<' + tag + ' ' + attrLink + ' class="group flex flex-col items-center justify-center gap-3 text-center bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-secondary/50 hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden ' + ukuran.kartu + '">' +
-      '<div class="' + ukuran.ikon + ' bg-gradient-to-br from-primary to-primary-600 flex items-center justify-center shadow-md group-hover:scale-110 group-hover:shadow-lg transition-transform duration-300"><i class="' + iconUntukAplikasi(m.nama_menu) + ' text-white ' + ukuran.iconText + '"></i></div>' +
-      '<span class="' + ukuran.label + ' font-black text-primary uppercase tracking-wide whitespace-nowrap overflow-hidden text-ellipsis max-w-full block px-1">' + (m.nama_menu || '-') + '</span>' +
-      '</' + tag + '>';
+    const attrLink = link ? ('href="' + _ak(link) + '" target="_blank" rel="noopener"') : '';
+    const ikon = iconUntukAplikasi(m.nama_menu);
+    const desk = (m.deskripsi || '').toString().replace(/\s+/g, ' ').trim();
+    return '<' + tag + ' ' + attrLink + ' class="group relative flex flex-col bg-white rounded-2xl md:rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer overflow-hidden text-left">' +
+      '<div class="h-1.5 bg-gradient-to-r ' + w.g + '"></div>' +
+      '<i class="' + ikon + ' absolute -top-3 -right-3 text-[96px] ' + w.t + ' opacity-[0.07] rotate-12 pointer-events-none group-hover:opacity-[0.13] group-hover:scale-110 transition-all duration-500"></i>' +
+      '<div class="relative flex flex-col flex-1 p-4 md:p-5">' +
+        '<div class="flex items-start justify-between">' +
+          '<div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br ' + w.g + ' flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300"><i class="' + ikon + ' text-white text-xl md:text-2xl"></i></div>' +
+          '<span class="text-[11px] font-black text-slate-300 tracking-widest">' + (i + 1 < 10 ? '0' : '') + (i + 1) + '</span>' +
+        '</div>' +
+        '<h3 class="font-black text-primary text-[11px] md:text-xs uppercase tracking-wide leading-snug mt-4 line-clamp-2">' + _ak(m.nama_menu || '-') + '</h3>' +
+        (desk ? '<p class="hidden sm:block text-[11px] text-slate-500 leading-relaxed mt-1.5 line-clamp-2">' + _ak(desk) + '</p>' : '') +
+        '<span class="mt-auto pt-3 inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest ' + (link ? w.t : 'text-slate-400') + '">' + (link ? 'Buka <i class="fas fa-arrow-right text-[9px] group-hover:translate-x-1 transition-transform"></i>' : '<i class="fas fa-hourglass-half"></i> Segera') + '</span>' +
+      '</div></' + tag + '>';
   }).join('');
 }
 
@@ -2409,14 +2420,6 @@ function setCariAplikasi_(v) { aplikasiCari_ = (v || '').toString(); renderAplik
 function renderAplikasiFull_() {
   const elFull = document.getElementById('aplikasi-grid-full');
   if (!elFull) return;
-  const warna = [
-    { g: 'from-indigo-500 to-blue-600',  t: 'text-indigo-600' },
-    { g: 'from-emerald-500 to-teal-600', t: 'text-emerald-600' },
-    { g: 'from-amber-400 to-orange-500', t: 'text-amber-500' },
-    { g: 'from-rose-500 to-pink-600',    t: 'text-rose-500' },
-    { g: 'from-sky-500 to-cyan-600',     t: 'text-sky-600' },
-    { g: 'from-violet-500 to-purple-600', t: 'text-violet-600' }
-  ];
   const q = aplikasiCari_.trim().toLowerCase();
   const semua = aplikasiRows_ || [];
   const rows = semua.map(function (m, i) { return { m: m, i: i }; }).filter(function (x) {
@@ -2427,7 +2430,7 @@ function renderAplikasiFull_() {
   if (jml) jml.textContent = q ? (rows.length + ' dari ' + semua.length + ' aplikasi') : (semua.length + ' aplikasi tersedia');
 
   elFull.innerHTML = rows.map(function (x) {
-    const m = x.m, w = warna[x.i % warna.length];
+    const m = x.m, w = APLIKASI_WARNA_[x.i % APLIKASI_WARNA_.length];
     const link = (m.link || '').toString().trim();
     const ikon = iconUntukAplikasi(m.nama_menu);
     const nomor = (x.i + 1 < 10 ? '0' : '') + (x.i + 1);
