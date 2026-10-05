@@ -43,6 +43,25 @@
 }
 </script>
 
+<!-- PRA-AMBIL DATA: permintaan data ke Apps Script dimulai SEKARANG juga, paralel
+     dengan Tailwind/FontAwesome & parsing script besar di bawah (dulu baru mulai
+     setelah semuanya selesai -> pengunjung pertama menunggu jauh lebih lama).
+     Alamat /exec harus SAMA dengan APPS_SCRIPT_EXEC_URL_ di script bawah. -->
+<script>
+(function () {
+  try {
+    if (typeof google !== 'undefined' && google.script && google.script.run) return; // dibuka lewat Apps Script asli -> tak perlu
+    var url = 'https://script.google.com/macros/s/AKfycbycDE3le6vXsyFwrtNkUQuhhJ56fyQWIGz_WOPT7lZ0xEvcMc4InPajEJ-QR_o9pcRV/exec'
+            + '?fn=getFullData&args=' + encodeURIComponent(JSON.stringify(['id']));
+    var ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) ctrl.abort(); }, 30000);
+    window.__PRELOAD_DATA__ = fetch(url, ctrl ? { signal: ctrl.signal } : undefined)
+      .then(function (r) { clearTimeout(timer); return r.text(); })
+      .then(function (t) { return JSON.parse(t); })
+      .catch(function () { return null; });   // gagal -> script utama otomatis mencoba cara biasa
+  } catch (e) { window.__PRELOAD_DATA__ = null; }
+})();
+</script>
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
@@ -2006,11 +2025,25 @@ const DATA_CACHE_KEY_ = 'smpDataCacheV1';
 function simpanCacheData_(data) {
   try { localStorage.setItem(DATA_CACHE_KEY_, JSON.stringify(data)); } catch (e) { /* penuh/diblokir -> abaikan */ }
 }
+// Ambil getFullData: pakai hasil pra-ambil dari <head> kalau ada (sudah jalan
+// sejak halaman mulai dimuat), kalau tidak ada/gagal -> cara biasa.
+function _ambilFullData_(onOk, onFail) {
+  const pre = window.__PRELOAD_DATA__;
+  window.__PRELOAD_DATA__ = null; // hanya dipakai sekali
+  const biasa = function () {
+    google.script.run.withSuccessHandler(onOk).withFailureHandler(onFail || function () {}).getFullData('id');
+  };
+  if (!pre) { biasa(); return; }
+  pre.then(function (json) {
+    if (json && !json.__error && json.__hasil !== undefined) onOk(json.__hasil);
+    else biasa();
+  });
+}
 function loadData() {
-  google.script.run.withSuccessHandler(function (data) {
+  _ambilFullData_(function (data) {
     if (data && !data.error) simpanCacheData_(data);
     onDataLoaded(data);
-  }).withFailureHandler(onDataError).getFullData('id');
+  }, onDataError);
 }
 // Kunjungan berikutnya: tampilkan data terakhir yang tersimpan LANGSUNG
 // (tidak menunggu Apps Script), lalu ambil data terbaru di belakang layar
@@ -2028,13 +2061,13 @@ function loadDataDenganCache_() {
     loadData();
     return;
   }
-  google.script.run.withSuccessHandler(function (data) {
+  _ambilFullData_(function (data) {
     if (!data || data.error) return;
     const baru = JSON.stringify(data);
     if (baru === mentah) return;
     try { localStorage.setItem(DATA_CACHE_KEY_, baru); } catch (e) {}
     terapkanDataSenyap_(data);
-  }).getFullData('id');
+  });
 }
 
 function onDataError(err) {
