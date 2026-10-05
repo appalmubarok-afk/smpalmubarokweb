@@ -10,7 +10,6 @@
 <link rel="apple-touch-icon" href="/logo.png">
 
 <!-- Percepat koneksi ke server yang dipakai & muat gambar splash lebih awal -->
-<link rel="preconnect" href="https://cdn.tailwindcss.com">
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link rel="preconnect" href="https://script.google.com" crossorigin>
@@ -61,16 +60,6 @@
       .catch(function () { return null; });   // gagal -> script utama otomatis mencoba cara biasa
   } catch (e) { window.__PRELOAD_DATA__ = null; }
 })();
-</script>
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = { darkMode: 'class', theme: { extend: {
-    colors: {
-      primary:   { DEFAULT: '#1f287d', 50:'#eef0fb', 100:'#dde1f6', 200:'#b3bcea', 300:'#8997dd', 400:'#4d5cc4', 500:'#1f287d', 600:'#1a2169', 700:'#151a55', 800:'#101441', 900:'#0b0e2d' },
-      secondary: { DEFAULT: '#e7b10a', 50:'#fef9e7', 100:'#fdf1c4', 200:'#fbe388', 300:'#f9d54c', 400:'#eebe1f', 500:'#e7b10a', 600:'#b98c08', 700:'#8b6806', 800:'#5d4504', 900:'#2e2302' }
-    }
-  } } };
 </script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" media="print" onload="this.media='all'">
 <noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"></noscript>
@@ -292,6 +281,11 @@ html.a11y-kontras .a11y-opt[aria-pressed="true"] .a11y-ic { background:#000; col
 html.a11y-kontras .a11y-sq, html.a11y-kontras .a11y-btn.a11y-alt, html.a11y-kontras .a11y-btn.a11y-bahaya { background:#000; color:#ffd84d; border-color:#ffd84d; }
 html.a11y-kontras .a11y-btn:not(.a11y-alt):not(.a11y-bahaya) { background:#ffd84d; color:#000; border-color:#ffd84d; }
 </style>
+
+<!-- Tailwind versi build (file statis tailwind.css, ~10KB terkompresi). Dulu memakai skrip CDN Tailwind
+     yang mengunduh ratusan KB JavaScript & mengompilasi CSS di browser tiap kunjungan.
+     Kalau kelas Tailwind baru ditambahkan di halaman ini, file tailwind.css harus dibuat ulang. -->
+<link rel="stylesheet" href="/tailwind.css">
 
 </head>
 <body class="text-slate-700 splash-aktif">
@@ -3687,6 +3681,35 @@ function youtubeThumb(url) {
   const m1 = (url || '').match(/(?:youtu\.be\/|v=)([A-Za-z0-9_-]{6,})/);
   return m1 ? ('https://img.youtube.com/vi/' + m1[1] + '/hqdefault.jpg') : 'https://placehold.co/400x250/1f287d/e7b10a?text=Video';
 }
+// YOUTUBE "FACADE": dulu SETIAP video (Galeri Video + Live Streaming + arsip)
+// langsung dimuat sebagai pemutar YouTube penuh begitu halaman dibuka, walau
+// menunya belum dibuka -> puluhan pemutar sekaligus (berat, halaman tak
+// pernah selesai "loading", Lighthouse gagal). Sekarang yang tampil hanya
+// gambar sampul + tombol putar; pemutar asli baru dimuat saat diklik.
+function ytFacadeHtml_(url) {
+  const embed = toYoutubeEmbed(url);
+  if (!embed || embed === url) {
+    // bukan link YouTube biasa -> tetap iframe, tapi ditunda sampai terlihat
+    return '<iframe src="' + embed + '" class="w-full h-full" frameborder="0" loading="lazy" allowfullscreen></iframe>';
+  }
+  return '<button type="button" class="yt-facade absolute inset-0 w-full h-full block bg-black group" data-embed="' + embed + '" aria-label="Putar video">' +
+    '<img src="' + youtubeThumb(url) + '" alt="" loading="lazy" decoding="async" width="480" height="360" class="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity">' +
+    '<span class="absolute inset-0 flex items-center justify-center"><span class="w-14 h-14 rounded-full bg-red-600 group-hover:bg-red-500 shadow-lg flex items-center justify-center transition-colors"><i class="fas fa-play text-white text-lg ml-0.5" aria-hidden="true"></i></span></span>' +
+    '</button>';
+}
+document.addEventListener('click', function (e) {
+  const b = e.target.closest ? e.target.closest('.yt-facade') : null;
+  if (!b) return;
+  const src = b.getAttribute('data-embed');
+  const f = document.createElement('iframe');
+  f.src = src + (src.indexOf('?') > -1 ? '&' : '?') + 'autoplay=1&rel=0';
+  f.className = 'w-full h-full';
+  f.setAttribute('frameborder', '0');
+  f.setAttribute('allowfullscreen', '');
+  f.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen');
+  f.setAttribute('title', 'Video');
+  b.replaceWith(f);
+});
 function renderGaleriVideo() {
   // Gabung: video OTOMATIS dari channel YouTube (deteksi sendiri, tidak
   // ada di spreadsheet, jadi tidak muncul di tabel Admin) + video MANUAL
@@ -3700,7 +3723,7 @@ function renderGaleriVideo() {
 
   document.getElementById('galerivideo-grid').innerHTML = rows.map(function (v) {
     return '<div class="bg-white rounded-2xl shadow-sm overflow-hidden">' +
-      '<div class="relative aspect-video"><iframe src="' + toYoutubeEmbed(v.url_video) + '" class="w-full h-full" frameborder="0" allowfullscreen></iframe>' +
+      '<div class="relative aspect-video">' + ytFacadeHtml_(v.url_video) + '' +
       (v.sumber === 'youtube_otomatis' ? '<span class="absolute top-2 left-2 bg-primary/90 text-white text-[8px] font-black px-2 py-1 rounded-full"><i class="fab fa-youtube mr-1"></i>Otomatis dari YouTube</span>' : '') + '</div>' +
       '<div class="p-4"><p class="font-black text-primary text-xs">' + (v.judul || '-') + '</p>' +
       (v.deskripsi ? '<p class="text-xs text-slate-500 mt-1 line-clamp-2">' + v.deskripsi + '</p>' : '') + '</div></div>';
@@ -3947,7 +3970,7 @@ function renderLiveStreaming() {
   if (utama) {
     utama.innerHTML = sedangLive
       ? '<div class="bg-white rounded-2xl shadow-lg overflow-hidden">' +
-        '<div class="relative aspect-video"><iframe src="' + toYoutubeEmbed(sedangLive.url_video) + '" class="w-full h-full" frameborder="0" allowfullscreen></iframe>' +
+        '<div class="relative aspect-video">' + ytFacadeHtml_(sedangLive.url_video) + '' +
         '<span class="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-black px-3 py-1.5 rounded-full flex items-center gap-1.5"><span class="live-dot w-2 h-2 rounded-full bg-white"></span>SIARAN LANGSUNG</span></div>' +
         '<div class="p-5"><p class="font-black text-primary">' + (sedangLive.judul || '-') + '</p>' +
         (sedangLive.deskripsi ? '<p class="text-xs text-slate-500 mt-1">' + sedangLive.deskripsi + '</p>' : '') + '</div></div>'
@@ -3959,7 +3982,7 @@ function renderLiveStreaming() {
 
   document.getElementById('livestreaming-arsip-grid').innerHTML = arsip.map(function (v) {
     return '<div class="bg-white rounded-2xl shadow-sm overflow-hidden">' +
-      '<div class="relative aspect-video"><iframe src="' + toYoutubeEmbed(v.url_video) + '" class="w-full h-full" frameborder="0" allowfullscreen></iframe>' +
+      '<div class="relative aspect-video">' + ytFacadeHtml_(v.url_video) + '' +
       (v.sumber === 'youtube_otomatis' ? '<span class="absolute top-2 left-2 bg-primary/90 text-white text-[8px] font-black px-2 py-1 rounded-full"><i class="fab fa-youtube mr-1"></i>Otomatis dari YouTube</span>' : '') + '</div>' +
       '<div class="p-4"><p class="font-black text-primary text-xs">' + (v.judul || '-') + '</p>' +
       (v.tanggal ? '<p class="text-[10px] text-slate-400 mt-0.5">' + v.tanggal + '</p>' : '') +
