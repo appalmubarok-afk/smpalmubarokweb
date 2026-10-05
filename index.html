@@ -1215,8 +1215,10 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
 
   <!-- ================= ARTIKEL (detail) ================= -->
   <section id="section-artikel-detail" class="app-section">
-    <div class="max-w-3xl mx-auto px-4 md:px-6 py-12">
+    <div class="max-w-6xl mx-auto px-4 md:px-6 py-12">
       <button onclick="showSection('artikel')" class="text-primary font-black text-xs uppercase tracking-widest mb-6"><i class="fas fa-arrow-left mr-2"></i>Kembali</button>
+      <div class="grid lg:grid-cols-3 gap-8 lg:gap-12 items-start">
+      <div class="lg:col-span-2 min-w-0">
       <div id="artikel-detail-content"></div>
       <div class="flex items-center gap-5 mt-6 pt-6 border-t border-slate-100">
         <span class="text-xs text-slate-400 font-bold flex items-center gap-1.5"><i class="fas fa-eye"></i> <span id="artikel-detail-views">0</span> dilihat</span>
@@ -1231,6 +1233,39 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
         <button onclick="shareArtikel('twitter')" title="Bagikan ke X/Twitter" class="w-9 h-9 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90"><i class="fab fa-x-twitter"></i></button>
         <button onclick="shareArtikel('telegram')" title="Bagikan ke Telegram" class="w-9 h-9 rounded-full bg-[#26A5E4] text-white flex items-center justify-center hover:opacity-90"><i class="fab fa-telegram-plane"></i></button>
         <button onclick="shareArtikel('copy')" title="Salin ringkasan & link" class="w-9 h-9 rounded-full bg-slate-200 text-slate-600 flex items-center justify-center hover:bg-slate-300"><i class="fas fa-link"></i></button>
+      </div>
+      </div>
+      <aside class="lg:sticky lg:top-24 space-y-6 min-w-0">
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-5">
+          <p class="text-[10px] font-black uppercase tracking-widest text-secondary-600">Jelajahi</p>
+          <h3 class="text-lg font-black text-primary mt-0.5 mb-4">Fitur Website</h3>
+          <div class="grid grid-cols-2 gap-2.5">
+            <button onclick="showSection('program')" class="group flex items-center gap-2.5 p-2.5 rounded-xl bg-primary-50 hover:bg-primary text-left transition-colors"><span class="w-8 h-8 flex-shrink-0 rounded-lg bg-white text-primary flex items-center justify-center text-sm"><i class="fas fa-graduation-cap"></i></span><span class="text-[11px] font-black text-primary group-hover:text-white leading-tight">Program</span></button>
+            <button onclick="showSection('ekstrakurikuler')" class="group flex items-center gap-2.5 p-2.5 rounded-xl bg-primary-50 hover:bg-primary text-left transition-colors"><span class="w-8 h-8 flex-shrink-0 rounded-lg bg-white text-primary flex items-center justify-center text-sm"><i class="fas fa-futbol"></i></span><span class="text-[11px] font-black text-primary group-hover:text-white leading-tight">Ekstra-kurikuler</span></button>
+            <button onclick="showSection('prestasi')" class="group flex items-center gap-2.5 p-2.5 rounded-xl bg-primary-50 hover:bg-primary text-left transition-colors"><span class="w-8 h-8 flex-shrink-0 rounded-lg bg-white text-secondary-600 flex items-center justify-center text-sm"><i class="fas fa-trophy"></i></span><span class="text-[11px] font-black text-primary group-hover:text-white leading-tight">Prestasi</span></button>
+            <button onclick="showSection('karya')" class="group flex items-center gap-2.5 p-2.5 rounded-xl bg-primary-50 hover:bg-primary text-left transition-colors"><span class="w-8 h-8 flex-shrink-0 rounded-lg bg-white text-primary flex items-center justify-center text-sm"><i class="fas fa-palette"></i></span><span class="text-[11px] font-black text-primary group-hover:text-white leading-tight">Karya Siswa</span></button>
+            <button onclick="showSection('virtualtour')" class="group flex items-center gap-2.5 p-2.5 rounded-xl bg-primary-50 hover:bg-primary text-left transition-colors"><span class="w-8 h-8 flex-shrink-0 rounded-lg bg-white text-primary flex items-center justify-center text-sm"><i class="fas fa-street-view"></i></span><span class="text-[11px] font-black text-primary group-hover:text-white leading-tight">Virtual Tour 360&deg;</span></button>
+            <button onclick="showSection('galeri')" class="group flex items-center gap-2.5 p-2.5 rounded-xl bg-primary-50 hover:bg-primary text-left transition-colors"><span class="w-8 h-8 flex-shrink-0 rounded-lg bg-white text-primary flex items-center justify-center text-sm"><i class="fas fa-images"></i></span><span class="text-[11px] font-black text-primary group-hover:text-white leading-tight">Galeri Foto</span></button>
+            <button onclick="showSection('kalender')" class="group flex items-center gap-2.5 p-2.5 rounded-xl bg-primary-50 hover:bg-primary text-left transition-colors"><span class="w-8 h-8 flex-shrink-0 rounded-lg bg-white text-primary flex items-center justify-center text-sm"><i class="fas fa-calendar-days"></i></span><span class="text-[11px] font-black text-primary group-hover:text-white leading-tight">Kalender Akademik</span></button>
+            <button onclick="klikPendaftaran()" class="group flex items-center gap-2.5 p-2.5 rounded-xl bg-secondary hover:bg-secondary-400 text-left transition-colors"><span class="w-8 h-8 flex-shrink-0 rounded-lg bg-white text-primary flex items-center justify-center text-sm"><i class="fas fa-user-plus"></i></span><span class="text-[11px] font-black text-primary leading-tight">Pendaftaran</span></button>
+          </div>
+        </div>
+        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-5">
+          <p class="text-[10px] font-black uppercase tracking-widest text-secondary-600">Paling Banyak Dibaca</p>
+          <h3 class="text-lg font-black text-primary mt-0.5 mb-4">Artikel Populer</h3>
+          <div id="artikel-detail-populer" class="space-y-4"></div>
+        </div>
+      </aside>
+      </div>
+      <div id="artikel-detail-lainnya-wrap" class="hidden mt-14 pt-10 border-t border-slate-100">
+        <div class="flex items-end justify-between mb-6">
+          <div>
+            <span class="text-secondary-600 font-black text-xs uppercase tracking-widest">Lanjut Membaca</span>
+            <h2 class="text-2xl md:text-3xl font-black text-primary mt-1">Baca Juga</h2>
+          </div>
+          <button onclick="showSection('artikel')" class="text-primary font-black text-xs uppercase tracking-widest hover:text-primary-600">Semua Artikel &rarr;</button>
+        </div>
+        <div id="artikel-detail-lainnya" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
       </div>
     </div>
   </section>
@@ -3226,6 +3261,58 @@ function renderArtikel() {
   document.getElementById('beranda-artikel-grid') && (document.getElementById('beranda-artikel-grid').innerHTML = rows.slice(0, 6).map(function (a) { return cardHtml(a, 'flex-shrink-0 w-64 md:w-72 snap-start'); }).join('') || emptyState('Belum ada artikel.'));
 }
 
+// ---------------------------------------------------------------
+// HALAMAN ARTIKEL: sidebar "Artikel Populer" + "Baca Juga"
+// ---------------------------------------------------------------
+function renderArtikelTerkait_(a) {
+  const semua = (DB.artikel || []).filter(function (x) { return x._rowId !== a._rowId; });
+  const fotoPertama = function (x) { return fotoUrls(x.gambar, 'https://placehold.co/400x250/1f287d/e7b10a?text=Artikel')[0]; };
+  const tglNilai = function (x) { const d = parseTanggalArtikel_(x.tanggal); return d ? d.getTime() : 0; };
+
+  // Populer: views terbanyak
+  const populer = semua.slice().sort(function (p, q) {
+    return (parseInt(q.views) || 0) - (parseInt(p.views) || 0) || tglNilai(q) - tglNilai(p);
+  }).slice(0, 3);
+  const elPop = document.getElementById('artikel-detail-populer');
+  if (elPop) {
+    elPop.innerHTML = populer.map(function (x, i) {
+      return '<div onclick="openArtikelDetail(' + x._rowId + ')" class="group flex gap-3 cursor-pointer">' +
+        '<div class="relative flex-shrink-0 w-20 h-16 rounded-xl overflow-hidden bg-primary-50">' +
+        '<img loading="lazy" decoding="async" src="' + _ak(fotoPertama(x)) + '" alt="" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">' +
+        '<span class="absolute top-1 left-1 w-5 h-5 rounded-full bg-secondary text-primary text-[10px] font-black flex items-center justify-center">' + (i + 1) + '</span></div>' +
+        '<div class="min-w-0"><p class="text-xs font-black text-primary leading-snug line-clamp-2 group-hover:text-primary-600">' + _ak(x.judul || '-') + '</p>' +
+        '<p class="text-[10px] text-slate-400 font-semibold mt-1"><i class="fas fa-eye mr-1"></i>' + (x.views || 0) + ' &middot; ' + _ak(x.tanggal || '') + '</p></div></div>';
+    }).join('') || '<p class="text-xs text-slate-400">Belum ada artikel lain.</p>';
+  }
+
+  // Baca Juga: kategori sama dulu, lalu yang terbaru
+  const kat = (a.kategori || '').toString().trim().toLowerCase();
+  const urut = semua.slice().sort(function (p, q) {
+    const sp = kat && (p.kategori || '').toString().trim().toLowerCase() === kat ? 1 : 0;
+    const sq = kat && (q.kategori || '').toString().trim().toLowerCase() === kat ? 1 : 0;
+    return (sq - sp) || (tglNilai(q) - tglNilai(p)) || ((q._rowId || 0) - (p._rowId || 0));
+  }).slice(0, 3);
+  const wrap = document.getElementById('artikel-detail-lainnya-wrap');
+  const el = document.getElementById('artikel-detail-lainnya');
+  if (!wrap || !el) return;
+  if (!urut.length) { wrap.classList.add('hidden'); el.innerHTML = ''; return; }
+  wrap.classList.remove('hidden');
+  el.innerHTML = urut.map(function (x) {
+    return '<article onclick="openArtikelDetail(' + x._rowId + ')" class="group cursor-pointer bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">' +
+      '<div class="relative aspect-[16/10] overflow-hidden bg-primary-50">' +
+      '<img loading="lazy" decoding="async" src="' + _ak(fotoPertama(x)) + '" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">' +
+      '<span class="absolute top-3 left-3 bg-white/90 text-primary text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">' + _ak(x.kategori || 'Artikel') + '</span></div>' +
+      '<div class="p-4 flex flex-col flex-1">' +
+      '<p class="text-[10px] text-secondary-600 font-bold uppercase tracking-widest">' + _ak(x.tanggal || '') + '</p>' +
+      '<h3 class="font-black text-primary text-sm mt-1 leading-snug line-clamp-2">' + _ak(x.judul || '-') + '</h3>' +
+      '<p class="text-xs text-slate-500 leading-relaxed mt-2 line-clamp-2">' + _ak((x.ringkasan || (x.konten || '').toString().slice(0, 100)).toString()) + '</p>' +
+      '<div class="mt-auto pt-3 flex items-center justify-between text-[10px] font-semibold text-slate-400">' +
+      '<span><i class="fas fa-eye mr-1"></i>' + (x.views || 0) + '<i class="fas fa-heart ml-3 mr-1"></i>' + (x.suka || 0) + '</span>' +
+      '<span class="text-primary font-black uppercase tracking-widest">Baca <i class="fas fa-arrow-right ml-0.5"></i></span></div>' +
+      '</div></article>';
+  }).join('');
+}
+
 let currentArtikelRowId_ = null;
 let sukaAktifArtikel_ = false;
 function openArtikelDetail(rowId) {
@@ -3239,6 +3326,7 @@ function openArtikelDetail(rowId) {
     '<h1 class="text-3xl md:text-4xl font-black text-primary mt-3 mb-5 leading-tight">' + (a.judul || '-') + '</h1>' +
     '<div class="group">' + fotoSliderHtml(a.gambar, 'w-full rounded-2xl mb-6', 'https://placehold.co/800x400/1f287d/e7b10a?text=Artikel') + '</div>' +
     '<div class="text-base md:text-lg leading-relaxed md:leading-8 text-slate-600 whitespace-pre-line">' + (a.konten || a.ringkasan || '') + '</div>';
+  renderArtikelTerkait_(a);
   document.getElementById('artikel-detail-views').textContent = a.views || 0;
   document.getElementById('artikel-detail-suka').textContent = a.suka || 0;
   document.getElementById('artikel-detail-like-btn').querySelector('i').className = 'far fa-heart';
