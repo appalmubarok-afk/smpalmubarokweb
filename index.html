@@ -432,7 +432,6 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
       <button onclick="showSection('karya')" class="px-3 py-2 rounded-lg hover:bg-white/10">Karya</button>
       <button onclick="showSection('aplikasi')" class="px-3 py-2 rounded-lg hover:bg-white/10">Aplikasi</button>
       <button id="nav-daftar-btn" onclick="klikPendaftaran()" class="ml-2 px-4 py-2.5 rounded-full bg-secondary text-primary hover:bg-secondary-400 shadow">Pendaftaran</button>
-      <button onclick="openAdminLogin()" title="Admin" class="ml-1 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"><i class="fas fa-user-shield text-xs"></i></button>
     </nav>
 
     <button onclick="toggleMobileMenu()" class="xl:hidden text-white text-2xl"><i class="fas fa-bars"></i></button>
@@ -490,7 +489,6 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     <button onclick="showSection('karya')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10">Karya</button>
     <button onclick="showSection('aplikasi')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10">Aplikasi</button>
     <button id="nav-daftar-btn-mobile" onclick="klikPendaftaran()" class="block w-full text-left px-3 py-2.5 rounded-lg bg-secondary text-primary mt-2">Pendaftaran</button>
-    <button onclick="openAdminLogin()" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10"><i class="fas fa-user-shield mr-2"></i>Admin</button>
   </div>
 </header>
 
@@ -1832,7 +1830,10 @@ if (typeof google === 'undefined' || !google.script || !google.script.run) {
           return function () {
             const args = Array.prototype.slice.call(arguments);
             const isiJson = JSON.stringify({ fn: String(nama), args: args });
-            const pakaiGet = isiJson.length < 6000;
+            // Fungsi sensitif (login, token, simpan/hapus/unggah) SELALU lewat POST,
+            // supaya password & token tidak ikut tertulis di URL.
+            const FN_RAHASIA_ = ['loginAdmin', 'cekSesiAdmin', 'logoutAdmin', 'cekSandiKarya', 'cekKodeAkses', 'saveData', 'deleteData', 'uploadFileToDrive'];
+            const pakaiGet = isiJson.length < 6000 && FN_RAHASIA_.indexOf(String(nama)) === -1;
 
             const ctrl = new AbortController();
             const timer = setTimeout(function () { ctrl.abort(); }, 25000);
@@ -1882,6 +1883,20 @@ const NAV_SEMBUNYI_SAAT_ = 'atas';
 let _navScrollTerakhir_ = window.pageYOffset || 0;
 let _navScrollMenunggu_ = false;
 let _navAbaikanScrollSampai_ = 0;
+
+// --- AKSES ADMIN (disembunyikan dari menu) ---------------------------------
+// Tombol Admin TIDAK ditampilkan di web. Admin masuk lewat link rahasia:
+//     https://smpitalmubarok.sch.id/?akses=<KODE_AKSES_ADMIN_>
+// Kodenya TIDAK ada di file ini (halaman ini bisa dibaca lewat Inspect).
+// Kode disimpan & diperiksa di server (Code.gs -> KODE_AKSES_ADMIN_); di sini
+// hanya dibaca dari URL lalu dikirim ke server untuk dicek. Keamanan lainnya:
+// semua aksi tulis butuh token hasil login.
+const ADMIN_SESI_KEY_ = 'smpAdminSesiV1';
+const _KODE_AKSES_DARI_LINK_ = (function () {
+  try { return (new URLSearchParams(location.search).get('akses') || '').slice(0, 100); } catch (e) { return ''; }
+})();
+let _tokenKarya_ = '';   // token sesi unggah karya (didapat setelah sandi benar)
+function _tokenAdmin_() { return (currentAdmin && currentAdmin.token) || ''; }
 // Menampung artikel_id dari deep-link (share/link luar) yang menunggu
 // data (DB.artikel) selesai dimuat sebelum benar-benar dibuka.
 let __pendingArtikelId__ = null;
@@ -2726,7 +2741,7 @@ function renderFasilitas() {
       fotoSliderHtml(f.foto, 'w-full h-48 object-cover', 'https://placehold.co/400x300/1f287d/e7b10a?text=Fasilitas') +
       '<div class="p-5"><p class="font-black text-primary text-sm mb-1.5">' + (f.nama_fasilitas || '-') + '</p>' +
       '<p class="text-xs text-slate-500 leading-relaxed whitespace-pre-line">' + (f.deskripsi || 'Deskripsi belum diisi.') + '</p></div></div>';
-  }).join('') || '<div class="col-span-full text-center py-10 text-slate-400 text-xs font-semibold">Belum ada data fasilitas. Tambahkan lewat menu Admin &gt; Fasilitas.</div>';
+  }).join('') || '<div class="col-span-full text-center py-10 text-slate-400 text-xs font-semibold">Belum ada data fasilitas.</div>';
 }
 
 // ---------------------------------------------------------------
@@ -4579,7 +4594,7 @@ function openUploadKarya() {
       if (!sandi || !sandi.trim()) { Swal.showValidationMessage('Sandi belum diisi.'); return false; }
       return new Promise(function (resolve) {
         google.script.run.withSuccessHandler(function (res) {
-          if (res && res.sukses) { resolve(true); return; }
+          if (res && res.sukses) { _tokenKarya_ = res.token || ''; resolve(true); return; }
           Swal.showValidationMessage((res && res.pesan) || 'Sandi salah.');
           resolve(false);
         }).withFailureHandler(function () {
@@ -4627,16 +4642,17 @@ function submitUploadKarya(e) {
       btn.disabled = false; btn.innerHTML = '<i class="fas fa-upload mr-2"></i>Unggah Karya';
       loadData();
     }).withFailureHandler(function (err) {
+      if (String((err && err.message) || err).indexOf('Sesi unggah') === 0) { _karyaTerbuka_ = false; _tokenKarya_ = ''; closeModal('modal-upload-karya'); }
       Swal.fire({ icon: 'error', title: 'Gagal', text: err.message || err });
       btn.disabled = false; btn.innerHTML = '<i class="fas fa-upload mr-2"></i>Unggah Karya';
-    }).saveData('Karya', dataObj, null);
+    }).saveData('Karya', dataObj, null, _tokenKarya_);
   }
 
   if (fileInput.files && fileInput.files[0]) {
     const reader = new FileReader();
     reader.onload = function () {
       const base64 = reader.result.split(',')[1];
-      google.script.run.withSuccessHandler(function (url) { dataObj.file_url = url; saveKarya(); }).withFailureHandler(function () { saveKarya(); }).uploadFileToDrive(base64, fileInput.files[0].name, fileInput.files[0].type);
+      google.script.run.withSuccessHandler(function (url) { dataObj.file_url = url; saveKarya(); }).withFailureHandler(function () { saveKarya(); }).uploadFileToDrive(base64, fileInput.files[0].name, fileInput.files[0].type, _tokenKarya_);
     };
     reader.readAsDataURL(fileInput.files[0]);
   } else {
@@ -4754,17 +4770,39 @@ function doLoginAdmin(e) {
   const u = document.getElementById('login-username').value;
   const p = document.getElementById('login-password').value;
   google.script.run.withSuccessHandler(function (res) {
-    if (res.sukses) {
+    if (res && res.sukses && res.token) {
       currentAdmin = res;
+      try { sessionStorage.setItem(ADMIN_SESI_KEY_, JSON.stringify({ token: res.token, nama: res.nama })); } catch (err) {}
+      document.getElementById('login-password').value = '';
       closeModal('modal-login');
       openAdminPanel();
     } else {
-      Swal.fire({ icon: 'error', title: 'Login gagal', text: res.pesan });
+      Swal.fire({ icon: 'error', title: 'Login gagal', text: (res && res.pesan) || 'Login gagal.' });
     }
+  }).withFailureHandler(function () {
+    Swal.fire({ icon: 'error', title: 'Login gagal', text: 'Tidak bisa terhubung ke server. Coba lagi.' });
   }).loginAdmin(u, p);
 }
+// Dipanggil saat server menolak token (sesi habis): tutup panel & minta login ulang.
+function _sesiAdminBerakhir_(err) {
+  const msg = (err && err.message) ? err.message : String(err || '');
+  if (msg.indexOf('Sesi admin') !== 0 && msg.indexOf('Sesi unggah') !== 0) return false;
+  currentAdmin = null;
+  try { sessionStorage.removeItem(ADMIN_SESI_KEY_); } catch (e) {}
+  document.getElementById('admin-panel').classList.add('hidden');
+  _navBawahAdmin_(false);
+  Swal.fire({ icon: 'warning', title: 'Sesi berakhir', text: 'Silakan login admin ulang.' }).then(openAdminLogin);
+  return true;
+}
 function _navBawahAdmin_(sembunyi) { const b = document.getElementById('bottom-nav-bar'); if (b) b.classList.toggle('nav-sembunyi-admin', sembunyi); }
-function logoutAdmin() { currentAdmin = null; document.getElementById('admin-panel').classList.add('hidden'); _navBawahAdmin_(false); }
+function logoutAdmin() {
+  const t = _tokenAdmin_();
+  currentAdmin = null;
+  try { sessionStorage.removeItem(ADMIN_SESI_KEY_); } catch (e) {}
+  if (t) google.script.run.logoutAdmin(t);
+  document.getElementById('admin-panel').classList.add('hidden');
+  _navBawahAdmin_(false);
+}
 function closeAdminPanel() { document.getElementById('admin-panel').classList.add('hidden'); _navBawahAdmin_(false); }
 
 // ---------------------------------------------------------------
@@ -4910,9 +4948,10 @@ function splashAdminUploadFoto_(inputEl, idAwal) {
       const slot = document.querySelector('[data-hapus-slot="' + idAwal + '"]');
       if (slot) slot.innerHTML = '<button type="button" onclick="splashAdminHapusFoto_(\'' + idAwal + '\')" class="text-[11px] text-red-500 font-bold hover:underline">Hapus</button>';
     }).withFailureHandler(function (err) {
-      Swal.fire({ icon: 'error', title: 'Gagal unggah foto', text: err.message || err });
       wrap.innerHTML = htmlAsli;
-    }).uploadFileToDrive(base64, file.name, file.type);
+      if (_sesiAdminBerakhir_(err)) return;
+      Swal.fire({ icon: 'error', title: 'Gagal unggah foto', text: err.message || err });
+    }).uploadFileToDrive(base64, file.name, file.type, _tokenAdmin_());
   };
   reader.readAsDataURL(file);
   inputEl.value = '';
@@ -4944,7 +4983,7 @@ function simpanSplashAdmin_() {
     return new Promise(function (resolve, reject) {
       const existing = rowsPengaturan.find(function (r) { return (r.key || '').toString().trim().toLowerCase() === k; });
       google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
-        .saveData('Pengaturan', { key: k, value: v }, existing ? existing._rowId : null);
+        .saveData('Pengaturan', { key: k, value: v }, existing ? existing._rowId : null, _tokenAdmin_());
     });
   }
 
@@ -4957,8 +4996,9 @@ function simpanSplashAdmin_() {
       pulihkanTombol();
     })
     .catch(function (err) {
-      Swal.fire({ icon: 'error', title: 'Gagal menyimpan', text: (err && err.message) ? err.message : String(err) });
       pulihkanTombol();
+      if (_sesiAdminBerakhir_(err)) return;
+      Swal.fire({ icon: 'error', title: 'Gagal menyimpan', text: (err && err.message) ? err.message : String(err) });
     });
 }
 
@@ -5049,7 +5089,7 @@ function simpanPendaftaranAdmin_() {
     return new Promise(function (resolve, reject) {
       const existing = rowsPengaturan.find(function (r) { return (r.key || '').toString().trim().toLowerCase() === k; });
       google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)
-        .saveData('Pengaturan', { key: k, value: v }, existing ? existing._rowId : null);
+        .saveData('Pengaturan', { key: k, value: v }, existing ? existing._rowId : null, _tokenAdmin_());
     });
   }
   function pulihkanTombol() { if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset.teksAsli; } }
@@ -5061,8 +5101,9 @@ function simpanPendaftaranAdmin_() {
       pulihkanTombol();
     })
     .catch(function (err) {
-      Swal.fire({ icon: 'error', title: 'Gagal menyimpan', text: (err && err.message) ? err.message : String(err) });
       pulihkanTombol();
+      if (_sesiAdminBerakhir_(err)) return;
+      Swal.fire({ icon: 'error', title: 'Gagal menyimpan', text: (err && err.message) ? err.message : String(err) });
     });
 }
 
@@ -5256,7 +5297,7 @@ function prosesFotoWrap_(wrap) {
         const reader = new FileReader();
         reader.onload = function () {
           const base64 = reader.result.split(',')[1];
-          google.script.run.withSuccessHandler(res).withFailureHandler(rej).uploadFileToDrive(base64, file.name, file.type);
+          google.script.run.withSuccessHandler(res).withFailureHandler(rej).uploadFileToDrive(base64, file.name, file.type, _tokenAdmin_());
         };
         reader.onerror = rej;
         reader.readAsDataURL(file);
@@ -5291,19 +5332,23 @@ function submitAdminForm(e) {
       loadDataSilent();
       pulihkanTombol();
     }).withFailureHandler(function (err) {
-      Swal.fire({ icon: 'error', title: 'Gagal', text: err.message || err });
       pulihkanTombol();
-    }).saveData(adminActiveSheet.sheet, dataObj, rowId);
+      if (_sesiAdminBerakhir_(err)) return;
+      Swal.fire({ icon: 'error', title: 'Gagal', text: err.message || err });
+    }).saveData(adminActiveSheet.sheet, dataObj, rowId, _tokenAdmin_());
   }).catch(function (err) {
-    Swal.fire({ icon: 'error', title: 'Gagal unggah foto', text: (err && err.message) ? err.message : String(err) });
     pulihkanTombol();
+    if (_sesiAdminBerakhir_(err)) return;
+    Swal.fire({ icon: 'error', title: 'Gagal unggah foto', text: (err && err.message) ? err.message : String(err) });
   });
 }
 
 function adminDeleteRow(rowId) {
   Swal.fire({ icon: 'warning', title: 'Hapus data ini?', showCancelButton: true, confirmButtonText: 'Hapus', confirmButtonColor: '#dc2626' }).then(function (res) {
     if (!res.isConfirmed) return;
-    google.script.run.withSuccessHandler(function () { loadDataSilent(); }).deleteData(adminActiveSheet.sheet, rowId);
+    google.script.run.withSuccessHandler(function () { loadDataSilent(); }).withFailureHandler(function (err) {
+      if (!_sesiAdminBerakhir_(err)) Swal.fire({ icon: 'error', title: 'Gagal menghapus', text: (err && err.message) || err });
+    }).deleteData(adminActiveSheet.sheet, rowId, _tokenAdmin_());
   });
 }
 
@@ -5519,6 +5564,34 @@ function renderSejarah() {
   }
   el.innerHTML = html;
 }
+
+// Link rahasia admin (?akses=KODE): tunggu splash selesai, lalu buka panel
+// (kalau sesi masih berlaku di tab ini) atau form login.
+(function _bukaAdminDariLink_() {
+  if (!_KODE_AKSES_DARI_LINK_) return;
+  let sesi = null;
+  try { sesi = JSON.parse(sessionStorage.getItem(ADMIN_SESI_KEY_) || 'null'); } catch (e) {}
+  function mulai() {
+    if (sesi && sesi.token) {
+      google.script.run.withSuccessHandler(function (res) {
+        if (res && res.sukses) { currentAdmin = { sukses: true, nama: sesi.nama, token: sesi.token }; openAdminPanel(); }
+        else { try { sessionStorage.removeItem(ADMIN_SESI_KEY_); } catch (e) {} openAdminLogin(); }
+      }).withFailureHandler(function () { openAdminLogin(); }).cekSesiAdmin(sesi.token);
+    } else {
+      openAdminLogin();
+    }
+  }
+  let coba = 0;
+  const tunggu = setInterval(function () {
+    const sp = document.getElementById('splash-screen');
+    if (!sp || sp.style.display === 'none' || ++coba > 200) {
+      clearInterval(tunggu);
+      // Kode diperiksa di SERVER; kalau salah, tidak terjadi apa-apa (tidak ada form/pesan).
+      google.script.run.withSuccessHandler(function (r) { if (r && r.sukses) mulai(); })
+        .cekKodeAkses(_KODE_AKSES_DARI_LINK_);
+    }
+  }, 300);
+})();
 
 loadDataDenganCache_();
   window.addEventListener('error', function (e) {
