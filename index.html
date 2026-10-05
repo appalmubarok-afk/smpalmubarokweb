@@ -836,6 +836,34 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     </div>
 
 
+    <!-- Preview Karya -->
+    <div id="beranda-karya" class="hidden relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-primary py-14 md:py-16">
+      <div class="pointer-events-none absolute -top-24 -right-24 w-80 h-80 rounded-full bg-secondary/15 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-28 -left-20 w-80 h-80 rounded-full bg-white/10 blur-3xl"></div>
+      <div class="relative max-w-7xl mx-auto px-4 md:px-6">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-9">
+          <div>
+            <span class="inline-flex items-center gap-2 bg-white/10 border border-white/15 text-secondary text-[10px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full"><i class="fas fa-palette"></i> Ruang Kreativitas</span>
+            <h2 class="text-2xl md:text-4xl font-black text-white mt-4 leading-tight">Karya <span class="text-secondary">Siswa &amp; Guru</span></h2>
+            <p class="text-sm text-white/60 mt-2 max-w-xl">Puisi, cerpen, gambar, hingga video &mdash; hasil kreativitas warga SMP Islam Terpadu Al Mubarok.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3">
+            <button onclick="openUploadKarya()" class="px-5 py-2.5 rounded-full bg-secondary hover:bg-secondary-400 text-primary font-black text-[11px] uppercase tracking-wide shadow-lg transition-colors"><i class="fas fa-cloud-arrow-up mr-1.5"></i>Unggah Karya</button>
+            <button onclick="showSection('karya')" class="px-5 py-2.5 rounded-full border border-white/25 hover:bg-white/10 text-white font-black text-[11px] uppercase tracking-wide transition-colors">Lihat Semua &rarr;</button>
+          </div>
+        </div>
+        <div class="relative">
+          <button onclick="geserKaryaBeranda(-1)" aria-label="Geser ke kiri" class="flex items-center justify-center absolute -left-2 md:-left-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white text-primary shadow-lg hover:bg-secondary transition-colors">
+            <i class="fas fa-chevron-left text-xs md:text-sm"></i>
+          </button>
+          <div id="beranda-karya-grid" class="flex gap-4 md:gap-5 overflow-x-auto pb-3 snap-x snap-mandatory scrollbar-hide"></div>
+          <button onclick="geserKaryaBeranda(1)" aria-label="Geser ke kanan" class="flex items-center justify-center absolute -right-2 md:-right-5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white text-primary shadow-lg hover:bg-secondary transition-colors">
+            <i class="fas fa-chevron-right text-xs md:text-sm"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Ekstrakurikuler -->
     <div class="bg-slate-50 py-10">
       <div class="max-w-7xl mx-auto px-4 md:px-6">
@@ -2090,6 +2118,7 @@ function onDataLoaded(data) {
   renderVirtualTour();
   renderLiveStreaming();
   renderKarya();
+  renderKaryaBeranda();
   renderKepsek();
   renderFasilitas();
   renderLokasi();
@@ -3578,6 +3607,60 @@ function renderLiveStreaming() {
       (v.tanggal ? '<p class="text-[10px] text-slate-400 mt-0.5">' + v.tanggal + '</p>' : '') +
       (v.deskripsi ? '<p class="text-xs text-slate-500 mt-1 line-clamp-2">' + v.deskripsi + '</p>' : '') + '</div></div>';
   }).join('') || emptyState('Belum ada arsip siaran.');
+}
+
+// ---------------------------------------------------------------
+// BERANDA: PREVIEW KARYA (8 karya terbaru, geser samping)
+// ---------------------------------------------------------------
+function geserKaryaBeranda(dir) {
+  const el = document.getElementById('beranda-karya-grid');
+  if (!el) return;
+  el.scrollBy({ left: dir * (el.clientWidth * 0.85), behavior: 'smooth' });
+}
+function renderKaryaBeranda() {
+  const wrap = document.getElementById('beranda-karya');
+  const grid = document.getElementById('beranda-karya-grid');
+  if (!wrap || !grid) return;
+  const semua = (DB.karya || []).slice().reverse();
+  if (!semua.length) { wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+
+  const kartu = semua.slice(0, 8).map(function (k) {
+    const ytId = ytIdKarya_(k.link_youtube);
+    const foto = (k.file_url || '').toString().split(',').map(function (u) { return u.trim(); }).filter(Boolean)[0] || '';
+    const jenis = (k.jenis_karya || '').toString().trim();
+    const nama = (k.nama_pembuat || '-').toString();
+    const inisial = (nama.trim().charAt(0) || '?').toUpperCase();
+    let media, gelap = true;
+    if (foto) {
+      media = '<img loading="lazy" decoding="async" src="' + _ak(foto) + '" alt="" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">';
+    } else if (ytId) {
+      media = '<img loading="lazy" decoding="async" src="https://img.youtube.com/vi/' + ytId + '/hqdefault.jpg" alt="" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">';
+    } else {
+      const cuplikan = (k.isi_karya || k.deskripsi || '').toString().replace(/\s+/g, ' ').trim().slice(0, 150);
+      media = '<div class="absolute inset-0 bg-gradient-to-br from-secondary-600 via-primary-600 to-primary-800 px-6 pt-14 pb-28 flex flex-col justify-start">' +
+        '<i class="fas fa-quote-left text-white/25 text-4xl mb-3"></i>' +
+        '<p class="text-white/90 font-serif italic text-sm leading-relaxed line-clamp-5">' + _ak(cuplikan) + (cuplikan.length >= 150 ? '&hellip;' : '') + '</p></div>';
+    }
+    const play = ytId ? '<span class="absolute top-3.5 right-3.5 w-10 h-10 rounded-full bg-red-600 text-white flex items-center justify-center shadow-xl pointer-events-none"><i class="fas fa-play text-xs ml-0.5"></i></span>' : '';
+    const badge = jenis ? '<span class="absolute top-3.5 left-3.5 bg-white/90 text-primary text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow pointer-events-none"><i class="' + ikonJenisKarya_(jenis) + ' text-secondary-600 mr-1"></i>' + _ak(jenis) + '</span>' : '';
+    return '<article onclick="openBookReader(' + k._rowId + ')" class="group cursor-pointer relative flex-shrink-0 snap-start w-[240px] md:w-[270px] aspect-[4/5] rounded-3xl overflow-hidden bg-primary-800 shadow-xl ring-1 ring-white/10 hover:-translate-y-1.5 hover:ring-secondary/60 transition-all duration-300">' +
+      media + badge + play +
+      '<div class="absolute inset-x-0 bottom-0 pt-24 pb-4 px-4 bg-gradient-to-t from-black/85 via-black/55 to-transparent">' +
+      '<h3 class="text-white font-black text-sm md:text-base leading-snug line-clamp-2">' + _ak(k.judul_karya || '-') + '</h3>' +
+      '<div class="flex items-center gap-2.5 mt-2.5">' +
+      '<span class="w-7 h-7 flex-shrink-0 rounded-full bg-secondary text-primary text-xs font-black flex items-center justify-center">' + _ak(inisial) + '</span>' +
+      '<div class="min-w-0 flex-1"><p class="text-white text-[11px] font-bold truncate">' + _ak(nama) + '</p>' +
+      (k.kelas ? '<p class="text-white/60 text-[10px] font-semibold truncate">' + _ak(k.kelas) + '</p>' : '') + '</div>' +
+      '<div class="flex items-center gap-2.5 text-white/70 text-[10px] font-bold flex-shrink-0"><span><i class="fas fa-eye mr-1"></i>' + (k.dilihat || 0) + '</span><span><i class="fas fa-heart mr-1 text-rose-400"></i>' + (k.suka || 0) + '</span></div>' +
+      '</div></div></article>';
+  }).join('');
+
+  const cta = '<article onclick="showSection(\'karya\')" class="group cursor-pointer flex-shrink-0 snap-start w-[240px] md:w-[270px] aspect-[4/5] rounded-3xl border-2 border-dashed border-white/25 hover:border-secondary hover:bg-white/5 flex flex-col items-center justify-center text-center p-6 transition-all duration-300">' +
+    '<span class="w-14 h-14 rounded-full bg-secondary text-primary flex items-center justify-center text-xl shadow-lg group-hover:scale-110 transition-transform"><i class="fas fa-arrow-right"></i></span>' +
+    '<p class="text-white font-black text-base mt-4">Lihat Semua Karya</p>' +
+    '<p class="text-white/55 text-xs mt-1 font-semibold">' + semua.length + ' karya tersedia</p></article>';
+  grid.innerHTML = kartu + cta;
 }
 
 // ---------------------------------------------------------------
