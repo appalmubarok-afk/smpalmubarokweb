@@ -3504,14 +3504,59 @@ function renderGaleriVideo() {
 }
 
 // ---------------------------------------------------------------
-// BERANDA: PREVIEW VIRTUAL TOUR 360 (tanpa memuat viewer; viewer baru
-// dimuat saat pengunjung menekan tombol jelajah)
+// BERANDA: VIRTUAL TOUR 360 LANGSUNG (bisa diputar di Beranda)
+// Viewer Pannellum baru dimuat saat section terlihat di layar (desktop)
+// atau saat disentuh (HP, supaya scroll halaman tidak "terjebak").
 // ---------------------------------------------------------------
 let tourBerandaIdx_ = 0;
+let tourBerandaViewer_ = null;
+let tourBerandaAktif_ = false;
+let tourBerandaObs_ = null;
+let tourBerandaToken_ = 0;
+
 function pilihTourBeranda(i) { tourBerandaIdx_ = i; renderVirtualTourBeranda(); }
 function bukaTourBeranda(i) {
   showSection('virtualtour');
   setTimeout(function () { pindahTitikTour360(i || 0); }, 150);
+}
+function aktifkanTourBeranda_() {
+  tourBerandaAktif_ = true;
+  if (tourBerandaObs_) { try { tourBerandaObs_.disconnect(); } catch (e) {} tourBerandaObs_ = null; }
+  initTourBerandaViewer_();
+}
+function initTourBerandaViewer_() {
+  if (!tourBerandaAktif_) return;
+  const rows = tour360Rows || [];
+  const t = rows[tourBerandaIdx_];
+  const el = document.getElementById('tour360-beranda-viewer');
+  const cover = document.getElementById('tour-beranda-cover');
+  if (!t || !el) return;
+  const foto = fotoUrls(t.gambar, '').filter(Boolean)[0];
+  if (!foto) return;
+  const token = ++tourBerandaToken_;
+  if (cover) cover.style.pointerEvents = 'none';
+  muatPannellum_().then(function () {
+    if (token !== tourBerandaToken_ || !document.getElementById('tour360-beranda-viewer')) return;
+    if (tourBerandaViewer_) { try { tourBerandaViewer_.destroy(); } catch (e) {} tourBerandaViewer_ = null; }
+    tourBerandaViewer_ = pannellum.viewer('tour360-beranda-viewer', {
+      type: 'equirectangular',
+      panorama: foto,
+      autoLoad: true,
+      compass: false,
+      autoRotate: -2,
+      autoRotateInactivityDelay: 5000,
+      mouseZoom: 'fullscreenonly',
+      showFullscreenCtrl: true,
+      showZoomCtrl: true
+    });
+    tourBerandaViewer_.on('load', function () {
+      const c = document.getElementById('tour-beranda-cover');
+      if (c) { c.style.opacity = '0'; setTimeout(function () { c.style.display = 'none'; }, 400); }
+    });
+  }).catch(function () {
+    if (cover) { cover.style.pointerEvents = ''; }
+    tourBerandaAktif_ = false;
+  });
 }
 function renderVirtualTourBeranda() {
   const wrap = document.getElementById('beranda-tour');
@@ -3522,28 +3567,37 @@ function renderVirtualTourBeranda() {
   wrap.classList.remove('hidden');
   if (tourBerandaIdx_ >= rows.length) tourBerandaIdx_ = 0;
 
+  if (tourBerandaViewer_) { try { tourBerandaViewer_.destroy(); } catch (e) {} tourBerandaViewer_ = null; }
+  tourBerandaToken_++;
+
   const fotoDari = function (t) { return fotoUrls(t.gambar, '').filter(Boolean)[0] || 'https://placehold.co/1200x700/1f287d/e7b10a?text=360'; };
   const t = rows[tourBerandaIdx_];
   const judul = (t.judul || 'Titik ' + (tourBerandaIdx_ + 1)).toString();
   const desk = (t.deskripsi || '').toString().replace(/\s+/g, ' ').trim();
+  const sentuh = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 
   const preview =
-    '<div onclick="bukaTourBeranda(' + tourBerandaIdx_ + ')" class="group relative cursor-pointer rounded-3xl overflow-hidden aspect-[4/3] md:aspect-[16/10] bg-primary-900 shadow-2xl ring-1 ring-white/15">' +
-      '<img src="' + _ak(fotoDari(t)) + '" alt="' + _ak(judul) + '" decoding="async" class="vt-pan absolute inset-y-0 left-0 h-full w-[150%] max-w-none object-cover">' +
-      '<div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/30"></div>' +
-      '<span class="absolute top-4 left-4 inline-flex items-center gap-1.5 bg-black/55 backdrop-blur text-white text-[11px] font-black px-3 py-1.5 rounded-full"><i class="fas fa-arrows-rotate vt-spin text-secondary"></i>360&deg;</span>' +
-      '<div class="absolute inset-0 flex items-center justify-center">' +
-        '<span class="relative flex items-center justify-center">' +
-          '<span class="absolute w-24 h-24 rounded-full bg-secondary/40 animate-ping"></span>' +
-          '<span class="relative w-20 h-20 rounded-full bg-secondary text-primary flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform"><i class="fas fa-street-view text-2xl"></i></span>' +
-        '</span>' +
+    '<div class="relative rounded-3xl overflow-hidden aspect-[4/3] md:aspect-[16/10] bg-primary-900 shadow-2xl ring-1 ring-white/15">' +
+      '<div id="tour360-beranda-viewer" class="absolute inset-0"></div>' +
+      '<div id="tour-beranda-cover" onclick="aktifkanTourBeranda_()" class="group absolute inset-0 z-10 cursor-pointer transition-opacity duration-300">' +
+        '<img src="' + _ak(fotoDari(t)) + '" alt="' + _ak(judul) + '" decoding="async" class="vt-pan absolute inset-y-0 left-0 h-full w-[150%] max-w-none object-cover">' +
+        '<div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/25"></div>' +
+        '<div class="absolute inset-0 flex flex-col items-center justify-center">' +
+          '<span class="relative flex items-center justify-center">' +
+            '<span class="absolute w-24 h-24 rounded-full bg-secondary/40 animate-ping"></span>' +
+            '<span class="relative w-20 h-20 rounded-full bg-secondary text-primary flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform"><i class="fas fa-street-view text-2xl"></i></span>' +
+          '</span>' +
+          '<span class="mt-4 bg-black/55 backdrop-blur text-white text-[11px] font-bold px-3.5 py-1.5 rounded-full">' + (sentuh ? 'Sentuh untuk menjelajah 360&deg;' : 'Memuat tur 360&deg;...') + '</span>' +
+        '</div>' +
       '</div>' +
-      '<div class="absolute inset-x-0 bottom-0 p-5 md:p-6">' +
+      '<span class="pointer-events-none absolute top-4 right-4 z-20 inline-flex items-center gap-1.5 bg-black/55 backdrop-blur text-white text-[11px] font-black px-3 py-1.5 rounded-full"><i class="fas fa-arrows-rotate vt-spin text-secondary"></i>360&deg;</span>' +
+      '<div class="pointer-events-none absolute inset-x-0 bottom-0 z-20 p-5 md:p-6 bg-gradient-to-t from-black/70 to-transparent pt-14">' +
         '<p class="text-secondary text-[10px] font-black uppercase tracking-widest mb-1"><i class="fas fa-location-dot mr-1"></i>Titik ' + (tourBerandaIdx_ + 1) + ' dari ' + rows.length + '</p>' +
         '<h3 class="text-white font-black text-lg md:text-2xl leading-snug">' + _ak(judul) + '</h3>' +
         (desk ? '<p class="text-white/70 text-xs md:text-sm mt-1 line-clamp-2 max-w-xl">' + _ak(desk) + '</p>' : '') +
       '</div>' +
-    '</div>';
+    '</div>' +
+    '<p class="text-center text-[11px] text-white/45 mt-3"><i class="fas fa-hand-pointer mr-1"></i>Geser / seret untuk melihat sekeliling &middot; klik ikon layar penuh untuk tampilan besar</p>';
 
   const thumbs = rows.slice(0, 4).map(function (r, i) {
     const aktif = i === tourBerandaIdx_;
@@ -3560,12 +3614,26 @@ function renderVirtualTourBeranda() {
       '<p class="text-sm text-white/60 mt-3 leading-relaxed">Lihat sekeliling lingkungan SMP Islam Terpadu Al Mubarok dari mana saja. Geser dan putar pandangan untuk menjelajahi setiap sudut sekolah.</p>' +
       '<div class="grid grid-cols-2 gap-3 mt-6">' + thumbs + '</div>' +
       (rows.length > 4 ? '<p class="text-[11px] text-white/50 font-semibold mt-3">+ ' + (rows.length - 4) + ' titik lokasi lainnya di halaman tour</p>' : '') +
-      '<button onclick="bukaTourBeranda(' + tourBerandaIdx_ + ')" class="self-start mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-secondary hover:bg-secondary-400 text-primary font-black text-xs uppercase tracking-wide shadow-lg transition-colors"><i class="fas fa-play text-[10px]"></i>Mulai Tur 360&deg;</button>' +
+      '<button onclick="bukaTourBeranda(' + tourBerandaIdx_ + ')" class="self-start mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-secondary hover:bg-secondary-400 text-primary font-black text-xs uppercase tracking-wide shadow-lg transition-colors"><i class="fas fa-expand text-[10px]"></i>Buka Tur Lengkap</button>' +
     '</div>';
 
   body.innerHTML = '<div class="grid lg:grid-cols-5 gap-8 lg:gap-10 items-center">' +
     '<div class="lg:col-span-3 order-2 lg:order-1">' + preview + '</div>' +
     '<div class="lg:col-span-2 order-1 lg:order-2">' + info + '</div></div>';
+
+  // Sudah pernah aktif -> langsung muat titik baru. Belum -> tunggu terlihat (desktop) / disentuh (HP).
+  if (tourBerandaAktif_) {
+    initTourBerandaViewer_();
+  } else if (!sentuh && !tourBerandaObs_) {
+    if ('IntersectionObserver' in window) {
+      tourBerandaObs_ = new IntersectionObserver(function (entries) {
+        if (entries.some(function (e) { return e.isIntersecting; })) aktifkanTourBeranda_();
+      }, { threshold: 0.25 });
+      tourBerandaObs_.observe(wrap);
+    } else {
+      aktifkanTourBeranda_();
+    }
+  }
 }
 
 // ---------------------------------------------------------------
@@ -4030,6 +4098,7 @@ function showSection(name, _dariLuar) {
   // benar-benar tampil (display:block), makanya diinit di sini, bukan
   // sewaktu data pertama kali datang.
   if (name === 'virtualtour') setTimeout(initTour360IfNeeded, 60);
+  if (name === 'beranda') setTimeout(function () { try { if (tourBerandaViewer_) tourBerandaViewer_.resize(); } catch (e) {} }, 80);
 
   // Judul tab ikut berganti sesuai menu yang lagi dibuka.
   document.title = (name === 'beranda') ? JUDUL_WEBSITE_DASAR : (_judulUntukSection_(name) + ' - ' + JUDUL_WEBSITE_DASAR);
