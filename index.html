@@ -1051,13 +1051,41 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
 
   <!-- ================= APLIKASI DIGITAL SEKOLAH ================= -->
   <section id="section-aplikasi" class="app-section">
-    <div class="bg-primary py-14 text-center">
-      <h1 class="text-2xl md:text-4xl font-black text-white">Aplikasi Digital Sekolah</h1>
-      <p class="text-white/70 text-xs mt-2">Beranda / Aplikasi Digital Sekolah</p>
+    <div class="relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary to-primary-700 pt-14 pb-16 md:pt-16 md:pb-20 text-center">
+      <div class="pointer-events-none absolute inset-0 opacity-[0.12]" style="background-image:radial-gradient(#fff 1px,transparent 1px);background-size:22px 22px"></div>
+      <div class="pointer-events-none absolute -top-20 -left-20 w-80 h-80 rounded-full bg-secondary/20 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-24 -right-16 w-96 h-96 rounded-full bg-white/10 blur-3xl"></div>
+      <i class="fas fa-laptop-code pointer-events-none absolute left-[6%] top-12 text-6xl text-white/[0.06] -rotate-12 hidden md:block"></i>
+      <i class="fas fa-cloud pointer-events-none absolute right-[8%] top-16 text-7xl text-white/[0.06] hidden md:block"></i>
+      <i class="fas fa-chart-line pointer-events-none absolute right-[18%] bottom-8 text-5xl text-white/[0.06] rotate-6 hidden md:block"></i>
+      <div class="relative max-w-3xl mx-auto px-4">
+        <span class="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-secondary text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full"><i class="fas fa-bolt"></i> Ekosistem Digital Sekolah</span>
+        <h1 class="text-3xl md:text-5xl font-black text-white mt-4 leading-tight">Aplikasi <span class="text-secondary">Digital</span> Sekolah</h1>
+        <p class="text-white/65 text-sm md:text-base mt-3 max-w-xl mx-auto">Satu pintu untuk seluruh layanan digital SMP Islam Terpadu Al Mubarok &mdash; praktis, cepat, dan bisa diakses dari mana saja.</p>
+        <div class="mt-7 max-w-md mx-auto relative">
+          <i class="fas fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+          <input id="aplikasi-cari" type="search" oninput="setCariAplikasi_(this.value)" placeholder="Cari aplikasi..." class="w-full bg-white rounded-full pl-12 pr-5 py-3.5 text-sm text-primary placeholder-slate-400 shadow-2xl focus:outline-none focus:ring-4 focus:ring-secondary/50">
+        </div>
+        <p class="text-white/45 text-[11px] mt-4 font-semibold">Beranda / Aplikasi Digital Sekolah</p>
+      </div>
     </div>
-    <div class="max-w-6xl mx-auto px-4 md:px-6 py-12">
-      <button onclick="kembaliKeBeranda('beranda-aplikasi-wrap')" class="text-primary hover:text-primary-600 text-xs font-bold inline-flex items-center gap-1.5 mb-6"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
-      <div id="aplikasi-grid-full" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    <div class="max-w-6xl mx-auto px-4 md:px-6 py-10 md:py-12">
+      <div class="flex items-center justify-between mb-7">
+        <button onclick="kembaliKeBeranda('beranda-aplikasi-wrap')" class="text-primary hover:text-primary-600 text-xs font-bold inline-flex items-center gap-1.5"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
+        <span id="aplikasi-jumlah" class="text-[11px] font-black text-primary bg-primary-50 px-3.5 py-1.5 rounded-full"></span>
+      </div>
+      <div id="aplikasi-grid-full" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6"></div>
+      <div class="mt-12 relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary-900 via-primary to-primary-600 p-7 md:p-9 flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div class="pointer-events-none absolute -right-10 -top-10 w-48 h-48 rounded-full bg-secondary/20 blur-2xl"></div>
+        <div class="relative">
+          <h3 class="text-white font-black text-lg md:text-xl">Kesulitan mengakses aplikasi?</h3>
+          <p class="text-white/65 text-sm mt-1">Tanyakan ke Asisten AI kami atau hubungi admin sekolah via WhatsApp.</p>
+        </div>
+        <div class="relative flex flex-wrap gap-3">
+          <button onclick="toggleChatbot(true)" class="px-5 py-3 rounded-full bg-white hover:bg-secondary text-primary font-black text-[11px] uppercase tracking-wide transition-colors"><i class="fas fa-comment-dots mr-1.5"></i>Tanya Asisten AI</button>
+          <button onclick="window.open(document.getElementById('floating-wa-btn').href,'_blank')" class="px-5 py-3 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-black text-[11px] uppercase tracking-wide transition-colors"><i class="fab fa-whatsapp mr-1.5"></i>WhatsApp Admin</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -2334,6 +2362,8 @@ function renderMenuAplikasi() {
     return t !== 'tidak' && t !== 'no' && t !== '0' && t !== 'false';
   });
   rows.sort(function (a, b) { return (parseInt(a.urutan) || 0) - (parseInt(b.urutan) || 0); });
+  aplikasiRows_ = rows;
+  renderAplikasiFull_();
 
   if (!rows.length) { wrap.classList.add('hidden'); return; }
   wrap.classList.remove('hidden');
@@ -2368,21 +2398,55 @@ function renderMenuAplikasi() {
       '<span class="' + ukuran.label + ' font-black text-primary uppercase tracking-wide whitespace-nowrap overflow-hidden text-ellipsis max-w-full block px-1">' + (m.nama_menu || '-') + '</span>' +
       '</' + tag + '>';
   }).join('');
+}
 
-  // Halaman khusus: semua aplikasi ditampilkan lengkap dengan deskripsinya.
-  if (elFull) {
-    elFull.innerHTML = rows.map(function (m) {
-      const link = (m.link || '').trim();
-      return '<div class="flex flex-col bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-lg transition-shadow duration-300 p-6">' +
-        '<div class="flex items-center gap-4 mb-3">' +
-        '<div class="w-14 h-14 flex-shrink-0 rounded-2xl bg-gradient-to-br from-primary to-primary-600 flex items-center justify-center shadow-md"><i class="' + iconUntukAplikasi(m.nama_menu) + ' text-white text-xl"></i></div>' +
-        '<h3 class="font-black text-primary text-sm uppercase tracking-wide leading-tight">' + (m.nama_menu || '-') + '</h3>' +
+// ---------------------------------------------------------------
+// HALAMAN APLIKASI: kartu berwarna + pencarian
+// ---------------------------------------------------------------
+let aplikasiRows_ = [];
+let aplikasiCari_ = '';
+function setCariAplikasi_(v) { aplikasiCari_ = (v || '').toString(); renderAplikasiFull_(); }
+function renderAplikasiFull_() {
+  const elFull = document.getElementById('aplikasi-grid-full');
+  if (!elFull) return;
+  const warna = [
+    { g: 'from-indigo-500 to-blue-600',  t: 'text-indigo-600' },
+    { g: 'from-emerald-500 to-teal-600', t: 'text-emerald-600' },
+    { g: 'from-amber-400 to-orange-500', t: 'text-amber-500' },
+    { g: 'from-rose-500 to-pink-600',    t: 'text-rose-500' },
+    { g: 'from-sky-500 to-cyan-600',     t: 'text-sky-600' },
+    { g: 'from-violet-500 to-purple-600', t: 'text-violet-600' }
+  ];
+  const q = aplikasiCari_.trim().toLowerCase();
+  const semua = aplikasiRows_ || [];
+  const rows = semua.map(function (m, i) { return { m: m, i: i }; }).filter(function (x) {
+    if (!q) return true;
+    return ((x.m.nama_menu || '') + ' ' + (x.m.deskripsi || '')).toString().toLowerCase().indexOf(q) !== -1;
+  });
+  const jml = document.getElementById('aplikasi-jumlah');
+  if (jml) jml.textContent = q ? (rows.length + ' dari ' + semua.length + ' aplikasi') : (semua.length + ' aplikasi tersedia');
+
+  elFull.innerHTML = rows.map(function (x) {
+    const m = x.m, w = warna[x.i % warna.length];
+    const link = (m.link || '').toString().trim();
+    const ikon = iconUntukAplikasi(m.nama_menu);
+    const nomor = (x.i + 1 < 10 ? '0' : '') + (x.i + 1);
+    const tombol = link
+      ? '<a href="' + _ak(link) + '" target="_blank" rel="noopener" class="mt-6 inline-flex items-center justify-between gap-3 bg-primary hover:bg-secondary text-white hover:text-primary rounded-2xl pl-5 pr-2 py-2 text-xs font-black uppercase tracking-widest transition-colors duration-300">Buka Aplikasi <span class="w-8 h-8 rounded-xl bg-white/15 group-hover:bg-white/60 flex items-center justify-center transition-colors"><i class="fas fa-arrow-up-right-from-square text-[11px]"></i></span></a>'
+      : '<span class="mt-6 inline-flex items-center justify-center gap-2 bg-slate-100 text-slate-400 rounded-2xl py-3.5 text-xs font-black uppercase tracking-widest"><i class="fas fa-hourglass-half"></i> Segera Hadir</span>';
+    return '<article class="group relative flex flex-col bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden">' +
+      '<div class="h-1.5 bg-gradient-to-r ' + w.g + '"></div>' +
+      '<i class="' + ikon + ' absolute -top-3 -right-3 text-[120px] ' + w.t + ' opacity-[0.07] rotate-12 pointer-events-none group-hover:opacity-[0.12] group-hover:scale-110 transition-all duration-500"></i>' +
+      '<div class="relative flex flex-col flex-1 p-6">' +
+        '<div class="flex items-start justify-between">' +
+          '<div class="w-16 h-16 rounded-2xl bg-gradient-to-br ' + w.g + ' flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300"><i class="' + ikon + ' text-white text-2xl"></i></div>' +
+          '<span class="text-xs font-black text-slate-300 tracking-widest">' + nomor + '</span>' +
         '</div>' +
-        '<p class="text-xs text-slate-500 leading-relaxed flex-1 whitespace-pre-line">' + (m.deskripsi || 'Deskripsi aplikasi belum diisi.') + '</p>' +
-        (link ? '<a href="' + link + '" target="_blank" rel="noopener" class="mt-4 inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-600 text-white text-xs font-black uppercase tracking-widest rounded-xl py-3 transition-colors">Buka Aplikasi <i class="fas fa-arrow-up-right-from-square text-[10px]"></i></a>' : '') +
-        '</div>';
-    }).join('') || emptyState('Belum ada data aplikasi.');
-  }
+        '<h3 class="font-black text-primary text-base uppercase tracking-wide leading-tight mt-5">' + _ak(m.nama_menu || '-') + '</h3>' +
+        '<p class="text-xs text-slate-500 leading-relaxed mt-2.5 flex-1 whitespace-pre-line">' + _ak(m.deskripsi || 'Deskripsi aplikasi belum diisi.') + '</p>' +
+        tombol +
+      '</div></article>';
+  }).join('') || emptyState(semua.length ? 'Tidak ada aplikasi yang cocok dengan pencarian.' : 'Belum ada data aplikasi.');
 }
 
 function renderStatistik() {
