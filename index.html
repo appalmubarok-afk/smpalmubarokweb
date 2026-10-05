@@ -115,6 +115,12 @@
   body.mode-gelap .text-slate-500, body.mode-gelap .text-slate-400, body.mode-gelap .text-slate-600, body.mode-gelap .text-slate-700 { color:#94a3b8 !important; }
   body.mode-gelap .border-slate-100, body.mode-gelap .border-slate-200 { border-color:#1e293b !important; }
   body.mode-gelap .shadow-sm, body.mode-gelap .shadow-lg, body.mode-gelap .shadow-xl, body.mode-gelap .shadow-2xl { box-shadow:0 1px 3px rgba(0,0,0,.5) !important; }
+  /* Preview Virtual Tour di Beranda: gambar panorama digeser pelan supaya terasa "360" */
+  @keyframes vt-pan { 0% { transform:translateX(0); } 50% { transform:translateX(-33%); } 100% { transform:translateX(0); } }
+  .vt-pan { animation: vt-pan 40s ease-in-out infinite; will-change: transform; }
+  @keyframes vt-spin { to { transform:rotate(360deg); } }
+  .vt-spin { animation: vt-spin 6s linear infinite; }
+  @media (prefers-reduced-motion: reduce) { .vt-pan, .vt-spin { animation:none; } }
   /* Virtual Tour 360 & Live Streaming */
   #tour360-viewer { width:100%; height:60vh; min-height:340px; border-radius:1rem; overflow:hidden; background:#0b0e2d; }
   @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:.45;} }
@@ -948,6 +954,13 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
           </button>
         </div>
       </div>
+    </div>
+
+    <!-- Preview Virtual Tour 360 -->
+    <div id="beranda-tour" class="hidden relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-primary-900 py-14 md:py-16">
+      <div class="pointer-events-none absolute -top-24 -left-24 w-96 h-96 rounded-full bg-secondary/10 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-32 -right-24 w-96 h-96 rounded-full bg-white/10 blur-3xl"></div>
+      <div id="beranda-tour-body" class="relative max-w-7xl mx-auto px-4 md:px-6"></div>
     </div>
 
     <!-- Cerita Alumni -->
@@ -2116,6 +2129,7 @@ function onDataLoaded(data) {
   renderGaleri();
   renderGaleriVideo();
   renderVirtualTour();
+  renderVirtualTourBeranda();
   renderLiveStreaming();
   renderKarya();
   renderKaryaBeranda();
@@ -3487,6 +3501,71 @@ function renderGaleriVideo() {
       '<div class="absolute inset-0 bg-black/30 flex items-center justify-center"><div class="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center"><i class="fas fa-play text-red-500 text-sm ml-0.5"></i></div></div>' +
       '<div class="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent"><p class="text-white text-[11px] font-bold line-clamp-1">' + (v.judul || '-') + '</p></div></div>';
   }).join('') || emptyState('Belum ada video.');
+}
+
+// ---------------------------------------------------------------
+// BERANDA: PREVIEW VIRTUAL TOUR 360 (tanpa memuat viewer; viewer baru
+// dimuat saat pengunjung menekan tombol jelajah)
+// ---------------------------------------------------------------
+let tourBerandaIdx_ = 0;
+function pilihTourBeranda(i) { tourBerandaIdx_ = i; renderVirtualTourBeranda(); }
+function bukaTourBeranda(i) {
+  showSection('virtualtour');
+  setTimeout(function () { pindahTitikTour360(i || 0); }, 150);
+}
+function renderVirtualTourBeranda() {
+  const wrap = document.getElementById('beranda-tour');
+  const body = document.getElementById('beranda-tour-body');
+  if (!wrap || !body) return;
+  const rows = tour360Rows || [];
+  if (!rows.length) { wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+  if (tourBerandaIdx_ >= rows.length) tourBerandaIdx_ = 0;
+
+  const fotoDari = function (t) { return fotoUrls(t.gambar, '').filter(Boolean)[0] || 'https://placehold.co/1200x700/1f287d/e7b10a?text=360'; };
+  const t = rows[tourBerandaIdx_];
+  const judul = (t.judul || 'Titik ' + (tourBerandaIdx_ + 1)).toString();
+  const desk = (t.deskripsi || '').toString().replace(/\s+/g, ' ').trim();
+
+  const preview =
+    '<div onclick="bukaTourBeranda(' + tourBerandaIdx_ + ')" class="group relative cursor-pointer rounded-3xl overflow-hidden aspect-[4/3] md:aspect-[16/10] bg-primary-900 shadow-2xl ring-1 ring-white/15">' +
+      '<img src="' + _ak(fotoDari(t)) + '" alt="' + _ak(judul) + '" decoding="async" class="vt-pan absolute inset-y-0 left-0 h-full w-[150%] max-w-none object-cover">' +
+      '<div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/30"></div>' +
+      '<span class="absolute top-4 left-4 inline-flex items-center gap-1.5 bg-black/55 backdrop-blur text-white text-[11px] font-black px-3 py-1.5 rounded-full"><i class="fas fa-arrows-rotate vt-spin text-secondary"></i>360&deg;</span>' +
+      '<div class="absolute inset-0 flex items-center justify-center">' +
+        '<span class="relative flex items-center justify-center">' +
+          '<span class="absolute w-24 h-24 rounded-full bg-secondary/40 animate-ping"></span>' +
+          '<span class="relative w-20 h-20 rounded-full bg-secondary text-primary flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform"><i class="fas fa-street-view text-2xl"></i></span>' +
+        '</span>' +
+      '</div>' +
+      '<div class="absolute inset-x-0 bottom-0 p-5 md:p-6">' +
+        '<p class="text-secondary text-[10px] font-black uppercase tracking-widest mb-1"><i class="fas fa-location-dot mr-1"></i>Titik ' + (tourBerandaIdx_ + 1) + ' dari ' + rows.length + '</p>' +
+        '<h3 class="text-white font-black text-lg md:text-2xl leading-snug">' + _ak(judul) + '</h3>' +
+        (desk ? '<p class="text-white/70 text-xs md:text-sm mt-1 line-clamp-2 max-w-xl">' + _ak(desk) + '</p>' : '') +
+      '</div>' +
+    '</div>';
+
+  const thumbs = rows.slice(0, 4).map(function (r, i) {
+    const aktif = i === tourBerandaIdx_;
+    return '<button type="button" onclick="pilihTourBeranda(' + i + ')" class="group text-left rounded-2xl overflow-hidden bg-white/5 border-2 transition-all ' + (aktif ? 'border-secondary shadow-lg' : 'border-white/10 hover:border-white/40') + '">' +
+      '<div class="relative"><img loading="lazy" decoding="async" src="' + _ak(fotoDari(r)) + '" alt="" class="w-full h-20 md:h-24 object-cover ' + (aktif ? '' : 'opacity-80 group-hover:opacity-100') + ' transition-opacity">' +
+      '<span class="absolute top-1.5 right-1.5 bg-black/60 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full">360</span></div>' +
+      '<p class="text-[11px] font-bold px-2.5 py-2 line-clamp-1 ' + (aktif ? 'text-secondary' : 'text-white/85') + '">' + _ak((r.judul || 'Titik ' + (i + 1)).toString()) + '</p></button>';
+  }).join('');
+
+  const info =
+    '<div class="flex flex-col justify-center">' +
+      '<span class="inline-flex self-start items-center gap-2 bg-white/10 border border-white/15 text-secondary text-[10px] font-black uppercase tracking-widest px-3.5 py-1.5 rounded-full"><i class="fas fa-vr-cardboard"></i> Jelajahi Sekolah</span>' +
+      '<h2 class="text-2xl md:text-4xl font-black text-white mt-4 leading-tight">Virtual Tour <span class="text-secondary">360&deg;</span></h2>' +
+      '<p class="text-sm text-white/60 mt-3 leading-relaxed">Lihat sekeliling lingkungan SMP Islam Terpadu Al Mubarok dari mana saja. Geser dan putar pandangan untuk menjelajahi setiap sudut sekolah.</p>' +
+      '<div class="grid grid-cols-2 gap-3 mt-6">' + thumbs + '</div>' +
+      (rows.length > 4 ? '<p class="text-[11px] text-white/50 font-semibold mt-3">+ ' + (rows.length - 4) + ' titik lokasi lainnya di halaman tour</p>' : '') +
+      '<button onclick="bukaTourBeranda(' + tourBerandaIdx_ + ')" class="self-start mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-secondary hover:bg-secondary-400 text-primary font-black text-xs uppercase tracking-wide shadow-lg transition-colors"><i class="fas fa-play text-[10px]"></i>Mulai Tur 360&deg;</button>' +
+    '</div>';
+
+  body.innerHTML = '<div class="grid lg:grid-cols-5 gap-8 lg:gap-10 items-center">' +
+    '<div class="lg:col-span-3 order-2 lg:order-1">' + preview + '</div>' +
+    '<div class="lg:col-span-2 order-1 lg:order-2">' + info + '</div></div>';
 }
 
 // ---------------------------------------------------------------
@@ -4976,7 +5055,7 @@ function terapkanDataSenyap_(data) {
   renderPengaturan(); renderStatistik(); renderMenuAplikasi(); renderProfil(); renderGuru(); renderProgram(); renderEkstrakurikuler();
   renderPrestasi(); renderAlumni(); renderKegiatan(); renderArtikel(); renderGaleri(); renderGaleriVideo();
   renderVirtualTour(); renderLiveStreaming();
-  renderKarya(); renderAkademik(); renderSejarah();
+  renderKarya(); renderKaryaBeranda(); renderVirtualTourBeranda(); renderAkademik(); renderSejarah();
   if (adminActiveSheet) {
     if (adminActiveSheet.khusus === 'splash') { renderSplashAdminPanel(); }
     else if (adminActiveSheet.khusus === 'pendaftaran') { renderPendaftaranAdminPanel(); }
