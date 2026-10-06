@@ -88,10 +88,12 @@
   .wa-in { background:#fff; color:#111b21; }
   .wa-out { background:#d9fdd3; color:#111b21; }
   .wa-info { background:#fff5c4; color:#54410d; }
+  .wa-err { background:#fde2e2; color:#7a1f1f; }
   body.mode-gelap .wa-messages { background-color:#0b141a; background-image:radial-gradient(rgba(255,255,255,.04) 1px,transparent 1px); }
   body.mode-gelap .wa-in { background:#202c33; color:#e9edef; }
   body.mode-gelap .wa-out { background:#005c4b; color:#e9edef; }
   body.mode-gelap .wa-info { background:#2a2f1f; color:#f1e4a8; }
+  body.mode-gelap .wa-err { background:#3a1c1c; color:#f5b5b5; }
   body.mode-gelap #wa-panel .wa-foot { background:#161f36 !important; }
   .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
@@ -1920,27 +1922,30 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
 </div>
 
 <!-- ============================================================ -->
-<!-- ROOM CHAT WHATSAPP (obrolan langsung di dalam situs, pesan diteruskan ke WA admin) -->
+<!-- ROOM CHAT WHATSAPP (kirim langsung ke admin lewat web; opsi lanjut ke WhatsApp admin) -->
 <!-- ============================================================ -->
-<div id="wa-panel" role="dialog" aria-label="Chat WhatsApp Admin" class="hidden fixed right-4 md:right-6 bottom-[172px] z-[99998] w-[92vw] max-w-sm h-[65vh] max-h-[560px] bg-white rounded-[1.75rem] shadow-2xl border border-slate-100 flex-col overflow-hidden">
+<div id="wa-panel" role="dialog" aria-label="Chat WhatsApp Admin" class="hidden fixed right-4 md:right-6 bottom-[172px] z-[99998] w-[92vw] max-w-sm h-[72vh] max-h-[620px] bg-white rounded-[1.75rem] shadow-2xl border border-slate-100 flex-col overflow-hidden">
   <div class="flex items-center justify-between px-4 py-3.5 flex-shrink-0" style="background:#075e54">
     <div class="flex items-center gap-3 min-w-0">
       <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center flex-shrink-0 overflow-hidden"><img src="logo.png" alt="" class="w-8 h-8 object-contain" onerror="this.style.display='none'"></div>
       <div class="min-w-0">
         <p class="text-white font-black text-xs uppercase tracking-widest truncate">Admin SMP IT Al Mubarok</p>
-        <p class="text-[10px] font-semibold flex items-center gap-1" style="color:#b7f5cf"><span class="w-1.5 h-1.5 rounded-full" style="background:#25D366"></span> via WhatsApp</p>
+        <p class="text-[10px] font-semibold flex items-center gap-1" style="color:#b7f5cf"><span class="w-1.5 h-1.5 rounded-full" style="background:#25D366"></span> Kirim pesan langsung</p>
       </div>
     </div>
     <button type="button" onclick="toggleWaChat(false)" aria-label="Tutup chat WhatsApp" class="text-2xl font-black text-white/70 hover:text-white leading-none flex-shrink-0 px-1">&times;</button>
   </div>
   <div id="wa-messages" class="wa-messages flex-1 overflow-y-auto px-3.5 py-4 space-y-2.5"></div>
   <div class="wa-foot px-3 pt-2.5 pb-3 border-t border-slate-100 bg-white flex-shrink-0">
-    <input type="text" id="wa-nama" autocomplete="name" maxlength="40" placeholder="Nama Anda (opsional)" class="w-full border border-slate-200 rounded-full px-4 py-1.5 text-[11px] mb-2 focus:outline-none" style="--tw-ring-color:#25D366" onfocus="this.style.borderColor='#25D366'" onblur="this.style.borderColor=''">
+    <div class="grid grid-cols-2 gap-2 mb-2">
+      <input type="text" id="wa-nama" autocomplete="name" maxlength="60" placeholder="Nama Anda" class="min-w-0 border border-slate-200 rounded-full px-3.5 py-1.5 text-[11px] focus:outline-none" onfocus="this.style.borderColor='#25D366'" onblur="this.style.borderColor=''">
+      <input type="tel" id="wa-kontak" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="No. WhatsApp Anda *" class="min-w-0 border border-slate-200 rounded-full px-3.5 py-1.5 text-[11px] focus:outline-none" onfocus="this.style.borderColor='#25D366'" onblur="this.style.borderColor=''">
+    </div>
     <form id="wa-form" onsubmit="return waKirim_(event);" class="flex items-center gap-2">
-      <input type="text" id="wa-input" autocomplete="off" placeholder="Ketik pesan..." class="flex-1 min-w-0 border border-slate-200 rounded-full px-4 py-2.5 text-xs focus:outline-none" onfocus="this.style.borderColor='#25D366'" onblur="this.style.borderColor=''">
-      <button type="submit" aria-label="Kirim" class="flex-shrink-0 w-10 h-10 rounded-full text-white flex items-center justify-center" style="background:#25D366"><i class="fas fa-paper-plane text-xs"></i></button>
+      <input type="text" id="wa-input" autocomplete="off" maxlength="500" placeholder="Ketik pesan..." class="flex-1 min-w-0 border border-slate-200 rounded-full px-4 py-2.5 text-xs focus:outline-none" onfocus="this.style.borderColor='#25D366'" onblur="this.style.borderColor=''">
+      <button type="submit" id="wa-kirim-btn" aria-label="Kirim" class="flex-shrink-0 w-10 h-10 rounded-full text-white flex items-center justify-center disabled:opacity-60" style="background:#25D366"><i class="fas fa-paper-plane text-xs"></i></button>
     </form>
-    <p class="text-[9px] text-slate-400 font-semibold mt-2 text-center">Pesan diteruskan ke WhatsApp admin sekolah</p>
+    <button type="button" onclick="waBukaLangsung_()" class="w-full mt-2 text-[10px] font-black text-center hover:underline" style="color:#075e54"><i class="fab fa-whatsapp mr-1"></i>Atau chat langsung di WhatsApp admin</button>
   </div>
 </div>
 
@@ -5024,10 +5029,12 @@ function jadwalkanOnboardingPertama_() {
 
 // ---------------------------------------------------------------
 // ROOM CHAT WHATSAPP
-// Obrolan di dalam situs; tiap pesan yang dikirim diteruskan ke WhatsApp admin
-// (lewat wa.me, jadi balasan admin muncul di aplikasi WhatsApp pengunjung).
+// Pesan dikirim LANGSUNG dari situs ke admin (lewat backend Apps Script, sheet
+// 'PesanMasuk' + notifikasi WhatsApp). Pengunjung juga bisa memilih lanjut
+// langsung di WhatsApp admin lewat tombol "Atau chat langsung di WhatsApp admin".
 // ---------------------------------------------------------------
 let waRiwayat_ = [];
+let waSedangKirim_ = false;
 function waNomor_() {
   const a = document.getElementById('floating-wa-btn');
   const m = ((a && a.href) || '').match(/wa\.me\/(\d+)/);
@@ -5037,6 +5044,11 @@ function waJam_() {
   const d = new Date();
   return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
 }
+function waNomorValid_(v) {
+  let n = String(v || '').replace(/\D/g, '');
+  if (n.indexOf('0') === 0) n = '62' + n.slice(1); else if (n.indexOf('8') === 0) n = '62' + n;
+  return (n.length >= 10 && n.length <= 15) ? n : '';
+}
 function toggleWaChat(forceOpen) {
   const panel = document.getElementById('wa-panel');
   if (!panel) return true;
@@ -5045,10 +5057,13 @@ function toggleWaChat(forceOpen) {
     const cb = document.getElementById('chatbot-panel');
     if (cb && !cb.classList.contains('hidden')) toggleChatbot(false);
     panel.classList.remove('hidden'); panel.classList.add('flex');
-    const nm = document.getElementById('wa-nama');
-    try { if (nm && !nm.value) nm.value = sessionStorage.getItem('wa_nama') || ''; } catch (e) { /* abaikan */ }
+    try {
+      const nm = document.getElementById('wa-nama'), kt = document.getElementById('wa-kontak');
+      if (nm && !nm.value) nm.value = sessionStorage.getItem('wa_nama') || '';
+      if (kt && !kt.value) kt.value = sessionStorage.getItem('wa_kontak') || '';
+    } catch (e) { /* abaikan */ }
     if (!waRiwayat_.length) {
-      waBubble_('in', 'Assalamu\'alaikum! \uD83D\uDC4B Selamat datang di SMP IT Al Mubarok. Silakan tulis pertanyaan Anda, admin kami akan membalas lewat WhatsApp.');
+      waBubble_('in', 'Assalamu\'alaikum! \uD83D\uDC4B Selamat datang di SMP IT Al Mubarok. Tulis pertanyaan Anda di sini, pesan langsung masuk ke admin kami. Isi nomor WhatsApp Anda supaya kami bisa membalas.');
       waQuickReply_();
     }
     if (window.matchMedia && window.matchMedia('(hover:hover)').matches) setTimeout(function () { const i = document.getElementById('wa-input'); if (i) i.focus(); }, 60);
@@ -5057,7 +5072,8 @@ function toggleWaChat(forceOpen) {
   }
   return false; // cegah <a> membuka tab baru
 }
-function waBubble_(arah, teks) {
+// Mengembalikan elemen jam/status supaya bisa diperbarui (mengirim -> terkirim / gagal)
+function waBubble_(arah, teks, pending) {
   const wrap = document.getElementById('wa-messages');
   const row = document.createElement('div');
   row.className = arah === 'out' ? 'flex justify-end' : 'flex justify-start';
@@ -5068,24 +5084,26 @@ function waBubble_(arah, teks) {
   isi.textContent = teks;
   const meta = document.createElement('div');
   meta.className = 'text-[9px] text-right mt-0.5 opacity-60';
-  meta.textContent = waJam_() + (arah === 'out' ? ' \u2713\u2713' : '');
+  meta.textContent = waJam_() + (arah === 'out' ? (pending ? ' \u00B7 mengirim...' : ' \u2713\u2713') : '');
   b.appendChild(isi); b.appendChild(meta); row.appendChild(b); wrap.appendChild(row);
   waRiwayat_.push({ arah: arah, teks: teks });
   wrap.scrollTop = wrap.scrollHeight;
+  return meta;
 }
-function waInfo_(teks, url) {
+function waInfo_(teks, opsi) {
+  opsi = opsi || {};
   const wrap = document.getElementById('wa-messages');
   const row = document.createElement('div');
   row.className = 'flex justify-center';
   const b = document.createElement('div');
-  b.className = 'wa-info rounded-xl px-3.5 py-2 text-[10px] leading-relaxed text-center max-w-[88%] shadow-sm';
+  b.className = (opsi.galat ? 'wa-err' : 'wa-info') + ' rounded-xl px-3.5 py-2 text-[10px] leading-relaxed text-center max-w-[90%] shadow-sm';
   b.appendChild(document.createTextNode(teks));
-  if (url) {
+  if (opsi.url) {
     b.appendChild(document.createElement('br'));
     const a = document.createElement('a');
-    a.href = url; a.target = '_blank'; a.rel = 'noopener';
+    a.href = opsi.url; a.target = '_blank'; a.rel = 'noopener';
     a.className = 'inline-block mt-1.5 font-black underline';
-    a.textContent = 'Buka WhatsApp';
+    a.textContent = opsi.label || 'Buka WhatsApp';
     b.appendChild(a);
   }
   row.appendChild(b); wrap.appendChild(row);
@@ -5106,19 +5124,55 @@ function waQuickReply_() {
   });
   wrap.appendChild(box);
 }
+// URL WhatsApp admin dengan teks siap kirim (dipakai tombol "chat langsung" & cadangan saat gagal)
+function waUrlLangsung_(teks) {
+  const nama = ((document.getElementById('wa-nama') || {}).value || '').trim();
+  const pesan = 'Assalamu\'alaikum, Admin SMP IT Al Mubarok.' + (nama ? '\nSaya ' + nama + '.' : '') + (teks ? '\n\n' + teks : '');
+  return 'https://wa.me/' + waNomor_() + '?text=' + encodeURIComponent(pesan);
+}
+function waBukaLangsung_() {
+  const input = document.getElementById('wa-input');
+  const teks = ((input && input.value) || '').trim();
+  window.open(waUrlLangsung_(teks), '_blank', 'noopener');
+}
 function waKirim_(e) {
   if (e && e.preventDefault) e.preventDefault();
+  if (waSedangKirim_) return false;
   const input = document.getElementById('wa-input');
   const teks = (input.value || '').trim();
   if (!teks) return false;
   const nama = ((document.getElementById('wa-nama').value) || '').trim();
-  try { sessionStorage.setItem('wa_nama', nama); } catch (er) { /* abaikan */ }
-  waBubble_('out', teks);
+  const kontakInput = ((document.getElementById('wa-kontak').value) || '').trim();
+  const kontak = waNomorValid_(kontakInput);
+  if (!kontak) {
+    waInfo_('Isi nomor WhatsApp Anda dulu (contoh 0812xxxxxxxx) supaya admin bisa membalas pesan Anda.', { galat: true });
+    document.getElementById('wa-kontak').focus();
+    return false;
+  }
+  try { sessionStorage.setItem('wa_nama', nama); sessionStorage.setItem('wa_kontak', kontakInput); } catch (er) { /* abaikan */ }
+
+  const meta = waBubble_('out', teks, true);
   input.value = '';
-  const pesan = 'Assalamu\'alaikum, Admin SMP IT Al Mubarok.' + (nama ? '\nSaya ' + nama + '.' : '') + '\n\n' + teks;
-  const url = 'https://wa.me/' + waNomor_() + '?text=' + encodeURIComponent(pesan);
-  window.open(url, '_blank', 'noopener');
-  waInfo_('Pesan Anda diteruskan ke WhatsApp admin. Lanjutkan percakapan di aplikasi WhatsApp; kalau tidak terbuka otomatis, ketuk tautan di bawah.', url);
+  waSedangKirim_ = true;
+  const btn = document.getElementById('wa-kirim-btn'); if (btn) btn.disabled = true;
+  function selesai() { waSedangKirim_ = false; if (btn) btn.disabled = false; }
+  function gagal(alasan) {
+    selesai();
+    meta.textContent = waJam_() + ' \u00B7 gagal terkirim';
+    if (!input.value) input.value = teks; // kembalikan teks supaya tidak perlu mengetik ulang
+    waInfo_(alasan + ' Coba kirim lagi, atau chat langsung lewat WhatsApp admin.', { galat: true, url: waUrlLangsung_(teks), label: 'Chat langsung di WhatsApp' });
+  }
+  google.script.run.withSuccessHandler(function (res) {
+    if (res && res.sukses) {
+      selesai();
+      meta.textContent = waJam_() + ' \u2713\u2713';
+      waInfo_('Pesan terkirim ke admin sekolah. Balasan akan dikirim ke WhatsApp Anda (' + kontakInput + ').');
+    } else {
+      gagal((res && res.pesan) || 'Pesan belum terkirim.');
+    }
+  }).withFailureHandler(function () {
+    gagal('Koneksi bermasalah. Periksa internet Anda.');
+  }).kirimPesanKeAdmin(nama, kontak, teks);
   return false;
 }
 
