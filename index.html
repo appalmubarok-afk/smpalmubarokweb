@@ -581,80 +581,106 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     </div>
 
     <!-- Sambutan Kepala Sekolah -->
-    <div id="beranda-kepsek" class="max-w-7xl mx-auto px-4 md:px-6 py-10 md:py-14 scroll-mt-24">
+    <div id="beranda-kepsek" class="max-w-7xl mx-auto px-4 md:px-6 pt-10 md:pt-14 pb-16 scroll-mt-24">
       <div class="text-center md:text-left mb-8 md:mb-10">
         <span class="inline-flex items-center gap-2 bg-secondary/15 text-secondary-600 text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full"><i class="fas fa-star-and-crescent"></i> Selamat Datang</span>
         <h2 class="text-2xl md:text-4xl font-black text-primary mt-3 leading-tight">Selamat Datang di SMP Islam Terpadu <span class="text-secondary-600">Al Mubarok</span></h2>
         <div class="mt-4 h-1.5 w-20 rounded-full bg-secondary mx-auto md:mx-0"></div>
       </div>
-      <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden sbt-grid">
-        <div class="relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary to-primary-700 p-6 md:p-7 flex flex-col items-center justify-center">
-          <div class="pointer-events-none absolute inset-0 opacity-[0.12]" style="background-image:radial-gradient(#fff 1px,transparent 1px);background-size:22px 22px"></div>
-          <div class="pointer-events-none absolute -top-16 -left-16 w-56 h-56 rounded-full bg-secondary/25 blur-3xl"></div>
-          <div class="pointer-events-none absolute -bottom-20 -right-16 w-64 h-64 rounded-full bg-white/10 blur-3xl"></div>
-          <div class="relative sbt-foto-wrap">
-            <div class="rounded-2xl overflow-hidden ring-4 ring-white/20 shadow-2xl sbt-foto">
-              <div id="beranda-kepsek-foto" class="w-full group"><img src="https://placehold.co/400x500/1f287d/e7b10a?text=Kepala+Sekolah" class="w-full h-auto block"></div>
-            </div>
-            <div class="text-center mt-5">
-              <p class="text-white font-black text-base md:text-lg leading-snug" id="beranda-kepsek-nama">Kepala Sekolah</p>
-              <span class="inline-block mt-2 bg-secondary text-primary-900 text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full" id="beranda-kepsek-jabatan">Kepala Sekolah</span>
-            </div>
-          </div>
-        </div>
-        <div class="relative p-6 md:p-9 lg:p-10 flex flex-col">
-          <i class="fas fa-quote-right sbt-quote"></i>
-          <p class="relative inline-flex items-center gap-2 font-black text-primary text-xs uppercase tracking-widest mb-3"><span class="w-8 h-8 rounded-full bg-primary text-secondary flex items-center justify-center text-[11px]"><i class="fas fa-microphone-lines"></i></span> Sambutan Kepala Sekolah</p>
-          <p class="relative text-sm md:text-[15px] text-slate-600 leading-[1.85] line-clamp-6" id="beranda-sambutan">Memuat...</p>
-          <div>
-            <button onclick="showSection('sambutan')" class="relative mt-5 inline-flex items-center gap-2 bg-primary hover:bg-secondary text-white hover:text-primary-900 font-black text-[11px] uppercase tracking-widest px-5 py-3 rounded-full shadow-md transition-all hover:gap-3">Baca Lebih Lanjut <i class="fas fa-arrow-right"></i></button>
-          </div>
-          <div class="grid sm:grid-cols-2 gap-4 mt-7 pt-7 border-t border-slate-100">
-            <div class="bg-slate-50 rounded-2xl p-5 border-l-4 border-secondary">
-              <p class="font-black text-primary text-xs uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fas fa-eye text-secondary-600"></i> Visi</p>
-              <p class="text-xs md:text-[13px] text-slate-500 leading-relaxed line-clamp-4" id="beranda-visi">Memuat...</p>
-            </div>
-            <div class="bg-slate-50 rounded-2xl p-5 border-l-4 border-primary">
-              <p class="font-black text-primary text-xs uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fas fa-bullseye text-secondary-600"></i> Misi</p>
-              <p class="text-xs md:text-[13px] text-slate-500 leading-relaxed line-clamp-4" id="beranda-misi">Memuat...</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Statistik -->
-    <div class="max-w-7xl mx-auto px-4 md:px-6 pb-16">
-      <div class="relative bg-primary rounded-[1.75rem] shadow-xl overflow-hidden">
+      <!-- Satu bentuk: Sambutan + Statistik (statistik menyatu di bagian bawah kartu) -->
+      <div class="relative bg-gradient-to-br from-primary-900 via-primary to-primary-700 rounded-[1.75rem] shadow-xl overflow-hidden">
         <div class="absolute inset-0 pointer-events-none select-none text-white/10">
+
           <i class="fas fa-star absolute text-xl" style="top:10%; left:4%; transform:rotate(-12deg);"></i>
+
           <i class="fas fa-star absolute text-3xl" style="top:60%; left:2%; transform:rotate(10deg);"></i>
+
           <i class="fas fa-star absolute text-lg" style="top:75%; left:10%; transform:rotate(20deg);"></i>
+
           <i class="fas fa-star absolute text-2xl" style="top:20%; left:14%; transform:rotate(-8deg);"></i>
+
           <i class="fas fa-star absolute text-lg" style="top:45%; left:20%; transform:rotate(15deg);"></i>
+
           <i class="fas fa-star absolute text-3xl" style="top:8%; left:26%; transform:rotate(-18deg);"></i>
+
           <i class="fas fa-star absolute text-xl" style="top:70%; left:30%; transform:rotate(6deg);"></i>
+
           <i class="fas fa-star absolute text-2xl" style="top:30%; left:36%; transform:rotate(-10deg);"></i>
+
           <i class="fas fa-star absolute text-lg" style="top:85%; left:40%; transform:rotate(14deg);"></i>
+
           <i class="fas fa-star absolute text-xl" style="top:15%; left:45%; transform:rotate(-20deg);"></i>
+
           <i class="fas fa-star absolute text-3xl" style="top:55%; left:48%; transform:rotate(8deg);"></i>
+
           <i class="fas fa-star absolute text-lg" style="top:5%; left:54%; transform:rotate(-6deg);"></i>
+
           <i class="fas fa-star absolute text-2xl" style="top:65%; left:58%; transform:rotate(18deg);"></i>
+
           <i class="fas fa-star absolute text-xl" style="top:35%; left:62%; transform:rotate(-14deg);"></i>
+
           <i class="fas fa-star absolute text-lg" style="top:80%; left:66%; transform:rotate(10deg);"></i>
+
           <i class="fas fa-star absolute text-3xl" style="top:12%; left:70%; transform:rotate(-8deg);"></i>
+
           <i class="fas fa-star absolute text-xl" style="top:50%; left:74%; transform:rotate(16deg);"></i>
+
           <i class="fas fa-star absolute text-2xl" style="top:25%; left:80%; transform:rotate(-12deg);"></i>
+
           <i class="fas fa-star absolute text-lg" style="top:72%; left:84%; transform:rotate(9deg);"></i>
+
           <i class="fas fa-star absolute text-xl" style="top:8%; left:88%; transform:rotate(-16deg);"></i>
+
           <i class="fas fa-star absolute text-2xl" style="top:58%; left:92%; transform:rotate(12deg);"></i>
+
           <i class="fas fa-star absolute text-lg" style="top:88%; left:96%; transform:rotate(-10deg);"></i>
+
           <i class="fas fa-star absolute text-xl" style="top:40%; left:8%; transform:rotate(20deg);"></i>
+
           <i class="fas fa-star absolute text-lg" style="top:18%; left:96%; transform:rotate(6deg);"></i>
+
         </div>
-        <div id="statistik-grid" class="relative grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-white/10"></div>
+        <div class="pointer-events-none absolute -top-24 -left-20 w-80 h-80 rounded-full bg-secondary/20 blur-3xl"></div>
+        <div class="pointer-events-none absolute -bottom-28 -right-20 w-96 h-96 rounded-full bg-white/10 blur-3xl"></div>
+        <div class="relative sbt-grid">
+          <div class="p-6 md:p-8 flex flex-col items-center justify-center">
+            <div class="relative sbt-foto-wrap">
+              <div class="rounded-2xl overflow-hidden ring-4 ring-secondary/80 shadow-2xl sbt-foto">
+                <div id="beranda-kepsek-foto" class="w-full group"><img src="https://placehold.co/400x500/1f287d/e7b10a?text=Kepala+Sekolah" class="w-full h-auto block"></div>
+              </div>
+              <div class="text-center mt-5">
+                <p class="text-white font-black text-base md:text-lg leading-snug" id="beranda-kepsek-nama">Kepala Sekolah</p>
+                <span class="inline-block mt-2 bg-secondary text-primary-900 text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full" id="beranda-kepsek-jabatan">Kepala Sekolah</span>
+              </div>
+            </div>
+          </div>
+          <div class="p-3 md:p-4 md:pl-0">
+            <div class="relative bg-white rounded-3xl p-6 md:p-8 h-full flex flex-col shadow-lg">
+              <i class="fas fa-quote-right sbt-quote"></i>
+              <p class="relative inline-flex items-center gap-2 font-black text-primary text-xs uppercase tracking-widest mb-3"><span class="w-8 h-8 rounded-full bg-primary text-secondary flex items-center justify-center text-[11px]"><i class="fas fa-microphone-lines"></i></span> Sambutan Kepala Sekolah</p>
+              <p class="relative text-sm md:text-[15px] text-slate-600 leading-[1.85] line-clamp-6" id="beranda-sambutan">Memuat...</p>
+              <div>
+                <button onclick="showSection('sambutan')" class="relative mt-5 inline-flex items-center gap-2 bg-primary hover:bg-secondary text-white hover:text-primary-900 font-black text-[11px] uppercase tracking-widest px-5 py-3 rounded-full shadow-md transition-all hover:gap-3">Baca Lebih Lanjut <i class="fas fa-arrow-right"></i></button>
+              </div>
+              <div class="grid sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-slate-100">
+                <div class="bg-slate-50 rounded-2xl p-5 border-l-4 border-secondary">
+                  <p class="font-black text-primary text-xs uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fas fa-eye text-secondary-600"></i> Visi</p>
+                  <p class="text-xs md:text-[13px] text-slate-500 leading-relaxed line-clamp-4" id="beranda-visi">Memuat...</p>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-5 border-l-4 border-primary">
+                  <p class="font-black text-primary text-xs uppercase tracking-widest mb-2 flex items-center gap-2"><i class="fas fa-bullseye text-secondary-600"></i> Misi</p>
+                  <p class="text-xs md:text-[13px] text-slate-500 leading-relaxed line-clamp-4" id="beranda-misi">Memuat...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Statistik -->
+        <div class="relative border-t border-white/15 bg-black/10">
+          <div id="statistik-grid" class="relative grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-white/10"></div>
+        </div>
       </div>
     </div>
-
     <!-- Program Unggulan (kartu tetap, bukan dari sheet) -->
     <div id="beranda-program-unggulan" class="pu-section relative overflow-hidden py-14 md:py-20 scroll-mt-24">
       <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full bg-secondary/10 blur-3xl pointer-events-none"></div>
