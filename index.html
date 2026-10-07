@@ -2614,6 +2614,24 @@ function onYoutubeDataLoaded(yt) {
   renderLiveStreaming();
 }
 
+// Cek status LIVE YouTube secara berkala (tiap 60 detik, hanya saat tab sedang
+// dibuka) supaya banner/badge "SEDANG LIVE" muncul otomatis tanpa refresh.
+function onLiveStatusLoaded(yt) {
+  if (!yt || !yt.live_streaming_otomatis) return;
+  DB.live_streaming_otomatis = yt.live_streaming_otomatis;
+  if (lastYoutubeData) lastYoutubeData.live_streaming_otomatis = yt.live_streaming_otomatis;
+  renderLiveStreaming();
+}
+setInterval(function () {
+  if (document.visibilityState !== 'visible' || !lastYoutubeData) return;
+  try { google.script.run.withSuccessHandler(onLiveStatusLoaded).getLiveStatus(); } catch (e) {}
+}, 60000);
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'visible' && lastYoutubeData) {
+    try { google.script.run.withSuccessHandler(onLiveStatusLoaded).getLiveStatus(); } catch (e) {}
+  }
+});
+
 function cfg(key, fallback) {
   const row = (DB.pengaturan || []).find(function (p) { return (p.key || '').toString().trim() === key; });
   return row ? (row.value || fallback || '') : (fallback || '');
@@ -4315,6 +4333,25 @@ function renderLiveStreaming() {
   const badgeDesktop = document.getElementById('dropdown-live-badge');
   const badgeMobile = document.getElementById('mobile-live-badge');
   [badgeDesktop, badgeMobile].forEach(function (b) { if (b) b.classList.toggle('hidden', !sedangLive); });
+
+  // Banner "SEDANG LIVE" yang melayang di bawah header di semua halaman
+  let banner = document.getElementById('banner-live-yt');
+  if (sedangLive) {
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'banner-live-yt';
+      banner.setAttribute('role', 'status');
+      banner.className = 'fixed left-1/2 -translate-x-1/2 top-[84px] md:top-[96px] z-[9990] w-[92%] max-w-xl';
+      document.body.appendChild(banner);
+    }
+    banner.innerHTML = '<button type="button" onclick="showSection(\'livestreaming\')" class="w-full flex items-center gap-3 bg-red-600 hover:bg-red-700 text-white rounded-full pl-4 pr-3 py-2.5 shadow-xl text-left transition-colors">' +
+      '<span class="live-dot w-2.5 h-2.5 rounded-full bg-white flex-shrink-0"></span>' +
+      '<span class="min-w-0 flex-1"><span class="block text-[10px] font-black uppercase tracking-widest leading-none">Sedang Siaran Langsung</span>' +
+      '<span class="block text-xs font-bold truncate mt-1">' + (sedangLive.judul || 'Live YouTube') + '</span></span>' +
+      '<span class="flex-shrink-0 bg-white text-red-600 text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full">Tonton</span></button>';
+  } else if (banner) {
+    banner.remove();
+  }
 
   const utama = document.getElementById('livestreaming-utama');
   if (utama) {
