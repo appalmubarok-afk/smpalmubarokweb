@@ -1655,6 +1655,12 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     </div>
     <div class="max-w-5xl mx-auto px-4 md:px-6 py-12">
       <button onclick="kembaliKeBeranda()" class="text-primary hover:text-primary-600 text-xs font-bold inline-flex items-center gap-1.5 mb-6"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <p id="live-status-update" role="status" aria-live="polite" class="text-[11px] text-slate-400 font-semibold"></p>
+        <button id="btn-refresh-live" type="button" onclick="refreshLive()" class="inline-flex items-center gap-2 bg-primary hover:bg-primary-600 text-white text-xs font-black uppercase tracking-widest px-5 py-2.5 rounded-full shadow-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed">
+          <i id="btn-refresh-live-ikon" class="fas fa-rotate" aria-hidden="true"></i><span id="btn-refresh-live-teks">Refresh</span>
+        </button>
+      </div>
       <div id="livestreaming-utama"></div>
       <h2 class="text-primary font-black text-sm uppercase tracking-widest mt-10 mb-4">Arsip Siaran Sebelumnya</h2>
       <div id="livestreaming-arsip-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
@@ -2612,6 +2618,7 @@ function onYoutubeDataLoaded(yt) {
   DB.live_streaming_otomatis = yt.live_streaming_otomatis || [];
   renderGaleriVideo();
   renderLiveStreaming();
+  catatWaktuLive_();
 }
 
 // Cek status LIVE YouTube secara berkala (tiap 60 detik, hanya saat tab sedang
@@ -2621,6 +2628,56 @@ function onLiveStatusLoaded(yt) {
   DB.live_streaming_otomatis = yt.live_streaming_otomatis;
   if (lastYoutubeData) lastYoutubeData.live_streaming_otomatis = yt.live_streaming_otomatis;
   renderLiveStreaming();
+  catatWaktuLive_();
+}
+
+// Tulis "Diperbarui pukul HH.MM" di halaman Live Streaming
+function catatWaktuLive_(pesan) {
+  const el = document.getElementById('live-status-update');
+  if (!el) return;
+  const d = new Date();
+  const jam = String(d.getHours()).padStart(2, '0') + '.' + String(d.getMinutes()).padStart(2, '0') + '.' + String(d.getSeconds()).padStart(2, '0');
+  el.textContent = (pesan ? pesan + ' · ' : '') + 'Diperbarui pukul ' + jam;
+}
+
+// Tombol Refresh: ambil status live TERBARU dari YouTube tanpa reload halaman
+let refreshLiveSibuk_ = false;
+function refreshLive() {
+  if (refreshLiveSibuk_) return;
+  refreshLiveSibuk_ = true;
+  const btn = document.getElementById('btn-refresh-live');
+  const ikon = document.getElementById('btn-refresh-live-ikon');
+  const teks = document.getElementById('btn-refresh-live-teks');
+  if (btn) btn.disabled = true;
+  if (ikon) ikon.classList.add('fa-spin');
+  if (teks) teks.textContent = 'Memuat...';
+  const selesai = function () {
+    // jeda 4 detik biar tombol tidak ditekan beruntun (hemat kuota YouTube)
+    setTimeout(function () {
+      refreshLiveSibuk_ = false;
+      if (btn) btn.disabled = false;
+      if (teks) teks.textContent = 'Refresh';
+    }, 4000);
+    if (ikon) ikon.classList.remove('fa-spin');
+    if (teks) teks.textContent = 'Tunggu...';
+  };
+  google.script.run
+    .withSuccessHandler(function (yt) {
+      if (yt && yt.live_streaming_otomatis) {
+        lastYoutubeData = lastYoutubeData || {};
+        onLiveStatusLoaded(yt);
+        const adaLive = yt.live_streaming_otomatis.some(function (r) { return (r.status || '') === 'live'; });
+        catatWaktuLive_(adaLive ? 'Sedang ada siaran langsung' : 'Belum ada siaran langsung');
+      } else {
+        catatWaktuLive_('Data belum tersedia, coba lagi');
+      }
+      selesai();
+    })
+    .withFailureHandler(function () {
+      catatWaktuLive_('Gagal memperbarui, periksa koneksi lalu coba lagi');
+      selesai();
+    })
+    .getLiveStatus(true);
 }
 setInterval(function () {
   if (document.visibilityState !== 'visible' || !lastYoutubeData) return;
