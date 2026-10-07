@@ -4385,7 +4385,14 @@ function renderLiveStreaming() {
 
   const isLive = function (r) { return (r.status || '').toString().trim().toLowerCase() === 'live'; };
   const sedangLive = rows.find(isLive);
-  const arsip = rows.filter(function (r) { return r !== sedangLive; });
+  // Arsip diurutkan dari siaran TERBARU ke TERLAMA (baik otomatis dari YouTube maupun input manual).
+  const kunciUrut = function (r) {
+    if (r.urutan) return r.urutan;
+    const d = parseTanggalArtikel_(r.tanggal);
+    return d ? d.getTime() : 0; // tanpa tanggal -> paling bawah
+  };
+  const arsip = rows.filter(function (r) { return r !== sedangLive; })
+    .sort(function (a, b) { return kunciUrut(b) - kunciUrut(a); });
 
   const badgeDesktop = document.getElementById('dropdown-live-badge');
   const badgeMobile = document.getElementById('mobile-live-badge');
