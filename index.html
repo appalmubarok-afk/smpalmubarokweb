@@ -9,6 +9,14 @@
 <link rel="shortcut icon" type="image/png" href="/logo.png">
 <link rel="apple-touch-icon" href="/logo.png">
 
+<!-- PWA: bisa dipasang / dipintas di layar utama HP -->
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#1f287d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SMPIT Al Mubarok">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
 <!-- Percepat koneksi ke server yang dipakai & muat gambar splash lebih awal -->
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
@@ -7658,5 +7666,6 @@ setTimeout(function () {
 
 <div id="google_translate_element"></div>
 <script async src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script src="/pwa.js" defer></script>
 </body>
 </html>
