@@ -382,6 +382,26 @@ body.mode-gelap .dn-bar{background:#24304f}
 .lg-mobile{display:flex;gap:8px;padding:8px 12px}
 .lg-mobile .lg-btn{flex:1;background:rgba(255,255,255,.12);padding:10px 0;font-size:12px}
 .lg-mobile .lg-btn.aktif{background:#ffd84d;color:#161f36}
+/* form konfirmasi donasi & panel admin */
+.dn-h3{font-weight:900;color:#1f287d;font-size:16px;margin:0 0 6px}
+.dn-h3 i{color:#16a34a;margin-right:8px}
+.dn-field{margin-bottom:12px}
+.dn-field label{display:block;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:6px}
+.dn-field input,.dn-field textarea{width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:12px;padding:11px 14px;font-size:14px;font-family:inherit;background:#fff;color:#0f172a}
+.dn-field input:focus,.dn-field textarea:focus{outline:2px solid #1f287d33;border-color:#1f287d}
+.dn-check{display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b;margin:4px 0 8px;cursor:pointer}
+.dn-ok-box{text-align:center;padding:8px 0}
+.dn-ok-ic{width:56px;height:56px;border-radius:50%;background:#dcfce7;color:#16a34a;display:inline-flex;align-items:center;justify-content:center;font-size:26px}
+.dn-kode{display:inline-block;margin:10px 0;padding:6px 16px;border-radius:10px;background:#eef0fb;color:#1f287d;font-weight:900;font-size:18px;letter-spacing:.08em}
+.dn-btn.ok{background:#16a34a}
+.dn-btn.no{background:#dc2626}
+.dn-btn.abu{background:#64748b}
+.dn-badge{display:inline-block;font-size:10px;font-weight:900;padding:2px 8px;border-radius:99px;background:#eef0fb;color:#1f287d;margin-left:6px;vertical-align:middle}
+.dn-badge.ok{background:#dcfce7;color:#15803d}
+.dn-badge.no{background:#fee2e2;color:#b91c1c}
+body.mode-gelap .dn-field input,body.mode-gelap .dn-field textarea{background:#0f172a;color:#e2e8f0;border-color:#24304f}
+body.mode-gelap .dn-kode{background:#24304f;color:#c7d0ff}
+body.mode-gelap .dn-h3{color:#c7d0ff}
 /* sembunyikan tampilan bawaan Google Translate (banner, tooltip) */
 .goog-te-banner-frame,.goog-te-balloon-frame,#goog-gt-tt,.goog-tooltip{display:none!important}
 .goog-text-highlight{background:none!important;box-shadow:none!important}
@@ -1409,7 +1429,19 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
       <div id="donasi-ringkasan" style="margin:0 0 40px"></div>
       <h2 class="dn-h2"><i class="fas fa-building-columns"></i>Rekening Donasi</h2>
       <div id="donasi-rekening" class="dn-rek"></div>
-      <div id="donasi-konfirmasi"></div>
+      <div id="donasi-konfirmasi" class="dn-card" style="margin-bottom:48px">
+        <h3 class="dn-h3"><i class="fas fa-circle-check"></i>Sudah Transfer? Konfirmasi Donasi Anda</h3>
+        <p class="dn-note" style="margin:0 0 16px">Isi data di bawah. Setelah admin memeriksa dan mengonfirmasi, donasi Anda otomatis tampil di daftar donatur dan masuk ke total donasi.</p>
+        <div id="donasi-form-isi">
+          <div class="dn-field"><label>Nama</label><input id="dn-nama" maxlength="60" placeholder="Nama Anda"></div>
+          <div class="dn-field"><label>Jumlah Donasi (Rp)</label><input id="dn-jumlah" inputmode="numeric" placeholder="contoh: 100.000" oninput="this.value=this.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,'.')"></div>
+          <div class="dn-field"><label>No. WhatsApp (opsional, tidak ditampilkan)</label><input id="dn-kontak" inputmode="tel" placeholder="0812xxxxxxxx"></div>
+          <div class="dn-field"><label>Pesan / Doa (opsional)</label><textarea id="dn-pesan" maxlength="300" rows="3" placeholder="Tulis pesan atau doa Anda"></textarea></div>
+          <label class="dn-check"><input type="checkbox" id="dn-anonim"> Sembunyikan nama saya (tampil sebagai &quot;Hamba Allah&quot;)</label>
+          <button type="button" id="dn-kirim-btn" class="dn-btn" style="margin-top:8px" onclick="kirimDonasiWeb_()"><i class="fas fa-paper-plane"></i> Kirim Konfirmasi Donasi</button>
+        </div>
+        <div id="donasi-form-sukses" style="display:none"></div>
+      </div>
       <h2 class="dn-h2"><i class="fas fa-users"></i>Donatur &amp; Hasil Donasi</h2>
       <div id="donasi-daftar"></div>
     </div>
@@ -5605,6 +5637,7 @@ const ADMIN_SHEETS = [
   { key: 'jadwal_ujian', sheet: 'JadwalUjian', label: 'Jadwal Ujian', icon: 'fas fa-file-pen', fields: ['jenis_ujian', 'kelas', 'tanggal', 'jam', 'mapel', 'ruang', 'pengawas'] },
   { key: 'dokumen_akademik', sheet: 'DokumenAkademik', label: 'Dokumen Akademik (PDF/Foto)', icon: 'fas fa-file-pdf', fields: ['jenis', 'judul', 'tahun_ajaran', 'kelas', 'file'] },
   { key: 'sejarah', sheet: 'Sejarah', label: 'Sejarah Sekolah', icon: 'fas fa-landmark', fields: ['tahun', 'judul', 'isi', 'foto'] },
+  { key: 'donasi_masuk', sheet: 'DonasiMasuk', label: 'Konfirmasi Donasi', icon: 'fas fa-circle-check', khusus: 'donasi_masuk' },
   { key: 'donasi', sheet: 'Donasi', label: 'Donasi (Daftar Donatur)', icon: 'fas fa-hand-holding-heart', fields: ['nama_donatur', 'jumlah', 'tanggal', 'keterangan'] },
   { key: 'rekening_donasi', sheet: 'RekeningDonasi', label: 'Rekening Donasi', icon: 'fas fa-building-columns', fields: ['bank', 'nomor_rekening', 'atas_nama', 'keterangan'] },
   { key: 'guru', sheet: 'Guru', label: 'Guru & Staf', icon: 'fas fa-chalkboard-user', fields: ['nama', 'jabatan', 'mapel', 'nip', 'foto'] },
@@ -5650,6 +5683,7 @@ function adminSelectSheet(key) {
   // -> pakai renderer sendiri-sendiri, bukan renderAdminTable().
   if (adminActiveSheet.khusus === 'splash') { renderSplashAdminPanel(); return; }
   if (adminActiveSheet.khusus === 'pendaftaran') { renderPendaftaranAdminPanel(); return; }
+  if (adminActiveSheet.khusus === 'donasi_masuk') { renderDonasiMasukAdminPanel(); return; }
   renderAdminTable();
 }
 
@@ -6149,6 +6183,7 @@ function terapkanDataSenyap_(data) {
   if (adminActiveSheet) {
     if (adminActiveSheet.khusus === 'splash') { renderSplashAdminPanel(); }
     else if (adminActiveSheet.khusus === 'pendaftaran') { renderPendaftaranAdminPanel(); }
+    else if (adminActiveSheet.khusus === 'donasi_masuk') { /* panel ini memuat datanya sendiri dari server */ }
     else { renderAdminTable(); }
   }
 }
@@ -6409,11 +6444,6 @@ function renderDonasi() {
     });
   }
 
-  const wa = String(cfg('wa_number', '6285936157246')).replace(/\D/g, '');
-  const teksWa = encodeURIComponent('Assalamualaikum, saya sudah berdonasi untuk SMP IT Al Mubarok.\nNama: \nJumlah: Rp \nBank pengirim: \n(Bukti transfer saya lampirkan)');
-  document.getElementById('donasi-konfirmasi').innerHTML = wa ?
-    '<a href="https://wa.me/' + wa + '?text=' + teksWa + '" target="_blank" rel="noopener" class="dn-btn wa"><i class="fab fa-whatsapp" style="font-size:16px"></i> Konfirmasi Donasi via WhatsApp</a>' : '';
-
   const elDaftar = document.getElementById('donasi-daftar');
   if (!donasi.length) { elDaftar.innerHTML = _kosongAk('Belum ada data donasi.'); return; }
   elDaftar.innerHTML = '<div class="dn-list">' + donasi.map(function (r) {
@@ -6423,6 +6453,116 @@ function renderDonasi() {
       (r.tanggal ? '<p class="dn-tg">' + _ak(r.tanggal) + '</p>' : '') +
       (r.keterangan ? '<p class="dn-ps">' + _ak(r.keterangan) + '</p>' : '') + '</div></div>';
   }).join('') + '</div>';
+}
+
+// --- Form konfirmasi donasi (pengunjung) ---
+function kirimDonasiWeb_() {
+  const v = function (id) { return ((document.getElementById(id) || {}).value || ''); };
+  const nama = v('dn-nama').trim(), jumlah = v('dn-jumlah').replace(/\D/g, ''), kontak = v('dn-kontak').trim(), pesan = v('dn-pesan').trim();
+  const anonim = !!((document.getElementById('dn-anonim') || {}).checked);
+  if (!nama) { Swal.fire({ icon: 'warning', title: 'Nama belum diisi', text: 'Isi nama Anda (bisa disembunyikan dengan mencentang pilihan di bawahnya).' }); return; }
+  if ((parseInt(jumlah, 10) || 0) < 1000) { Swal.fire({ icon: 'warning', title: 'Jumlah belum sesuai', text: 'Jumlah donasi minimal Rp 1.000.' }); return; }
+  const btn = document.getElementById('dn-kirim-btn');
+  const teksAsli = btn.innerHTML;
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+  google.script.run.withSuccessHandler(function (res) {
+    btn.disabled = false; btn.innerHTML = teksAsli;
+    if (!res || !res.sukses) { Swal.fire({ icon: 'error', title: 'Belum terkirim', text: (res && res.pesan) || 'Coba lagi beberapa saat.' }); return; }
+    tampilkanDonasiSukses_(res, nama);
+  }).withFailureHandler(function () {
+    btn.disabled = false; btn.innerHTML = teksAsli;
+    Swal.fire({ icon: 'error', title: 'Tidak terhubung', text: 'Periksa koneksi internet Anda lalu coba lagi.' });
+  }).kirimDonasi(nama, jumlah, kontak, pesan, anonim);
+}
+function tampilkanDonasiSukses_(res, nama) {
+  const wa = String(cfg('wa_number', '6285936157246')).replace(/\D/g, '');
+  const teksWa = encodeURIComponent('Assalamualaikum, saya sudah berdonasi untuk SMP IT Al Mubarok.\nKode: ' + res.kode + '\nNama: ' + nama + '\nJumlah: ' + _rupiahDonasi_(res.jumlah) + '\nBerikut bukti transfer saya.');
+  document.getElementById('donasi-form-isi').style.display = 'none';
+  const el = document.getElementById('donasi-form-sukses');
+  el.style.display = 'block';
+  el.innerHTML = '<div class="dn-ok-box"><span class="dn-ok-ic"><i class="fas fa-check"></i></span>' +
+    '<h3 class="dn-h3" style="margin-top:12px">Konfirmasi Terkirim</h3>' +
+    '<p class="dn-an" style="margin:0">Jazakumullahu khairan. Kode donasi Anda:</p>' +
+    '<div class="dn-kode notranslate" translate="no">' + _ak(res.kode) + '</div>' +
+    '<p class="dn-note" style="margin:0 0 4px">Donasi Anda akan tampil di daftar donatur setelah dikonfirmasi admin.</p>' +
+    '<div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:8px">' +
+    (wa ? '<a href="https://wa.me/' + wa + '?text=' + teksWa + '" target="_blank" rel="noopener" class="dn-btn wa" style="margin:0"><i class="fab fa-whatsapp" style="font-size:16px"></i> Kirim Bukti Transfer</a>' : '') +
+    '<button type="button" class="dn-btn abu" style="margin:0" onclick="resetFormDonasi_()"><i class="fas fa-rotate-left"></i> Isi Lagi</button></div></div>';
+}
+function resetFormDonasi_() {
+  ['dn-nama', 'dn-jumlah', 'dn-kontak', 'dn-pesan'].forEach(function (id) { const e = document.getElementById(id); if (e) e.value = ''; });
+  const cb = document.getElementById('dn-anonim'); if (cb) cb.checked = false;
+  document.getElementById('donasi-form-sukses').style.display = 'none';
+  document.getElementById('donasi-form-isi').style.display = 'block';
+}
+
+// --- Panel Admin > Konfirmasi Donasi ---
+let donasiMasukRows_ = [];
+function renderDonasiMasukAdminPanel() {
+  const body = document.getElementById('admin-panel-body');
+  body.innerHTML = '<div class="dn-card" style="text-align:center;color:#94a3b8"><i class="fas fa-spinner fa-spin"></i> Memuat donasi masuk...</div>';
+  google.script.run.withSuccessHandler(function (rows) {
+    if (!adminActiveSheet || adminActiveSheet.khusus !== 'donasi_masuk') return;
+    donasiMasukRows_ = rows || [];
+    tampilDonasiMasukAdmin_();
+  }).withFailureHandler(function (err) {
+    if (_sesiAdminBerakhir_(err)) return;
+    body.innerHTML = '<div class="dn-card" style="color:#b91c1c">Gagal memuat data: ' + _ak((err && err.message) || err) + '</div>';
+  }).getDonasiMasuk(_tokenAdmin_());
+}
+function tampilDonasiMasukAdmin_() {
+  const body = document.getElementById('admin-panel-body');
+  const st = function (r) { return String(r.status || '').trim().toLowerCase(); };
+  const urut = donasiMasukRows_.slice().sort(function (a, b) { return b._rowId - a._rowId; });
+  const menunggu = urut.filter(function (r) { return st(r) === 'menunggu'; });
+  const riwayat = urut.filter(function (r) { return st(r) !== 'menunggu'; });
+  const kontakHtml = function (r) {
+    const n = String(r.kontak || '').replace(/\D/g, '');
+    return n ? '<p class="dn-tg"><i class="fab fa-whatsapp" style="color:#25d366"></i> <a href="https://wa.me/' + n + '" target="_blank" rel="noopener" style="color:#1f287d;font-weight:700">' + _ak(n) + '</a></p>' : '';
+  };
+  const info = function (r) {
+    return '<div class="dn-top"><span class="dn-nm">' + _ak(r.nama_donatur) + (String(r.anonim).toLowerCase() === 'ya' ? '<span class="dn-badge">sembunyikan nama</span>' : '') + '</span>' +
+      '<span class="dn-amt">' + _rupiahDonasi_(_angkaDonasi_(r.jumlah)) + '</span></div>' +
+      '<p class="dn-tg">' + _ak(r.kode) + ' &middot; ' + _ak(r.tanggal) + '</p>' + kontakHtml(r) +
+      (r.keterangan ? '<p class="dn-ps">' + _ak(r.keterangan) + '</p>' : '');
+  };
+  let html = '<div style="max-width:42rem"><p class="dn-label" style="margin-bottom:12px">Menunggu konfirmasi (' + menunggu.length + ')</p>';
+  html += menunggu.length ? menunggu.map(function (r) {
+    return '<div class="dn-card" style="margin-bottom:12px">' + info(r) +
+      '<div style="display:flex;gap:8px;margin-top:14px">' +
+      '<button type="button" class="dn-btn ok" style="margin:0" onclick="donasiMasukAksi_(' + r._rowId + ',\'konfirmasi\')"><i class="fas fa-check"></i> Konfirmasi</button>' +
+      '<button type="button" class="dn-btn no" style="margin:0" onclick="donasiMasukAksi_(' + r._rowId + ',\'tolak\')"><i class="fas fa-xmark"></i> Tolak</button></div></div>';
+  }).join('') : '<div class="dn-card" style="text-align:center;color:#94a3b8;font-size:13px">Tidak ada donasi yang menunggu.</div>';
+  if (riwayat.length) {
+    html += '<p class="dn-label" style="margin:28px 0 12px">Riwayat</p>' + riwayat.slice(0, 50).map(function (r) {
+      const ok = st(r) === 'terkonfirmasi';
+      return '<div class="dn-card" style="margin-bottom:10px;padding:14px 18px">' + info(r) + '<span class="dn-badge ' + (ok ? 'ok' : 'no') + '" style="margin:6px 0 0">' + (ok ? 'terkonfirmasi' : 'ditolak') + '</span></div>';
+    }).join('');
+  }
+  body.innerHTML = html + '</div>';
+}
+function donasiMasukAksi_(rowId, aksi) {
+  const r = donasiMasukRows_.find(function (x) { return x._rowId === rowId; });
+  if (!r) return;
+  const ya = aksi === 'konfirmasi';
+  Swal.fire({
+    icon: 'question', title: ya ? 'Konfirmasi donasi ini?' : 'Tolak donasi ini?',
+    html: '<b>' + _ak(r.nama_donatur) + '</b><br>' + _rupiahDonasi_(_angkaDonasi_(r.jumlah)) + '<br><small>' + (ya ? 'Akan langsung tampil di website dan masuk total donasi.' : 'Tidak akan ditampilkan di website.') + '</small>',
+    showCancelButton: true, confirmButtonText: ya ? 'Ya, konfirmasi' : 'Ya, tolak', cancelButtonText: 'Batal'
+  }).then(function (h) {
+    if (!h.isConfirmed) return;
+    Swal.fire({ title: 'Memproses...', allowOutsideClick: false, didOpen: function () { Swal.showLoading(); } });
+    const run = google.script.run.withSuccessHandler(function (msg) {
+      Swal.fire({ icon: 'success', title: 'Berhasil', text: msg, timer: 1800, showConfirmButton: false });
+      renderDonasiMasukAdminPanel();
+      loadDataSilent();   // segarkan data publik supaya halaman Donasi langsung ikut berubah
+    }).withFailureHandler(function (err) {
+      if (_sesiAdminBerakhir_(err)) return;
+      Swal.fire({ icon: 'error', title: 'Gagal', text: (err && err.message) || String(err) });
+      renderDonasiMasukAdminPanel();
+    });
+    if (ya) run.konfirmasiDonasi(rowId, _tokenAdmin_()); else run.tolakDonasi(rowId, _tokenAdmin_());
+  });
 }
 
 // ---------------------------------------------------------------
