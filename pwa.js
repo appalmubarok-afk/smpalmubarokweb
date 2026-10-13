@@ -153,7 +153,7 @@
     if (sos && !sos.querySelector('.pwa-topbtn')) {
       sos.appendChild(buatTombol('pwa-topbtn', '<i class="fas fa-mobile-screen-button"></i> Pasang Aplikasi'));
     }
-    // header (HP)
+    // headerr (HP)
     var burger = document.querySelector('header button[onclick="toggleMobileMenu()"]');
     if (burger && burger.parentNode && !document.querySelector('.pwa-hdrbtn')) {
       burger.parentNode.insertBefore(
