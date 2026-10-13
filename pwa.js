@@ -36,7 +36,7 @@
   // 2) Gaya banner (CSS mandiri, tidak bergantung tailwind.css)
   var css = document.createElement('style');
   css.textContent =
-    '#pwa-banner{position:fixed;left:50%;bottom:88px;transform:translate(-50%,16px);width:94%;max-width:440px;z-index:9997;' +
+    '#pwa-banner{position:fixed;left:50%;bottom:176px;transform:translate(-50%,16px);width:94%;max-width:440px;z-index:9997;' +
     'display:none;align-items:center;gap:12px;background:#1f287d;color:#fff;border-radius:20px;padding:12px 14px;' +
     'box-shadow:0 12px 32px rgba(15,23,42,.35);opacity:0;transition:opacity .25s ease,transform .25s ease;font-family:inherit}' +
     '#pwa-banner.tampil{display:flex;opacity:1;transform:translate(-50%,0)}' +
@@ -153,7 +153,7 @@
     if (sos && !sos.querySelector('.pwa-topbtn')) {
       sos.appendChild(buatTombol('pwa-topbtn', '<i class="fas fa-mobile-screen-button"></i> Pasang Aplikasi'));
     }
-    // headerr (HP)
+    // header (HP)
     var burger = document.querySelector('header button[onclick="toggleMobileMenu()"]');
     if (burger && burger.parentNode && !document.querySelector('.pwa-hdrbtn')) {
       burger.parentNode.insertBefore(
