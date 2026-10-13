@@ -3238,6 +3238,7 @@ function renderProfil() {
 // datanya kosong, background tetap warna primary polos seperti semula.
 // ---------------------------------------------------------------
 let heroSlideIndex = 0;
+let heroSig_ = '';
 
 function renderHeroSlider() {
   const wrap = document.getElementById('hero-slides');
@@ -3249,7 +3250,7 @@ function renderHeroSlider() {
     .slice()
     .sort(function (a, b) { return (parseInt(a.urutan) || 0) - (parseInt(b.urutan) || 0); });
 
-  if (!rows.length) { wrap.innerHTML = ''; dotsWrap.innerHTML = ''; wrap.classList.add('hero-kosong'); return; }
+  if (!rows.length) { heroSig_ = ''; wrap.innerHTML = ''; dotsWrap.innerHTML = ''; wrap.classList.add('hero-kosong'); return; }
 
   // Satu baris HeroBanner bisa diisi lebih dari satu foto (upload
   // multi di panel Admin) -> pecah jadi beberapa slide terpisah,
@@ -3258,6 +3259,12 @@ function renderHeroSlider() {
   rows.forEach(function (r) {
     fotoUrls(r.gambar).forEach(function (u) { if (u) semuaGambar.push(u); });
   });
+
+  // Data diperbarui diam-diam di latar belakang -> kalau foto banner tidak berubah, jangan bangun ulang
+  // slider (biar tidak berkedip/kembali ke slide pertama); cukup pastikan posisi & autoplay tetap jalan.
+  const sigBaru = semuaGambar.join('|');
+  if (sigBaru === heroSig_ && wrap.querySelector('.hero-slide')) { goToHeroSlide(heroSlideIndex); return; }
+  heroSig_ = sigBaru;
 
   // Tiap foto jadi kartu rounded + shadow (kesan "mengambang"), lebar
   // penuh di HP, dan setengah lebar (2 kelihatan sekaligus, saling
@@ -3295,17 +3302,27 @@ function goToHeroSlide(idx) {
   const viewport = document.getElementById('hero-viewport');
   const wrap = document.getElementById('hero-slides');
   const dotsWrap = document.getElementById('hero-dots');
+  if (!wrap || !dotsWrap) return;
   const slides = wrap.querySelectorAll('.hero-slide');
-  if (heroSlideTimer) { clearInterval(heroSlideTimer); heroSlideTimer = null; }
   if (!slides.length || !viewport) return;
 
   heroSlideIndex = ((idx % slides.length) + slides.length) % slides.length;
+
+  // Autoplay SELALU dijadwalkan ulang di sini (tidak pernah dimatikan permanen).
+  // Dulu timer dimatikan kalau saat dihitung Beranda sedang tersembunyi (lebar = 0, mis. data
+  // diperbarui di latar belakang saat pengunjung di halaman lain) -> dot hilang & slider berhenti selamanya.
+  heroJadwalkanAutoplay_();
+
+  // Beranda sedang tidak tampil -> jangan hitung apa pun (hasilnya pasti salah). Akan dihitung ulang
+  // otomatis begitu Beranda tampil lagi (lihat ResizeObserver di bawah).
+  if (!viewport.clientWidth) return;
 
   const maxOffset = Math.max(0, wrap.scrollWidth - viewport.clientWidth);
   const targetOffset = Math.min(slides[heroSlideIndex].offsetLeft, maxOffset);
   wrap.style.transform = 'translateX(-' + targetOffset + 'px)';
 
   const bisaDigeser = maxOffset > 4;
+  heroBisaDigeser_ = bisaDigeser;
   dotsWrap.style.display = bisaDigeser ? 'flex' : 'none';
   document.querySelectorAll('#hero-dots .hero-dot').forEach(function (d, i) {
     const aktif = i === heroSlideIndex;
@@ -3314,16 +3331,33 @@ function goToHeroSlide(idx) {
     d.classList.toggle('w-2.5', !aktif);
     d.classList.toggle('bg-slate-300', !aktif);
   });
-
-  if (bisaDigeser && !window.__a11yDiam) {
-    heroSlideTimer = setInterval(function () { goToHeroSlide(heroSlideIndex + 1); }, 5000);
-  }
 }
+
+let heroBisaDigeser_ = false;
+function heroJadwalkanAutoplay_() {
+  if (heroSlideTimer) { clearInterval(heroSlideTimer); heroSlideTimer = null; }
+  heroSlideTimer = setInterval(function () {
+    if (window.__a11yDiam || document.hidden) return;          // mode "diam" / tab tidak aktif
+    const vp = document.getElementById('hero-viewport');
+    if (!vp || !vp.clientWidth || !heroBisaDigeser_) return;   // Beranda tersembunyi / foto cukup tanpa digeser
+    goToHeroSlide(heroSlideIndex + 1);
+  }, 5000);
+}
+function heroPastikanJalan_() { goToHeroSlide(heroSlideIndex); }
 
 // Posisi & lebar kartu berubah kalau layar di-resize/rotasi -> sesuaikan lagi.
 window.addEventListener('resize', function () {
   if (document.getElementById('hero-slides')) goToHeroSlide(heroSlideIndex);
 });
+
+// Begitu Beranda tampil lagi (ukuran area banner berubah dari 0), hitung ulang posisi, dot & autoplay.
+(function () {
+  const vp = document.getElementById('hero-viewport');
+  if (vp && window.ResizeObserver) { new ResizeObserver(function () { goToHeroSlide(heroSlideIndex); }).observe(vp); }
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden && document.getElementById('hero-slides')) goToHeroSlide(heroSlideIndex);
+  });
+})();
 
 // ---------------------------------------------------------------
 // RENDER: SAMBUTAN KEPALA SEKOLAH (foto diambil dari sheet Guru,
@@ -6990,6 +7024,7 @@ setTimeout(function () {
     Object.keys(OPSI).forEach(function (k) { if (OPSI[k].c) html.classList.toggle(OPSI[k].c, !!S[k]); });
     if (S.font) muatFont();
     window.__a11yDiam = !!S.diam;
+    if (!S.diam) { try { if (typeof heroPastikanJalan_ === 'function') heroPastikanJalan_(); } catch (e) {} }
     if (S.diam) hentikanAnimasi();
     html.classList.toggle('a11y-panduan-on', !!S.panduan);
     if (S.panduan) geserPanduan(window.innerHeight / 2);
