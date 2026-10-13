@@ -334,6 +334,60 @@ html.a11y-kontras .a11y-sq, html.a11y-kontras .a11y-btn.a11y-alt, html.a11y-kont
 html.a11y-kontras .a11y-btn:not(.a11y-alt):not(.a11y-bahaya) { background:#ffd84d; color:#000; border-color:#ffd84d; }
 </style>
 
+<style id="css-donasi-bahasa">
+/* DONASI & GANTI BAHASA -- CSS mandiri (tidak bergantung pada rebuild tailwind.css) */
+.dn-wrap{max-width:56rem;margin:0 auto;padding:3rem 1rem}
+.dn-stats{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.dn-rek{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:640px){.dn-rek{grid-template-columns:1fr}}
+.dn-card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(15,23,42,.05)}
+.dn-label{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#94a3b8;margin:0}
+.dn-big{font-size:clamp(20px,4vw,30px);font-weight:900;color:#1f287d;margin:4px 0 0}
+.dn-h2{font-weight:900;color:#1f287d;font-size:19px;margin:0 0 16px}
+.dn-h2 i{color:#e7b10a;margin-right:8px}
+.dn-row{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:#64748b}
+.dn-pct{color:#1f287d;font-weight:900}
+.dn-bar{height:12px;border-radius:99px;background:#eef0fb;overflow:hidden;margin-top:8px}
+.dn-bar>div{height:100%;background:#ffd84d;border-radius:99px}
+.dn-bank{display:flex;align-items:center;gap:12px;margin-bottom:12px;font-weight:900;color:#1f287d;font-size:16px}
+.dn-bank-ic{width:40px;height:40px;border-radius:12px;background:#1f287d;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dn-no{font-size:24px;font-weight:900;letter-spacing:.08em;color:#334155;word-break:break-all;margin:0}
+.dn-an{font-size:12px;color:#64748b;margin:4px 0 0}
+.dn-note{font-size:11px;color:#94a3b8;margin:8px 0 0;white-space:pre-line}
+.dn-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;margin-top:16px;border-radius:12px;border:0;background:#1f287d;color:#fff;font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;text-decoration:none;font-family:inherit}
+.dn-btn:hover{filter:brightness(1.15)}
+.dn-btn.wa{background:#25d366;padding:12px 20px;font-size:12px;margin:0 0 48px}
+.dn-list{background:#fff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden}
+.dn-item{display:flex;gap:12px;padding:16px;border-top:1px solid #f1f5f9}
+.dn-item:first-child{border-top:0}
+.dn-av{width:40px;height:40px;border-radius:50%;background:#eef0fb;color:#1f287d;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;flex-shrink:0}
+.dn-body{flex:1;min-width:0}
+.dn-top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.dn-nm{font-weight:900;font-size:14px;color:#334155}
+.dn-amt{font-weight:900;font-size:14px;color:#1f287d}
+.dn-tg{font-size:11px;color:#94a3b8;margin:2px 0 0}
+.dn-ps{font-size:12px;color:#64748b;margin:6px 0 0;white-space:pre-line}
+.dn-topbtn{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:9px;border:0;background:#ffd84d;color:#161f36;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;font-family:inherit;transition:transform .15s}
+.dn-topbtn:hover{transform:scale(1.06)}
+body.mode-gelap .dn-card,body.mode-gelap .dn-list{background:#161f36;border-color:#24304f}
+body.mode-gelap .dn-big,body.mode-gelap .dn-h2,body.mode-gelap .dn-bank,body.mode-gelap .dn-amt,body.mode-gelap .dn-pct{color:#c7d0ff}
+body.mode-gelap .dn-no,body.mode-gelap .dn-nm{color:#e2e8f0}
+body.mode-gelap .dn-item{border-top-color:#24304f}
+body.mode-gelap .dn-av{background:#24304f;color:#c7d0ff}
+body.mode-gelap .dn-bar{background:#24304f}
+.lg-group{display:inline-flex;align-items:center;gap:2px;background:rgba(255,255,255,.12);border-radius:9px;padding:2px}
+.lg-btn{border:0;background:transparent;color:rgba(255,255,255,.85);font-size:11px;font-weight:900;letter-spacing:.06em;padding:4px 9px;border-radius:7px;cursor:pointer;font-family:inherit}
+.lg-btn:hover{background:rgba(255,255,255,.15)}
+.lg-btn.aktif{background:#ffd84d;color:#161f36}
+.lg-mobile{display:flex;gap:8px;padding:8px 12px}
+.lg-mobile .lg-btn{flex:1;background:rgba(255,255,255,.12);padding:10px 0;font-size:12px}
+.lg-mobile .lg-btn.aktif{background:#ffd84d;color:#161f36}
+/* sembunyikan tampilan bawaan Google Translate (banner, tooltip) */
+.goog-te-banner-frame,.goog-te-balloon-frame,#goog-gt-tt,.goog-tooltip{display:none!important}
+.goog-text-highlight{background:none!important;box-shadow:none!important}
+body{top:0!important}
+#google_translate_element{display:none}
+</style>
 <!-- Tailwind versi build (file statis tailwind.css, ~10KB terkompresi). Dulu memakai skrip CDN Tailwind
      yang mengunduh ratusan KB JavaScript & mengompilasi CSS di browser tiap kunjungan.
      Kalau kelas Tailwind baru ditambahkan di halaman ini, file tailwind.css harus dibuat ulang. -->
@@ -422,7 +476,7 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     <span id="topbar-phone"><i class="fas fa-phone-alt mr-1.5"></i> -</span>
     <span id="topbar-email"><i class="fas fa-envelope mr-1.5"></i> -</span>
   </div>
-  <div class="flex items-center gap-3" id="topbar-social"></div>
+  <div class="flex items-center gap-4"><div id="lang-switch-desktop"></div><div class="flex items-center gap-3" id="topbar-social"></div></div>
 </div>
 
 <!-- ============================================================ -->
@@ -533,7 +587,8 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     </div>
 
     <button onclick="showSection('karya')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10">Karya</button>
-    <button onclick="showSection('donasi')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10"><i class="fas fa-hand-holding-heart mr-1.5 text-secondary"></i>Donasi</button>
+    <button onclick="showSection('donasi')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10"><i class="fas fa-hand-holding-heart" style="color:#ffd84d;margin-right:6px"></i>Donasi</button>
+    <div id="lang-switch-mobile" class="lg-mobile"></div>
     <button onclick="showSection('aplikasi')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10">Aplikasi</button>
     <button id="nav-daftar-btn-mobile" onclick="klikPendaftaran()" class="block w-full text-left px-3 py-2.5 rounded-lg bg-secondary text-primary mt-2">Pendaftaran</button>
   </div>
@@ -1346,13 +1401,13 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
         <p class="text-white/45 text-[11px] mt-4 font-semibold">Beranda / Donasi</p>
       </div>
     </div>
-    <div class="max-w-4xl mx-auto px-4 md:px-6 py-12">
+    <div class="dn-wrap">
       <button onclick="kembaliKeBeranda()" class="text-primary hover:text-primary-600 text-xs font-bold inline-flex items-center gap-1.5 mb-6"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
-      <div id="donasi-ringkasan" class="mb-10"></div>
-      <h2 class="font-black text-primary text-lg md:text-xl mb-4"><i class="fas fa-building-columns text-secondary mr-2"></i>Rekening Donasi</h2>
-      <div id="donasi-rekening" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"></div>
-      <div id="donasi-konfirmasi" class="mb-12"></div>
-      <h2 class="font-black text-primary text-lg md:text-xl mb-4"><i class="fas fa-users text-secondary mr-2"></i>Donatur &amp; Hasil Donasi</h2>
+      <div id="donasi-ringkasan" style="margin:0 0 40px"></div>
+      <h2 class="dn-h2"><i class="fas fa-building-columns"></i>Rekening Donasi</h2>
+      <div id="donasi-rekening" class="dn-rek"></div>
+      <div id="donasi-konfirmasi"></div>
+      <h2 class="dn-h2"><i class="fas fa-users"></i>Donatur &amp; Hasil Donasi</h2>
       <div id="donasi-daftar"></div>
     </div>
   </section>
@@ -2799,7 +2854,7 @@ function renderPengaturan() {
     socialHtml += '<a href="' + s.link + '" target="_blank" rel="noopener" class="w-7 h-7 rounded-[9px] ' + s.bg + ' text-white flex items-center justify-center text-[11px] shadow-sm hover:scale-110 hover:shadow-md transition-transform"><i class="' + s.icon + '"></i></a>';
   });
   // Tombol DONASI (setelah TikTok) -> buka halaman Donasi (rekening + daftar donatur)
-  socialHtml += '<button type="button" onclick="showSection(\'donasi\')" class="h-7 px-3 rounded-[9px] bg-secondary text-primary-800 flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider shadow-sm hover:scale-105 hover:shadow-md transition-transform"><i class="fas fa-hand-holding-heart"></i> Donasi</button>';
+  socialHtml += '<button type="button" onclick="showSection(\'donasi\')" class="dn-topbtn"><i class="fas fa-hand-holding-heart"></i> Donasi</button>';
   document.getElementById('topbar-social').innerHTML = socialHtml;
   document.getElementById('footer-social').innerHTML = socialHtml;
 }
@@ -6323,56 +6378,119 @@ function renderDonasi() {
   const total = donasi.reduce(function (t, r) { return t + _angkaDonasi_(r.jumlah); }, 0);
   const target = _angkaDonasi_(cfg('donasi_target', ''));
 
-  // Ringkasan: total terkumpul, jumlah donatur, progres target (kalau diisi)
-  let ring = '<div class="grid grid-cols-2 gap-4">' +
-    '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 text-center"><p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Donasi Terkumpul</p><p class="text-xl md:text-3xl font-black text-primary mt-1">' + _rupiahDonasi_(total) + '</p></div>' +
-    '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 text-center"><p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Jumlah Donatur</p><p class="text-xl md:text-3xl font-black text-primary mt-1">' + donasi.length + '</p></div></div>';
+  let ring = '<div class="dn-stats">' +
+    '<div class="dn-card" style="text-align:center"><p class="dn-label">Donasi Terkumpul</p><p class="dn-big">' + _rupiahDonasi_(total) + '</p></div>' +
+    '<div class="dn-card" style="text-align:center"><p class="dn-label">Jumlah Donatur</p><p class="dn-big">' + donasi.length + '</p></div></div>';
   if (target > 0) {
     const persen = Math.min(100, Math.round(total * 100 / target));
-    ring += '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mt-4"><div class="flex justify-between text-xs font-bold text-slate-500 mb-2"><span>Target: ' + _rupiahDonasi_(target) + '</span><span class="text-primary">' + persen + '%</span></div>' +
-      '<div class="w-full h-3 rounded-full bg-slate-100 overflow-hidden"><div class="h-full rounded-full bg-secondary" style="width:' + persen + '%"></div></div></div>';
+    ring += '<div class="dn-card" style="margin-top:16px"><div class="dn-row"><span>Target: ' + _rupiahDonasi_(target) + '</span><span class="dn-pct">' + persen + '%</span></div>' +
+      '<div class="dn-bar"><div style="width:' + persen + '%"></div></div></div>';
   }
   elRingkas.innerHTML = ring;
 
-  // Rekening
   const elRek = document.getElementById('donasi-rekening');
   if (!rekening.length) {
-    elRek.innerHTML = '<div class="md:col-span-2">' + _kosongAk('Nomor rekening donasi belum tersedia.') + '</div>';
+    elRek.innerHTML = '<div style="grid-column:1/-1">' + _kosongAk('Nomor rekening donasi belum tersedia.') + '</div>';
   } else {
     elRek.innerHTML = rekening.map(function (r, i) {
       const nomor = String(r.nomor_rekening == null ? '' : r.nomor_rekening).trim();
-      return '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">' +
-        '<div class="flex items-center gap-3 mb-3"><span class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center"><i class="fas fa-building-columns"></i></span>' +
-        '<span class="font-black text-primary text-base">' + _ak(r.bank) + '</span></div>' +
-        '<p class="text-2xl font-black text-slate-700 tracking-wider break-all">' + _ak(nomor) + '</p>' +
-        '<p class="text-xs text-slate-500 mt-1">a.n. <b>' + _ak(r.atas_nama) + '</b></p>' +
-        (r.keterangan ? '<p class="text-[11px] text-slate-400 mt-2 whitespace-pre-line">' + _ak(r.keterangan) + '</p>' : '') +
-        '<button type="button" data-rek-idx="' + i + '" class="mt-4 px-4 py-2 rounded-xl bg-primary hover:bg-primary-600 text-white text-[11px] font-black uppercase tracking-widest transition-colors"><i class="fas fa-copy mr-1"></i>Salin Nomor</button></div>';
+      return '<div class="dn-card">' +
+        '<div class="dn-bank"><span class="dn-bank-ic"><i class="fas fa-building-columns"></i></span><span>' + _ak(r.bank) + '</span></div>' +
+        '<p class="dn-no notranslate" translate="no">' + _ak(nomor) + '</p>' +
+        '<p class="dn-an">a.n. <b>' + _ak(r.atas_nama) + '</b></p>' +
+        (r.keterangan ? '<p class="dn-note">' + _ak(r.keterangan) + '</p>' : '') +
+        '<button type="button" data-rek-idx="' + i + '" class="dn-btn"><i class="fas fa-copy"></i>Salin Nomor</button></div>';
     }).join('');
     elRek.querySelectorAll('[data-rek-idx]').forEach(function (btn) {
       btn.onclick = function () { salinRekeningDonasi(String(rekening[btn.getAttribute('data-rek-idx')].nomor_rekening || '').trim(), btn); };
     });
   }
 
-  // Tombol konfirmasi via WhatsApp (pakai nomor wa_number yang sudah ada)
   const wa = String(cfg('wa_number', '6285936157246')).replace(/\D/g, '');
   const teksWa = encodeURIComponent('Assalamualaikum, saya sudah berdonasi untuk SMP IT Al Mubarok.\nNama: \nJumlah: Rp \nBank pengirim: \n(Bukti transfer saya lampirkan)');
   document.getElementById('donasi-konfirmasi').innerHTML = wa ?
-    '<a href="https://wa.me/' + wa + '?text=' + teksWa + '" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#25D366] hover:brightness-95 text-white text-xs font-black uppercase tracking-widest shadow-sm transition"><i class="fab fa-whatsapp text-base"></i> Konfirmasi Donasi via WhatsApp</a>' : '';
+    '<a href="https://wa.me/' + wa + '?text=' + teksWa + '" target="_blank" rel="noopener" class="dn-btn wa"><i class="fab fa-whatsapp" style="font-size:16px"></i> Konfirmasi Donasi via WhatsApp</a>' : '';
 
-  // Daftar donatur (terbaru di atas)
   const elDaftar = document.getElementById('donasi-daftar');
   if (!donasi.length) { elDaftar.innerHTML = _kosongAk('Belum ada data donasi.'); return; }
-  elDaftar.innerHTML = '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden divide-y divide-slate-100">' + donasi.map(function (r) {
+  elDaftar.innerHTML = '<div class="dn-list">' + donasi.map(function (r) {
     const nama = String(r.nama_donatur || '').trim() || 'Hamba Allah';
-    return '<div class="flex items-start gap-3 p-4">' +
-      '<span class="w-10 h-10 flex-shrink-0 rounded-full bg-primary-50 text-primary flex items-center justify-center font-black text-sm">' + _ak(nama.charAt(0).toUpperCase()) + '</span>' +
-      '<div class="flex-1 min-w-0"><div class="flex justify-between gap-3 flex-wrap"><span class="font-black text-sm text-slate-700">' + _ak(nama) + '</span>' +
-      '<span class="font-black text-sm text-primary">' + _rupiahDonasi_(_angkaDonasi_(r.jumlah)) + '</span></div>' +
-      (r.tanggal ? '<p class="text-[11px] text-slate-400 mt-0.5">' + _ak(r.tanggal) + '</p>' : '') +
-      (r.keterangan ? '<p class="text-xs text-slate-500 mt-1.5 whitespace-pre-line">' + _ak(r.keterangan) + '</p>' : '') + '</div></div>';
+    return '<div class="dn-item"><span class="dn-av">' + _ak(nama.charAt(0).toUpperCase()) + '</span>' +
+      '<div class="dn-body"><div class="dn-top"><span class="dn-nm">' + _ak(nama) + '</span><span class="dn-amt notranslate" translate="no">' + _rupiahDonasi_(_angkaDonasi_(r.jumlah)) + '</span></div>' +
+      (r.tanggal ? '<p class="dn-tg">' + _ak(r.tanggal) + '</p>' : '') +
+      (r.keterangan ? '<p class="dn-ps">' + _ak(r.keterangan) + '</p>' : '') + '</div></div>';
   }).join('') + '</div>';
 }
+
+// ---------------------------------------------------------------
+// GANTI BAHASA: Indonesia (asli) / English / Basa Jawa
+// Memakai Google Translate untuk SELURUH halaman (teks tetap di HTML +
+// konten dari spreadsheet yang muncul belakangan). Pilihan pengunjung
+// disimpan di localStorage dan otomatis dipakai lagi saat web dibuka.
+// ---------------------------------------------------------------
+const BAHASA_LIST_ = [
+  { k: 'id', label: 'ID', nama: 'Bahasa Indonesia' },
+  { k: 'en', label: 'EN', nama: 'English' },
+  { k: 'jv', label: 'JV', nama: 'Basa Jawa' }
+];
+function _prefBahasa_() {
+  try { const p = localStorage.getItem('smp_bahasa'); if (p === 'en' || p === 'jv') return p; } catch (e) {}
+  return 'id';
+}
+function _simpanBahasa_(k) { try { localStorage.setItem('smp_bahasa', k); } catch (e) {} }
+function _hapusCookieTranslate_() {
+  try {
+    const host = location.hostname, lalu = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    document.cookie = 'googtrans=; path=/; ' + lalu;
+    if (host.indexOf('.') !== -1) {
+      document.cookie = 'googtrans=; path=/; domain=' + host + '; ' + lalu;
+      document.cookie = 'googtrans=; path=/; domain=.' + host + '; ' + lalu;
+    }
+  } catch (e) {}
+}
+function renderSwitchBahasa_() {
+  const aktif = _prefBahasa_();
+  const html = BAHASA_LIST_.map(function (b) {
+    return '<button type="button" class="lg-btn' + (b.k === aktif ? ' aktif' : '') + '" title="' + b.nama + '" aria-label="' + b.nama + '" onclick="gantiBahasa(\'' + b.k + '\')">' + b.label + '</button>';
+  }).join('');
+  const d = document.getElementById('lang-switch-desktop');
+  if (d) d.innerHTML = '<div class="lg-group notranslate" translate="no"><i class="fas fa-language" style="color:#ffd84d;font-size:14px;padding:0 6px"></i>' + html + '</div>';
+  const m = document.getElementById('lang-switch-mobile');
+  if (m) { m.className = 'lg-mobile notranslate'; m.setAttribute('translate', 'no'); m.innerHTML = html; }
+}
+// Tunggu komponen Google Translate siap, lalu pilih bahasanya.
+function terapkanBahasa_(k) {
+  let coba = 0;
+  const t = setInterval(function () {
+    const combo = document.querySelector('select.goog-te-combo');
+    if (!combo && ++coba < 80) return;   // maksimal ~8 detik menunggu
+    clearInterval(t);
+    if (!combo) return;
+    const opsi = Array.prototype.map.call(combo.options, function (o) { return o.value; });
+    let kode = k;
+    if (k === 'jv') kode = opsi.indexOf('jv') !== -1 ? 'jv' : (opsi.indexOf('jw') !== -1 ? 'jw' : 'jv');
+    if (opsi.indexOf(kode) === -1 || combo.value === kode) return;
+    combo.value = kode;
+    combo.dispatchEvent(new Event('change'));
+  }, 100);
+}
+function gantiBahasa(k) {
+  const sebelumnya = _prefBahasa_();
+  if (k === sebelumnya) return;
+  _simpanBahasa_(k);
+  renderSwitchBahasa_();
+  if (k === 'id') { _hapusCookieTranslate_(); location.reload(); return; }   // kembali ke teks asli
+  terapkanBahasa_(k);
+}
+function googleTranslateElementInit() {
+  try {
+    new google.translate.TranslateElement({ pageLanguage: 'id', includedLanguages: 'id,en,jv,jw', autoDisplay: false }, 'google_translate_element');
+  } catch (e) { return; }
+  const p = _prefBahasa_();
+  if (p !== 'id') terapkanBahasa_(p);
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderSwitchBahasa_);
+else renderSwitchBahasa_();
 
 // Link rahasia admin (?akses=KODE): tunggu splash selesai, lalu buka panel
 // (kalau sesi masih berlaku di tab ini) atau form login.
@@ -6817,5 +6935,7 @@ setTimeout(function () {
 })();
 </script>
 
+<div id="google_translate_element"></div>
+<script async src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
