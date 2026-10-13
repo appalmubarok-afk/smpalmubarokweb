@@ -411,6 +411,99 @@ body{top:0!important}
 iframe.skiptranslate,iframe[id=":1.container"],iframe[class*="ORHb-OEVmcd"],.VIpgJd-ZVi9od-ORHb-OEVmcd,.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,.VIpgJd-ZVi9od-aZ2wEe-OiiCO,body>.skiptranslate{display:none!important;visibility:hidden!important;height:0!important}
 html,body{top:0!important;margin-top:0!important}
 </style>
+<style id="css-donasi-v2">
+/* DONASI v2 -- tampilan lebih ramah (hanya berlaku di halaman Donasi) */
+#section-donasi{background:linear-gradient(180deg,#f8faff 0,#fff 420px)}
+#section-donasi .dn-wrap{max-width:60rem;padding:2rem 1rem 4rem}
+#section-donasi .dn-card{border-radius:20px;padding:22px;box-shadow:0 6px 22px rgba(31,40,125,.07);border-color:#e6e9f7}
+#section-donasi .dn-h2{font-size:20px;margin:34px 0 16px;display:flex;align-items:center}
+#section-donasi .dn-h2 i{width:34px;height:34px;border-radius:11px;background:#fff4c2;color:#b7860b;display:inline-flex;align-items:center;justify-content:center;font-size:15px;margin-right:10px}
+#section-donasi .dn-label{font-size:11px}
+/* ringkasan */
+#section-donasi .dn-stat{display:flex;align-items:center;gap:14px;text-align:left}
+#section-donasi .dn-stat-ic{width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;background:#fff4c2;color:#b7860b}
+#section-donasi .dn-stat-ic.biru{background:#eef0fb;color:#1f287d}
+#section-donasi .dn-bar{height:14px}
+#section-donasi .dn-bar>div{background:linear-gradient(90deg,#ffd84d,#f5b800);transition:width .8s ease}
+/* kutipan */
+.dn-quote{margin:20px 0 0;display:flex;gap:14px;align-items:center;background:#fffbea;border:1px solid #fde9a0;border-radius:18px;padding:16px 20px}
+.dn-quote i{color:#e7b10a;font-size:22px;flex-shrink:0}
+.dn-quote p{margin:0;font-size:14px;line-height:1.6;color:#6b5400;font-weight:700}
+.dn-quote p span{display:block;font-size:11px;font-weight:600;color:#a88a1c;margin-top:2px}
+/* langkah */
+.dn-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dn-step{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid #e6e9f7;border-radius:16px;padding:16px}
+.dn-step-no{width:32px;height:32px;border-radius:50%;background:#1f287d;color:#fff;font-weight:900;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dn-step b{display:block;font-size:14px;color:#1f287d;margin-bottom:2px}
+.dn-step span{font-size:12px;color:#64748b;line-height:1.55}
+@media(max-width:640px){.dn-steps{grid-template-columns:1fr}}
+/* kartu rekening */
+#section-donasi .dn-rek{gap:16px}
+#section-donasi .dn-card.dn-rekcard{background:linear-gradient(135deg,#1f287d 0,#2b3499 60%,#3a45b8 100%);border:0;color:#fff;position:relative;overflow:hidden}
+#section-donasi .dn-rekcard:after{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.07)}
+#section-donasi .dn-rekcard .dn-bank{color:#fff;position:relative;z-index:1}
+#section-donasi .dn-rekcard .dn-bank-ic{background:rgba(255,255,255,.16)}
+#section-donasi .dn-rek-lbl{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);margin:6px 0 2px;position:relative;z-index:1}
+#section-donasi .dn-rekcard .dn-no{color:#fff;font-size:26px;position:relative;z-index:1}
+#section-donasi .dn-rekcard .dn-an{color:rgba(255,255,255,.8);font-size:13px;position:relative;z-index:1}
+#section-donasi .dn-rekcard .dn-note{color:rgba(255,255,255,.65);position:relative;z-index:1}
+#section-donasi .dn-rekcard .dn-btn{background:#ffd84d;color:#161f36;margin-top:18px;position:relative;z-index:1;padding:11px 18px}
+/* form */
+#section-donasi .dn-h3{font-size:18px;display:flex;align-items:center}
+#section-donasi .dn-h3 i{width:30px;height:30px;border-radius:50%;background:#dcfce7;display:inline-flex;align-items:center;justify-content:center;font-size:14px}
+#section-donasi .dn-formnote{font-size:13px;line-height:1.6;color:#64748b;margin:6px 0 20px}
+#section-donasi .dn-grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+@media(max-width:640px){#section-donasi .dn-grid2{grid-template-columns:1fr}}
+#section-donasi .dn-field{margin-bottom:16px}
+#section-donasi .dn-field label{font-size:13px;letter-spacing:0;text-transform:none;color:#475569;font-weight:800}
+#section-donasi .dn-field label i{color:#1f287d;margin-right:6px;width:14px;text-align:center}
+#section-donasi .dn-field label small{font-weight:600;color:#94a3b8;font-size:11px}
+#section-donasi .dn-field input,#section-donasi .dn-field textarea{font-size:15px;padding:13px 16px;border:1.5px solid #dbe0ee;border-radius:14px;background:#fbfcff;transition:border-color .15s,box-shadow .15s}
+#section-donasi .dn-field input:focus,#section-donasi .dn-field textarea:focus{outline:0;border-color:#1f287d;box-shadow:0 0 0 4px rgba(31,40,125,.12);background:#fff}
+.dn-money{position:relative}
+.dn-money>span{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-weight:900;color:#1f287d;font-size:15px}
+#section-donasi .dn-money input{padding-left:48px;font-size:20px;font-weight:800;color:#1f287d}
+.dn-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.dn-chip{border:1.5px solid #dbe0ee;background:#fff;color:#1f287d;font-weight:800;font-size:12px;padding:8px 15px;border-radius:99px;cursor:pointer;font-family:inherit;transition:all .15s}
+.dn-chip:hover{border-color:#1f287d;background:#eef0fb}
+.dn-chip.aktif{background:#1f287d;border-color:#1f287d;color:#fff}
+#section-donasi .dn-check{font-size:13px;margin:2px 0 18px}
+#section-donasi .dn-check input{width:17px;height:17px;accent-color:#1f287d}
+#section-donasi .dn-btn.dn-kirim{width:100%;justify-content:center;margin:0;padding:16px;font-size:13px;border-radius:14px;background:linear-gradient(135deg,#1f287d,#2b3499);box-shadow:0 8px 20px rgba(31,40,125,.25)}
+#section-donasi .dn-btn.dn-kirim i{color:#ffd84d}
+#section-donasi .dn-btn.dn-kirim:disabled{opacity:.7;cursor:wait}
+.dn-trust{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11.5px;color:#94a3b8;margin:12px 0 0}
+.dn-trust i{color:#16a34a}
+#section-donasi .dn-ok-ic{width:68px;height:68px;font-size:30px;animation:dnPop .5s ease both}
+@keyframes dnPop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+/* daftar donatur */
+#section-donasi .dn-list{border-radius:20px;border-color:#e6e9f7;box-shadow:0 6px 22px rgba(31,40,125,.06)}
+#section-donasi .dn-item{padding:18px;transition:background .15s}
+#section-donasi .dn-item:hover{background:#fafbff}
+#section-donasi .dn-av{width:44px;height:44px;background:linear-gradient(135deg,#ffe58a,#ffd84d);color:#5c4500}
+#section-donasi .dn-nm{font-size:15px}
+#section-donasi .dn-ps{border-left:3px solid #ffd84d;padding-left:10px;font-style:italic;font-size:13px;margin-top:8px}
+.dn-empty{background:#fff;border:2px dashed #dbe0ee;border-radius:20px;padding:36px 20px;text-align:center}
+.dn-empty-ic{width:64px;height:64px;border-radius:50%;background:#fff4c2;color:#e7b10a;display:inline-flex;align-items:center;justify-content:center;font-size:26px}
+.dn-empty h4{margin:14px 0 4px;font-size:16px;font-weight:900;color:#1f287d}
+.dn-empty p{margin:0 auto;max-width:26rem;font-size:13px;line-height:1.6;color:#64748b}
+.dn-empty .dn-btn{margin-top:16px}
+/* mode gelap */
+body.mode-gelap #section-donasi{background:linear-gradient(180deg,#0b1020 0,#0f172a 420px)}
+body.mode-gelap #section-donasi .dn-step,body.mode-gelap #section-donasi .dn-empty,body.mode-gelap #section-donasi .dn-chip{background:#161f36;border-color:#24304f}
+body.mode-gelap #section-donasi .dn-step b,body.mode-gelap #section-donasi .dn-chip,body.mode-gelap #section-donasi .dn-empty h4,body.mode-gelap #section-donasi .dn-money input,body.mode-gelap #section-donasi .dn-money>span{color:#c7d0ff}
+body.mode-gelap #section-donasi .dn-chip.aktif{background:#ffd84d;color:#161f36;border-color:#ffd84d}
+body.mode-gelap #section-donasi .dn-quote{background:#2a2410;border-color:#4a3e12}
+body.mode-gelap #section-donasi .dn-quote p{color:#ffe58a}
+body.mode-gelap #section-donasi .dn-field label{color:#cbd5e1}
+body.mode-gelap #section-donasi .dn-field label i{color:#c7d0ff}
+body.mode-gelap #section-donasi .dn-field input,body.mode-gelap #section-donasi .dn-field textarea{background:#0f172a;border-color:#24304f;color:#e2e8f0}
+body.mode-gelap #section-donasi .dn-item:hover{background:#1b2542}
+body.mode-gelap #section-donasi .dn-stat-ic.biru{background:#24304f;color:#c7d0ff}
+body.mode-gelap #section-donasi .dn-card.dn-rekcard{background:linear-gradient(135deg,#1f287d,#2b3499)}
+body.mode-gelap #section-donasi .dn-rekcard .dn-no{color:#fff}
+body.mode-gelap #section-donasi .dn-rekcard .dn-bank{color:#fff}
+</style>
 <!-- Tailwind versi build (file statis tailwind.css, ~10KB terkompresi). Dulu memakai skrip CDN Tailwind
      yang mengunduh ratusan KB JavaScript & mengompilasi CSS di browser tiap kunjungan.
      Kalau kelas Tailwind baru ditambahkan di halaman ini, file tailwind.css harus dibuat ulang. -->
@@ -1426,22 +1519,45 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     </div>
     <div class="dn-wrap">
       <button onclick="kembaliKeBeranda()" class="text-primary hover:text-primary-600 text-xs font-bold inline-flex items-center gap-1.5 mb-6"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
-      <div id="donasi-ringkasan" style="margin:0 0 40px"></div>
+      <div id="donasi-ringkasan"></div>
+      <div class="dn-quote"><i class="fas fa-quote-left"></i><p>&ldquo;Sedekah tidak akan mengurangi harta.&rdquo;<span>(HR. Muslim)</span></p></div>
+
+      <h2 class="dn-h2"><i class="fas fa-route"></i>Berdonasi dalam 3 Langkah Mudah</h2>
+      <div class="dn-steps">
+        <div class="dn-step"><span class="dn-step-no">1</span><div><b>Transfer</b><span>Kirim donasi ke salah satu rekening sekolah di bawah ini.</span></div></div>
+        <div class="dn-step"><span class="dn-step-no">2</span><div><b>Konfirmasi</b><span>Isi formulir singkat agar admin mudah mencocokkan donasi Anda.</span></div></div>
+        <div class="dn-step"><span class="dn-step-no">3</span><div><b>Selesai</b><span>Setelah dicek admin, nama Anda tampil di daftar donatur.</span></div></div>
+      </div>
+
       <h2 class="dn-h2"><i class="fas fa-building-columns"></i>Rekening Donasi</h2>
       <div id="donasi-rekening" class="dn-rek"></div>
-      <div id="donasi-konfirmasi" class="dn-card" style="margin-bottom:48px">
+
+      <div id="donasi-konfirmasi" class="dn-card" style="margin-top:8px;margin-bottom:16px">
         <h3 class="dn-h3"><i class="fas fa-circle-check"></i>Sudah Transfer? Konfirmasi Donasi Anda</h3>
-        <p class="dn-note" style="margin:0 0 16px">Isi data di bawah. Setelah admin memeriksa dan mengonfirmasi, donasi Anda otomatis tampil di daftar donatur dan masuk ke total donasi.</p>
+        <p class="dn-formnote">Jazakumullahu khairan atas kebaikan Anda. Isi data singkat di bawah ini. Setelah admin memeriksa dan mengonfirmasi, donasi Anda otomatis tampil di daftar donatur dan masuk ke total donasi.</p>
         <div id="donasi-form-isi">
-          <div class="dn-field"><label>Nama</label><input id="dn-nama" maxlength="60" placeholder="Nama Anda"></div>
-          <div class="dn-field"><label>Jumlah Donasi (Rp)</label><input id="dn-jumlah" inputmode="numeric" placeholder="contoh: 100.000" oninput="this.value=this.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,'.')"></div>
-          <div class="dn-field"><label>No. WhatsApp (opsional, tidak ditampilkan)</label><input id="dn-kontak" inputmode="tel" placeholder="0812xxxxxxxx"></div>
-          <div class="dn-field"><label>Pesan / Doa (opsional)</label><textarea id="dn-pesan" maxlength="300" rows="3" placeholder="Tulis pesan atau doa Anda"></textarea></div>
+          <div class="dn-grid2">
+            <div class="dn-field"><label for="dn-nama"><i class="fas fa-user"></i>Nama</label><input id="dn-nama" maxlength="60" placeholder="Nama Anda" autocomplete="name"></div>
+            <div class="dn-field"><label for="dn-kontak"><i class="fab fa-whatsapp"></i>No. WhatsApp <small>(opsional, tidak ditampilkan)</small></label><input id="dn-kontak" inputmode="tel" placeholder="0812xxxxxxxx" autocomplete="tel"></div>
+          </div>
+          <div class="dn-field"><label for="dn-jumlah"><i class="fas fa-coins"></i>Jumlah Donasi</label>
+            <div class="dn-money"><span>Rp</span><input id="dn-jumlah" inputmode="numeric" placeholder="100.000" autocomplete="off" oninput="this.value=this.value.replace(/\D/g,'').replace(/\B(?=(\d{3})+(?!\d))/g,'.');sinkronChipDonasi_()"></div>
+            <div class="dn-chips" id="dn-chips">
+              <button type="button" class="dn-chip" data-n="25000" onclick="pilihNominalDonasi_(25000)">Rp 25.000</button>
+              <button type="button" class="dn-chip" data-n="50000" onclick="pilihNominalDonasi_(50000)">Rp 50.000</button>
+              <button type="button" class="dn-chip" data-n="100000" onclick="pilihNominalDonasi_(100000)">Rp 100.000</button>
+              <button type="button" class="dn-chip" data-n="250000" onclick="pilihNominalDonasi_(250000)">Rp 250.000</button>
+              <button type="button" class="dn-chip" data-n="500000" onclick="pilihNominalDonasi_(500000)">Rp 500.000</button>
+            </div>
+          </div>
+          <div class="dn-field"><label for="dn-pesan"><i class="fas fa-hands-praying"></i>Pesan / Doa <small>(opsional)</small></label><textarea id="dn-pesan" maxlength="300" rows="3" placeholder="Tulis pesan atau doa Anda"></textarea></div>
           <label class="dn-check"><input type="checkbox" id="dn-anonim"> Sembunyikan nama saya (tampil sebagai &quot;Hamba Allah&quot;)</label>
-          <button type="button" id="dn-kirim-btn" class="dn-btn" style="margin-top:8px" onclick="kirimDonasiWeb_()"><i class="fas fa-paper-plane"></i> Kirim Konfirmasi Donasi</button>
+          <button type="button" id="dn-kirim-btn" class="dn-btn dn-kirim" onclick="kirimDonasiWeb_()"><i class="fas fa-paper-plane"></i> Kirim Konfirmasi Donasi</button>
+          <p class="dn-trust"><i class="fas fa-lock"></i>Data Anda aman. Nomor WhatsApp hanya dilihat admin sekolah.</p>
         </div>
         <div id="donasi-form-sukses" style="display:none"></div>
       </div>
+
       <h2 class="dn-h2"><i class="fas fa-users"></i>Donatur &amp; Hasil Donasi</h2>
       <div id="donasi-daftar"></div>
     </div>
@@ -6417,8 +6533,8 @@ function renderDonasi() {
   const target = _angkaDonasi_(cfg('donasi_target', ''));
 
   let ring = '<div class="dn-stats">' +
-    '<div class="dn-card" style="text-align:center"><p class="dn-label">Donasi Terkumpul</p><p class="dn-big">' + _rupiahDonasi_(total) + '</p></div>' +
-    '<div class="dn-card" style="text-align:center"><p class="dn-label">Jumlah Donatur</p><p class="dn-big">' + donasi.length + '</p></div></div>';
+    '<div class="dn-card dn-stat"><span class="dn-stat-ic"><i class="fas fa-hand-holding-heart"></i></span><div><p class="dn-label">Donasi Terkumpul</p><p class="dn-big notranslate" translate="no">' + _rupiahDonasi_(total) + '</p></div></div>' +
+    '<div class="dn-card dn-stat"><span class="dn-stat-ic biru"><i class="fas fa-users"></i></span><div><p class="dn-label">Jumlah Donatur</p><p class="dn-big">' + donasi.length + '</p></div></div></div>';
   if (target > 0) {
     const persen = Math.min(100, Math.round(total * 100 / target));
     ring += '<div class="dn-card" style="margin-top:16px"><div class="dn-row"><span>Target: ' + _rupiahDonasi_(target) + '</span><span class="dn-pct">' + persen + '%</span></div>' +
@@ -6432,8 +6548,9 @@ function renderDonasi() {
   } else {
     elRek.innerHTML = rekening.map(function (r, i) {
       const nomor = String(r.nomor_rekening == null ? '' : r.nomor_rekening).trim();
-      return '<div class="dn-card">' +
+      return '<div class="dn-card dn-rekcard">' +
         '<div class="dn-bank"><span class="dn-bank-ic"><i class="fas fa-building-columns"></i></span><span>' + _ak(r.bank) + '</span></div>' +
+        '<p class="dn-rek-lbl">Nomor Rekening</p>' +
         '<p class="dn-no notranslate" translate="no">' + _ak(nomor) + '</p>' +
         '<p class="dn-an">a.n. <b>' + _ak(r.atas_nama) + '</b></p>' +
         (r.keterangan ? '<p class="dn-note">' + _ak(r.keterangan) + '</p>' : '') +
@@ -6445,7 +6562,13 @@ function renderDonasi() {
   }
 
   const elDaftar = document.getElementById('donasi-daftar');
-  if (!donasi.length) { elDaftar.innerHTML = _kosongAk('Belum ada data donasi.'); return; }
+  if (!donasi.length) {
+    elDaftar.innerHTML = '<div class="dn-empty"><span class="dn-empty-ic"><i class="fas fa-heart"></i></span>' +
+      '<h4>Jadilah donatur pertama</h4>' +
+      '<p>Belum ada donasi yang tercatat. Setiap kebaikan, sekecil apa pun, sangat berarti bagi kemajuan sekolah kita.</p>' +
+      '<button type="button" class="dn-btn" onclick="document.getElementById(\'donasi-konfirmasi\').scrollIntoView({behavior:\'smooth\',block:\'center\'})"><i class="fas fa-hand-holding-heart"></i> Mulai Berdonasi</button></div>';
+    return;
+  }
   elDaftar.innerHTML = '<div class="dn-list">' + donasi.map(function (r) {
     const nama = String(r.nama_donatur || '').trim() || 'Hamba Allah';
     return '<div class="dn-item"><span class="dn-av">' + _ak(nama.charAt(0).toUpperCase()) + '</span>' +
@@ -6453,6 +6576,18 @@ function renderDonasi() {
       (r.tanggal ? '<p class="dn-tg">' + _ak(r.tanggal) + '</p>' : '') +
       (r.keterangan ? '<p class="dn-ps">' + _ak(r.keterangan) + '</p>' : '') + '</div></div>';
   }).join('') + '</div>';
+}
+
+// --- Pilihan nominal cepat (chip) ---
+function pilihNominalDonasi_(n) {
+  const inp = document.getElementById('dn-jumlah'); if (!inp) return;
+  inp.value = String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  sinkronChipDonasi_();
+}
+function sinkronChipDonasi_() {
+  const inp = document.getElementById('dn-jumlah');
+  const v = inp ? inp.value.replace(/\D/g, '') : '';
+  document.querySelectorAll('#dn-chips .dn-chip').forEach(function (c) { c.classList.toggle('aktif', c.getAttribute('data-n') === v); });
 }
 
 // --- Form konfirmasi donasi (pengunjung) ---
@@ -6490,6 +6625,7 @@ function tampilkanDonasiSukses_(res, nama) {
     '<button type="button" class="dn-btn abu" style="margin:0" onclick="resetFormDonasi_()"><i class="fas fa-rotate-left"></i> Isi Lagi</button></div></div>';
 }
 function resetFormDonasi_() {
+  setTimeout(sinkronChipDonasi_, 0);
   ['dn-nama', 'dn-jumlah', 'dn-kontak', 'dn-pesan'].forEach(function (id) { const e = document.getElementById(id); if (e) e.value = ''; });
   const cb = document.getElementById('dn-anonim'); if (cb) cb.checked = false;
   document.getElementById('donasi-form-sukses').style.display = 'none';
