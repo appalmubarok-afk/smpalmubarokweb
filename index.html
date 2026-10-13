@@ -438,7 +438,9 @@ html,body{top:0!important;margin-top:0!important}
 .dn-step span{font-size:12px;color:#64748b;line-height:1.55}
 @media(max-width:640px){.dn-steps{grid-template-columns:1fr}}
 /* kartu rekening */
-#section-donasi .dn-rek{gap:16px}
+#section-donasi .dn-rek{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;margin-bottom:24px}
+#section-donasi .dn-rek>.dn-rekcard{flex:1 1 320px;max-width:460px}
+#section-donasi .dn-rek>div[style*="grid-column"]{flex:1 1 100%}
 #section-donasi .dn-card.dn-rekcard{background:linear-gradient(135deg,#1f287d 0,#2b3499 60%,#3a45b8 100%);border:0;color:#fff;position:relative;overflow:hidden}
 #section-donasi .dn-rekcard:after{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.07)}
 #section-donasi .dn-rekcard .dn-bank{color:#fff;position:relative;z-index:1}
