@@ -1,0 +1,23 @@
+{
+  "name": "SMP IT Al Mubarok",
+  "short_name": "SMPIT Al Mubarok",
+  "description": "Website resmi SMP IT Al Mubarok: PPDB, profil, program, berita, dan informasi sekolah.",
+  "lang": "id",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#1f287d",
+  "categories": ["education"],
+  "icons": [
+    { "src": "/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "shortcuts": [
+    { "name": "PPDB", "short_name": "PPDB", "url": "/?page=ppdb&source=pwa", "icons": [{ "src": "/logo.png", "sizes": "192x192" }] },
+    { "name": "Artikel & Berita", "short_name": "Berita", "url": "/?page=artikel&source=pwa", "icons": [{ "src": "/logo.png", "sizes": "192x192" }] }
+  ]
+}
