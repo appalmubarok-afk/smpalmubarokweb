@@ -571,6 +571,64 @@ body.mode-gelap .ju-row{border-top-color:#1f2a47}
 body.mode-gelap .ju-tgl{background:#161f36;border-color:#24304f}
 body.mode-gelap .ju-kelas span{background:#24304f;color:#c7d0ff}
 body.mode-gelap .ju-rentang,body.mode-gelap .ju-meta{color:#94a3b8}
+/* ===== TIMELINE MELIUK (Jadwal Ujian) ===== */
+.ju-legend{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:center;margin:0 0 26px;font-size:11px;font-weight:800;color:#64748b}
+.ju-legend span{display:inline-flex;align-items:center;gap:7px}
+.ju-legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
+.ju-legend .l-selesai{background:#1f287d}
+.ju-legend .l-aktif{background:#16a34a}
+.ju-legend .l-akan{background:#ffd84d;box-shadow:0 0 0 2px #fff,0 0 0 3px #e0a800}
+.ju-tl{--ju-a:60px;--ju-n:38px;position:relative;padding:6px 0 2px}
+.ju-tl-svg{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;z-index:0}
+.ju-tl-base{fill:none;stroke:#c3cae8;stroke-width:4;stroke-linecap:round;stroke-dasharray:1 12}
+.ju-tl-prog{fill:none;stroke:url(#juTlGrad);stroke-width:6;stroke-linecap:round;filter:drop-shadow(0 3px 5px rgba(31,40,125,.25))}
+.ju-stop{position:relative;z-index:1;display:block;padding:0 0 30px 64px;animation:juMasuk .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * .1s)}
+.ju-stop:last-child{padding-bottom:4px}
+@keyframes juMasuk{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+.ju-node{position:absolute;top:18px;width:var(--ju-n);height:var(--ju-n);margin-left:calc(var(--ju-n) / -2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;background:#fff;color:#1f287d;border:3px solid #1f287d;box-shadow:0 6px 16px rgba(31,40,125,.22);z-index:2}
+.ju-node.selesai{background:#1f287d;color:#ffd84d}
+.ju-node.jalan{background:#16a34a;border-color:#fff;color:#fff;box-shadow:0 0 0 3px #16a34a,0 6px 16px rgba(22,163,74,.35)}
+.ju-node.akan{background:#ffd84d;border-color:#fff;color:#1f287d;box-shadow:0 0 0 3px #e0a800,0 6px 16px rgba(224,168,0,.3)}
+.ju-node.aktif::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:3px solid currentColor;opacity:.0;animation:juDenyut 2s ease-out infinite}
+.ju-node.jalan::after{border-color:#16a34a}
+.ju-node.akan::after{border-color:#e0a800}
+@keyframes juDenyut{0%{transform:scale(.7);opacity:.7}100%{transform:scale(1.35);opacity:0}}
+.ju-stop.kanan .ju-node{left:22px}
+.ju-stop.kiri .ju-node{left:40px}
+.ju-stop .ju-card{width:auto;transition:transform .25s,box-shadow .25s}
+.ju-stop .ju-card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(31,40,125,.12)}
+.ju-stop .ju-card.aktif{border-color:#f2c230;box-shadow:0 10px 30px rgba(242,194,48,.28)}
+.ju-stop .ju-card summary{align-items:flex-start;flex-wrap:wrap;padding:16px}
+.ju-stop .ju-side{flex-direction:row;align-items:center;justify-content:space-between;width:100%}
+.ju-stop .ju-nama{font-size:16px}
+.ju-stop .ju-detail{padding:4px 14px 12px}
+.ju-sisi{display:none}
+@media(min-width:900px){
+ .ju-tl{--ju-n:48px}
+ .ju-stop{padding:0 0 38px;display:flex}
+ .ju-stop:last-child{padding-bottom:6px}
+ .ju-stop .ju-card{width:calc(50% - var(--ju-a) - 36px);flex:none}
+ .ju-stop.kanan{justify-content:flex-end}
+ .ju-stop.kiri{justify-content:flex-start}
+ .ju-stop.kanan .ju-node{left:calc(50% - var(--ju-a))}
+ .ju-stop.kiri .ju-node{left:calc(50% + var(--ju-a))}
+ .ju-node{top:14px;font-size:18px}
+ .ju-sisi{display:flex;flex-direction:column;position:absolute;top:12px;width:calc(50% - var(--ju-a) - 36px);gap:2px}
+ .ju-stop.kanan .ju-sisi{left:0;align-items:flex-end;text-align:right}
+ .ju-stop.kiri .ju-sisi{right:0;align-items:flex-start;text-align:left}
+ .ju-sisi b{font-size:30px;line-height:1.05;font-weight:900;color:#1f287d;letter-spacing:-.01em}
+ .ju-sisi span{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#b7860b}
+}
+@media(min-width:1100px){.ju-tl{--ju-a:72px}}
+body.mode-gelap .ju-legend{color:#94a3b8}
+body.mode-gelap .ju-tl-base{stroke:#2b3764}
+body.mode-gelap .ju-node{background:#161f36;color:#c7d0ff;border-color:#c7d0ff}
+body.mode-gelap .ju-node.selesai{background:#c7d0ff;color:#1f287d}
+body.mode-gelap .ju-node.jalan{background:#16a34a;color:#fff;border-color:#0f172a}
+body.mode-gelap .ju-node.akan{background:#ffd84d;color:#1f287d;border-color:#0f172a}
+body.mode-gelap .ju-sisi b{color:#c7d0ff}
+body.mode-gelap .ju-stop .ju-card.aktif{border-color:#b7860b}
+@media(prefers-reduced-motion:reduce){.ju-stop,.ju-node.aktif::after{animation:none}.ju-stop .ju-card{transition:none}}
 </style>
 <!-- Tailwind versi build (file statis tailwind.css, ~10KB terkompresi). Dulu memakai skrip CDN Tailwind
      yang mengunduh ratusan KB JavaScript & mengompilasi CSS di browser tiap kunjungan.
@@ -6686,6 +6744,52 @@ function renderJadwalPelajaran() {
   el.innerHTML = html + '</tbody></table></div></div>';
 }
 
+// Gambar jalur meliuk (SVG) yang menyambung semua titik timeline Jadwal Ujian.
+// Posisi titik dibaca dari layout asli (offsetLeft/Top) -> otomatis pas di HP maupun desktop,
+// dan digambar ulang saat ukuran berubah / kartu "Lihat detail" dibuka.
+function _juGambarJalur_(tl) {
+  const svg = tl && tl.querySelector('.ju-tl-svg');
+  if (!svg || !tl.offsetWidth) return;
+  const base = svg.querySelector('.ju-tl-base'), prog = svg.querySelector('.ju-tl-prog');
+  const pts = Array.prototype.map.call(tl.querySelectorAll('.ju-stop'), function (s) {
+    const n = s.querySelector('.ju-node');
+    return { x: s.offsetLeft + n.offsetLeft + n.offsetWidth / 2, y: s.offsetTop + n.offsetTop + n.offsetHeight / 2 };
+  });
+  if (!pts.length) return;
+  svg.setAttribute('width', tl.offsetWidth);
+  svg.setAttribute('height', tl.offsetHeight);
+  const seg = function (a, b) {
+    const k = (b.y - a.y) * 0.62;
+    return ' C ' + a.x + ' ' + (a.y + k) + ', ' + b.x + ' ' + (b.y - k) + ', ' + b.x + ' ' + b.y;
+  };
+  const buat = function (sampai) {
+    let d = 'M ' + pts[0].x + ' ' + pts[0].y;
+    for (let i = 1; i <= sampai; i++) d += seg(pts[i - 1], pts[i]);
+    return d;
+  };
+  base.setAttribute('d', buat(pts.length - 1));
+  const idx = parseInt(tl.getAttribute('data-prog'), 10) || 0;
+  if (idx > 0) {
+    prog.setAttribute('d', buat(Math.min(idx, pts.length - 1)));
+    const L = prog.getTotalLength();
+    if (!tl._juAnim) {
+      tl._juAnim = true;
+      prog.style.transition = 'none';
+      prog.style.strokeDasharray = L;
+      prog.style.strokeDashoffset = L;
+      prog.getBoundingClientRect();
+      prog.style.transition = 'stroke-dashoffset 1.6s ease .35s';
+      prog.style.strokeDashoffset = 0;
+    } else {
+      prog.style.transition = 'none';
+      prog.style.strokeDasharray = L;
+      prog.style.strokeDashoffset = 0;
+    }
+  } else {
+    prog.setAttribute('d', '');
+  }
+}
+
 function renderJadwalUjian() {
   const el = document.getElementById('ju-list'); if (!el) return;
   const all = DB.jadwal_ujian || [];
@@ -6697,7 +6801,7 @@ function renderJadwalUjian() {
   }).map(function (r) { return { r: r, t: parseTanggalArtikel_(r.tanggal) }; })
     .sort(function (x, y) { return (x.t ? x.t.getTime() : 9e15) - (y.t ? y.t.getTime() : 9e15) || String(x.r.jam || '').localeCompare(String(y.r.jam || '')); });
   if (!rows.length) { el.innerHTML = (nDok ? '' : _kosongAk('Jadwal ujian belum tersedia.')); return; }
-  // Tampil per JENIS UJIAN (PTS, PAS, Tahfidz, dst.). Rincian mata pelajaran / jadwal harian ada di "Lihat detail".
+  // Tampil sebagai TIMELINE MELIUK per JENIS UJIAN (PTS, PAS, Tahfidz, dst.). Rincian mapel / jadwal harian ada di "Lihat detail".
   const hariSaja = function (d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
   const hariIni = hariSaja(new Date());
   const isi = function (v) { v = String(v == null ? '' : v).trim(); return (v === '' || v === '-') ? '' : v; };
@@ -6708,8 +6812,8 @@ function renderJadwalUjian() {
     if (!grup[k]) { grup[k] = { nama: nama, item: [] }; urut.push(grup[k]); }
     grup[k].item.push(x);
   });
-  let html = '<div class="ju-grid">';
-  urut.forEach(function (g) {
+  // Urutkan titik timeline berdasarkan tanggal mulai tiap jenis ujian
+  const info = urut.map(function (g) {
     const tgl = g.item.map(function (x) { return x.t; }).filter(Boolean);
     const awal = tgl.length ? hariSaja(tgl[0]) : null;
     const akhir = tgl.length ? hariSaja(tgl[tgl.length - 1]) : null;
@@ -6717,6 +6821,21 @@ function renderJadwalUjian() {
     if (akhir && akhir < hariIni) status = { c: 'selesai', t: 'Selesai' };
     else if (awal && awal <= hariIni) status = { c: 'jalan', t: 'Sedang berlangsung' };
     else if (awal) { const n = Math.round((awal - hariIni) / 864e5); status = { c: 'akan', t: n === 1 ? 'Besok' : n + ' hari lagi' }; }
+    return { g: g, awal: awal, akhir: akhir, status: status };
+  }).sort(function (a, b) { return (a.awal ? a.awal.getTime() : 9e15) - (b.awal ? b.awal.getTime() : 9e15); });
+  // Titik "aktif" = jenis ujian pertama yang belum selesai (berdenyut)
+  let aktif = -1;
+  info.forEach(function (o, i) { if (aktif < 0 && !(o.status && o.status.c === 'selesai')) aktif = i; });
+  const semuaSelesai = aktif < 0;
+  const prog = semuaSelesai ? info.length - 1 : aktif;
+  let html = '<div class="ju-legend"><span><i class="l-selesai"></i>Selesai</span><span><i class="l-aktif"></i>Berlangsung</span><span><i class="l-akan"></i>Akan datang</span></div>' +
+    '<div class="ju-tl" data-prog="' + prog + '">' +
+    '<svg class="ju-tl-svg" aria-hidden="true"><defs><linearGradient id="juTlGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f287d"/><stop offset="1" stop-color="#e0a800"/></linearGradient></defs>' +
+    '<path class="ju-tl-base" d=""/><path class="ju-tl-prog" d=""/></svg>';
+  info.forEach(function (o, i) {
+    const g = o.g, awal = o.awal, akhir = o.akhir, status = o.status;
+    const selesai = status && status.c === 'selesai';
+    const sedangAktif = (i === aktif) && !selesai;
     const rentang = awal ? (akhir.getTime() !== awal.getTime() ? _tglAk(awal) + ' \u2013 ' + _tglAk(akhir) : _tglAk(awal)) : 'Tanggal belum diatur';
     const kelasList = _uniqAk(g.item.map(function (x) { return x.r; }), 'kelas').sort(_urutAngkaAk);
     const detail = g.item.map(function (x) {
@@ -6731,16 +6850,32 @@ function renderJadwalUjian() {
         (t ? '<p class="ju-hari">' + HARI_AK[(t.getDay() + 6) % 7] + ', ' + _tglAk(t) + '</p>' : '') +
         (meta.length ? '<div class="ju-meta">' + meta.join('') + '</div>' : '') + '</div></div>';
     }).join('');
-    html += '<details class="ju-card' + (status && status.c === 'selesai' ? ' selesai' : '') + '">' +
+    const sisiUtama = awal ? awal.getDate() + ' ' + BLN_PENDEK_AK[awal.getMonth()] : '--';
+    const sisiSub = awal ? (akhir.getTime() !== awal.getTime() ? 's.d. ' + _tglAk(akhir) : String(awal.getFullYear())) : '';
+    html += '<div class="ju-stop ' + (i % 2 === 0 ? 'kanan' : 'kiri') + '" style="--i:' + i + '">' +
+      '<span class="ju-node ' + (selesai ? 'selesai' : (status && status.c === 'jalan' ? 'jalan' : 'akan')) + (sedangAktif ? ' aktif' : '') + '"><i class="fas ' + (selesai ? 'fa-check' : 'fa-file-pen') + '"></i></span>' +
+      '<div class="ju-sisi"><b>' + sisiUtama + '</b><span>' + sisiSub + '</span></div>' +
+      '<details class="ju-card' + (selesai ? ' selesai' : '') + (sedangAktif ? ' aktif' : '') + '">' +
       '<summary><span class="ju-ic"><i class="fas fa-file-pen"></i></span>' +
       '<span class="ju-main"><span class="ju-nama">' + _ak(g.nama) + '</span>' +
       '<span class="ju-rentang"><i class="far fa-calendar"></i>' + rentang + '</span>' +
       (kelasList.length ? '<span class="ju-kelas">' + kelasList.map(function (k) { return '<span>Kelas ' + _ak(k) + '</span>'; }).join('') + '</span>' : '') + '</span>' +
       '<span class="ju-side">' + (status ? '<span class="ju-status ' + status.c + '">' + status.t + '</span>' : '<span></span>') +
       '<span class="ju-lihat">Lihat detail' + (g.item.length > 1 ? ' (' + g.item.length + ')' : '') + '<i class="fas fa-chevron-down"></i></span></span></summary>' +
-      '<div class="ju-detail">' + detail + '</div></details>';
+      '<div class="ju-detail">' + detail + '</div></details></div>';
   });
   el.innerHTML = html + '</div>';
+  // Gambar jalur setelah layout siap; ResizeObserver menggambar ulang saat section baru terlihat / ukuran berubah
+  const tl = el.querySelector('.ju-tl');
+  requestAnimationFrame(function () { _juGambarJalur_(tl); });
+  if (window.ResizeObserver) {
+    if (window.__juRO) window.__juRO.disconnect();
+    window.__juRO = new ResizeObserver(function () { requestAnimationFrame(function () { _juGambarJalur_(tl); }); });
+    window.__juRO.observe(tl);
+  } else if (!window.__juResizeBound) {
+    window.__juResizeBound = true;
+    window.addEventListener('resize', function () { _juGambarJalur_(document.querySelector('#ju-list .ju-tl')); });
+  }
 }
 
 // ---------------------------------------------------------------
