@@ -3,7 +3,7 @@
  * - Aset statis satu domain (gambar, css, font): tampil cepat dari cache lalu diperbarui diam-diam
  * - Permintaan data ke Apps Script (script.google.com) TIDAK pernah disentuh -> data selalu terbaru
  * Naikkan VERSI kalau mau memaksa semua HP membuang cache lama. */
-const VERSI = 'v1';
+const VERSI = 'v2';
 const CACHE_APP = 'smpit-app-' + VERSI;
 const CACHE_CDN = 'smpit-cdn-' + VERSI;
 const PRECACHE = ['/offline.html', '/logo.png'];
