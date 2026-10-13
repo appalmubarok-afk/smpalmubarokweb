@@ -500,6 +500,14 @@ html,body{top:0!important;margin-top:0!important}
 body.mode-gelap #section-donasi .dn-quote .dn-ar{color:#ffe58a}
 body.mode-gelap #section-donasi .dn-quote .dn-id{color:#ffe58a}
 body.mode-gelap #section-donasi .dn-quote-sep{background:#4a3e12}
+/* menu HP: Donasi & Bahasa */
+#mobile-menu .mob-donasi{background:rgba(255,216,77,.12);color:#ffd84d;border:1px solid rgba(255,216,77,.4);margin-top:6px}
+#mobile-menu .mob-donasi:hover{background:rgba(255,216,77,.22)}
+#mobile-menu .mob-bahasa{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.12)}
+#mobile-menu .mob-bahasa-judul{margin:0 0 8px;padding:0 12px;font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+#mobile-menu .mob-bahasa-judul i{margin-right:6px}
+#mobile-menu .lg-mobile{padding:0 12px;gap:8px}
+#mobile-menu .lg-mobile .lg-btn{min-height:44px;border-radius:12px;font-size:13px}
 /* mode gelap */
 body.mode-gelap #section-donasi{background:linear-gradient(180deg,#0b1020 0,#0f172a 420px)}
 body.mode-gelap #section-donasi .dn-step,body.mode-gelap #section-donasi .dn-empty,body.mode-gelap #section-donasi .dn-chip{background:#161f36;border-color:#24304f}
@@ -715,9 +723,12 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     </div>
 
     <button onclick="showSection('karya')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10">Karya</button>
-    <button onclick="showSection('donasi')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10"><i class="fas fa-hand-holding-heart" style="color:#ffd84d;margin-right:6px"></i>Donasi</button>
-    <div id="lang-switch-mobile" class="lg-mobile"></div>
     <button onclick="showSection('aplikasi')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10">Aplikasi</button>
+    <button onclick="showSection('donasi')" class="mob-donasi w-full text-left px-3 py-2.5 rounded-lg flex items-center justify-between"><span>Donasi</span><i class="fas fa-hand-holding-heart" aria-hidden="true"></i></button>
+    <div class="mob-bahasa">
+      <p class="mob-bahasa-judul"><i class="fas fa-language" aria-hidden="true"></i> Bahasa</p>
+      <div id="lang-switch-mobile" class="lg-mobile"></div>
+    </div>
     <button id="nav-daftar-btn-mobile" onclick="klikPendaftaran()" class="block w-full text-left px-3 py-2.5 rounded-lg bg-secondary text-primary mt-2">Pendaftaran</button>
   </div>
 </header>
