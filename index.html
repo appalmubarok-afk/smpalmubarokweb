@@ -6443,13 +6443,41 @@ function _prefBahasa_() {
 function _simpanBahasa_(k) { try { localStorage.setItem('smp_bahasa', k); } catch (e) {} }
 function _hapusCookieTranslate_() {
   try {
-    const host = location.hostname, lalu = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    const lalu = 'expires=Thu, 01 Jan 1970 00:00:00 GMT';
     document.cookie = 'googtrans=; path=/; ' + lalu;
-    if (host.indexOf('.') !== -1) {
-      document.cookie = 'googtrans=; path=/; domain=' + host + '; ' + lalu;
-      document.cookie = 'googtrans=; path=/; domain=.' + host + '; ' + lalu;
+    const bagian = location.hostname.split('.');
+    for (let i = 0; i < bagian.length - 1; i++) {
+      const dom = bagian.slice(i).join('.');
+      document.cookie = 'googtrans=; path=/; domain=' + dom + '; ' + lalu;
+      document.cookie = 'googtrans=; path=/; domain=.' + dom + '; ' + lalu;
     }
   } catch (e) {}
+}
+function _sedangTerjemah_() { return /translated-(ltr|rtl)/.test(document.documentElement.className || ''); }
+// Kembali ke teks asli (Indonesia) TANPA refresh; refresh hanya cadangan, maksimal sekali.
+function kembaliKeIndonesia_() {
+  _hapusCookieTranslate_();
+  const combo = document.querySelector('select.goog-te-combo');
+  if (combo) {
+    const opsi = Array.prototype.map.call(combo.options, function (o) { return o.value; });
+    combo.value = opsi.indexOf('id') !== -1 ? 'id' : '';
+    combo.dispatchEvent(new Event('change'));
+  }
+  try {
+    document.querySelectorAll('iframe.skiptranslate').forEach(function (fr) {
+      const d = fr.contentDocument || (fr.contentWindow && fr.contentWindow.document);
+      const tombol = d && (d.getElementById(':1.restore') || d.querySelector('[id$=".restore"]'));
+      if (tombol) tombol.click();
+    });
+  } catch (e) {}
+  setTimeout(function () {
+    if (!_sedangTerjemah_()) { try { sessionStorage.removeItem('smp_bahasa_reload'); } catch (e) {} return; }
+    let sudah = false;
+    try { sudah = sessionStorage.getItem('smp_bahasa_reload') === '1'; } catch (e) {}
+    if (sudah) return;   // jangan pernah refresh berulang
+    try { sessionStorage.setItem('smp_bahasa_reload', '1'); } catch (e) {}
+    location.reload();
+  }, 1200);
 }
 function renderSwitchBahasa_() {
   const aktif = _prefBahasa_();
@@ -6482,7 +6510,7 @@ function gantiBahasa(k) {
   if (k === sebelumnya) return;
   _simpanBahasa_(k);
   renderSwitchBahasa_();
-  if (k === 'id') { _hapusCookieTranslate_(); location.reload(); return; }   // kembali ke teks asli
+  if (k === 'id') { kembaliKeIndonesia_(); return; }   // kembali ke teks asli
   terapkanBahasa_(k);
 }
 function googleTranslateElementInit() {
@@ -6492,6 +6520,7 @@ function googleTranslateElementInit() {
   const p = _prefBahasa_();
   if (p !== 'id') terapkanBahasa_(p);
 }
+if (_prefBahasa_() === 'id') _hapusCookieTranslate_();   // sebelum skrip Google dimuat
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderSwitchBahasa_);
 else renderSwitchBahasa_();
 
