@@ -524,6 +524,54 @@ body.mode-gelap #section-donasi .dn-card.dn-rekcard{background:linear-gradient(1
 body.mode-gelap #section-donasi .dn-rekcard .dn-no{color:#fff}
 body.mode-gelap #section-donasi .dn-rekcard .dn-bank{color:#fff}
 </style>
+<style id="css-jadwalujian">
+/* JADWAL UJIAN -- kartu per jenis ujian + detail (CSS mandiri) */
+.ju-grid{display:flex;flex-direction:column;gap:14px}
+.ju-card{background:#fff;border:1px solid #e6e9f7;border-radius:20px;box-shadow:0 6px 22px rgba(31,40,125,.06);overflow:hidden}
+.ju-card.selesai{opacity:.7}
+.ju-card summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:16px;padding:18px 20px}
+.ju-card summary::-webkit-details-marker{display:none}
+.ju-card summary:focus-visible{outline:3px solid #1f287d;outline-offset:-3px;border-radius:20px}
+.ju-ic{width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#1f287d,#2b3499);color:#ffd84d;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ju-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.ju-nama{font-size:18px;font-weight:900;color:#1f287d;line-height:1.25}
+.ju-rentang{font-size:12px;font-weight:700;color:#64748b}
+.ju-rentang i{margin-right:6px;color:#b7860b}
+.ju-kelas{display:flex;flex-wrap:wrap;gap:6px}
+.ju-kelas span{font-size:10px;font-weight:800;color:#1f287d;background:#eef0fb;border-radius:99px;padding:3px 10px}
+.ju-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
+.ju-status{font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:4px 12px;white-space:nowrap}
+.ju-status.akan{background:#fff4c2;color:#8a6500}
+.ju-status.jalan{background:#dcfce7;color:#15803d}
+.ju-status.selesai{background:#f1f5f9;color:#64748b}
+.ju-lihat{font-size:11px;font-weight:800;color:#1f287d;white-space:nowrap}
+.ju-lihat i{margin-left:5px;font-size:10px;transition:transform .2s}
+.ju-card[open] .ju-lihat i{transform:rotate(180deg)}
+.ju-detail{border-top:1px dashed #dbe0ee;background:#fafbff;padding:6px 20px 14px}
+.ju-row{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-top:1px solid #eef0f7}
+.ju-row:first-child{border-top:0}
+.ju-tgl{width:54px;flex-shrink:0;text-align:center;background:#fff;border:1px solid #e6e9f7;border-radius:12px;padding:6px 0}
+.ju-tgl b{display:block;font-size:18px;line-height:1;color:#1f287d;font-weight:900}
+.ju-tgl span{display:block;font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#b7860b;margin-top:3px}
+.ju-isi{flex:1;min-width:0}
+.ju-mapel{font-size:14px;font-weight:800;color:#1f287d;margin:0}
+.ju-hari{font-size:11px;font-weight:700;color:#94a3b8;margin:1px 0 0}
+.ju-meta{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:11px;font-weight:600;color:#64748b}
+.ju-meta i{margin-right:5px;color:#94a3b8}
+@media(max-width:560px){
+ .ju-card summary{align-items:flex-start;flex-wrap:wrap;padding:16px}
+ .ju-side{flex-direction:row;align-items:center;justify-content:space-between;width:100%;margin-top:2px}
+ .ju-nama{font-size:16px}
+ .ju-detail{padding:4px 14px 12px}
+}
+body.mode-gelap .ju-card{background:#161f36;border-color:#24304f}
+body.mode-gelap .ju-nama,body.mode-gelap .ju-mapel,body.mode-gelap .ju-lihat,body.mode-gelap .ju-tgl b{color:#c7d0ff}
+body.mode-gelap .ju-detail{background:#111a30;border-top-color:#24304f}
+body.mode-gelap .ju-row{border-top-color:#1f2a47}
+body.mode-gelap .ju-tgl{background:#161f36;border-color:#24304f}
+body.mode-gelap .ju-kelas span{background:#24304f;color:#c7d0ff}
+body.mode-gelap .ju-rentang,body.mode-gelap .ju-meta{color:#94a3b8}
+</style>
 <!-- Tailwind versi build (file statis tailwind.css, ~10KB terkompresi). Dulu memakai skrip CDN Tailwind
      yang mengunduh ratusan KB JavaScript & mengompilasi CSS di browser tiap kunjungan.
      Kalau kelas Tailwind baru ditambahkan di halaman ini, file tailwind.css harus dibuat ulang. -->
@@ -6649,16 +6697,50 @@ function renderJadwalUjian() {
   }).map(function (r) { return { r: r, t: parseTanggalArtikel_(r.tanggal) }; })
     .sort(function (x, y) { return (x.t ? x.t.getTime() : 9e15) - (y.t ? y.t.getTime() : 9e15) || String(x.r.jam || '').localeCompare(String(y.r.jam || '')); });
   if (!rows.length) { el.innerHTML = (nDok ? '' : _kosongAk('Jadwal ujian belum tersedia.')); return; }
-  let html = '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-xs min-w-[640px]"><thead><tr class="bg-primary text-white uppercase text-[10px] tracking-widest">' +
-    ['Tanggal', 'Jam', 'Mata Pelajaran', 'Kelas', 'Ruang', 'Pengawas'].map(function (h) { return '<th class="px-4 py-3 text-left">' + h + '</th>'; }).join('') + '</tr></thead><tbody>';
+  // Tampil per JENIS UJIAN (PTS, PAS, Tahfidz, dst.). Rincian mata pelajaran / jadwal harian ada di "Lihat detail".
+  const hariSaja = function (d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
+  const hariIni = hariSaja(new Date());
+  const isi = function (v) { v = String(v == null ? '' : v).trim(); return (v === '' || v === '-') ? '' : v; };
+  const grup = {}, urut = [];
   rows.forEach(function (x) {
-    const r = x.r;
-    html += '<tr class="border-t border-slate-100 hover:bg-slate-50/70"><td class="px-4 py-3 whitespace-nowrap"><p class="font-black text-primary">' + (x.t ? _tglAk(x.t) : _ak(r.tanggal || '-')) + '</p>' + (x.t ? '<p class="text-[10px] text-slate-400 font-semibold">' + HARI_AK[(x.t.getDay() + 6) % 7] + '</p>' : '') + '</td>' +
-      '<td class="px-4 py-3 whitespace-nowrap text-slate-600">' + _ak(r.jam || '-') + '</td>' +
-      '<td class="px-4 py-3 font-bold text-primary">' + _ak(r.mapel || '-') + (r.jenis_ujian ? ' <span class="ml-1 text-[9px] font-black uppercase bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">' + _ak(r.jenis_ujian) + '</span>' : '') + '</td>' +
-      '<td class="px-4 py-3 text-slate-600">' + _ak(r.kelas || '-') + '</td><td class="px-4 py-3 text-slate-600">' + _ak(r.ruang || '-') + '</td><td class="px-4 py-3 text-slate-600">' + _ak(r.pengawas || '-') + '</td></tr>';
+    const nama = isi(x.r.jenis_ujian) || 'Ujian';
+    const k = nama.toLowerCase();
+    if (!grup[k]) { grup[k] = { nama: nama, item: [] }; urut.push(grup[k]); }
+    grup[k].item.push(x);
   });
-  el.innerHTML = html + '</tbody></table></div></div>';
+  let html = '<div class="ju-grid">';
+  urut.forEach(function (g) {
+    const tgl = g.item.map(function (x) { return x.t; }).filter(Boolean);
+    const awal = tgl.length ? hariSaja(tgl[0]) : null;
+    const akhir = tgl.length ? hariSaja(tgl[tgl.length - 1]) : null;
+    let status = null;
+    if (akhir && akhir < hariIni) status = { c: 'selesai', t: 'Selesai' };
+    else if (awal && awal <= hariIni) status = { c: 'jalan', t: 'Sedang berlangsung' };
+    else if (awal) { const n = Math.round((awal - hariIni) / 864e5); status = { c: 'akan', t: n === 1 ? 'Besok' : n + ' hari lagi' }; }
+    const rentang = awal ? (akhir.getTime() !== awal.getTime() ? _tglAk(awal) + ' \u2013 ' + _tglAk(akhir) : _tglAk(awal)) : 'Tanggal belum diatur';
+    const kelasList = _uniqAk(g.item.map(function (x) { return x.r; }), 'kelas').sort(_urutAngkaAk);
+    const detail = g.item.map(function (x) {
+      const r = x.r, t = x.t;
+      const meta = [];
+      if (isi(r.jam)) meta.push('<span><i class="far fa-clock"></i>' + _ak(r.jam) + '</span>');
+      if (isi(r.kelas)) meta.push('<span><i class="fas fa-users"></i>Kelas ' + _ak(r.kelas) + '</span>');
+      if (isi(r.ruang)) meta.push('<span><i class="fas fa-door-open"></i>' + _ak(r.ruang) + '</span>');
+      if (isi(r.pengawas)) meta.push('<span><i class="fas fa-user-tie"></i>Pengawas: ' + _ak(r.pengawas) + '</span>');
+      return '<div class="ju-row"><div class="ju-tgl">' + (t ? '<b>' + t.getDate() + '</b><span>' + BLN_PANJANG_AK[t.getMonth()].slice(0, 3) + '</span>' : '<b>--</b><span>&nbsp;</span>') + '</div>' +
+        '<div class="ju-isi"><p class="ju-mapel">' + _ak(isi(r.mapel) || g.nama) + '</p>' +
+        (t ? '<p class="ju-hari">' + HARI_AK[(t.getDay() + 6) % 7] + ', ' + _tglAk(t) + '</p>' : '') +
+        (meta.length ? '<div class="ju-meta">' + meta.join('') + '</div>' : '') + '</div></div>';
+    }).join('');
+    html += '<details class="ju-card' + (status && status.c === 'selesai' ? ' selesai' : '') + '">' +
+      '<summary><span class="ju-ic"><i class="fas fa-file-pen"></i></span>' +
+      '<span class="ju-main"><span class="ju-nama">' + _ak(g.nama) + '</span>' +
+      '<span class="ju-rentang"><i class="far fa-calendar"></i>' + rentang + '</span>' +
+      (kelasList.length ? '<span class="ju-kelas">' + kelasList.map(function (k) { return '<span>Kelas ' + _ak(k) + '</span>'; }).join('') + '</span>' : '') + '</span>' +
+      '<span class="ju-side">' + (status ? '<span class="ju-status ' + status.c + '">' + status.t + '</span>' : '<span></span>') +
+      '<span class="ju-lihat">Lihat detail' + (g.item.length > 1 ? ' (' + g.item.length + ')' : '') + '<i class="fas fa-chevron-down"></i></span></span></summary>' +
+      '<div class="ju-detail">' + detail + '</div></details>';
+  });
+  el.innerHTML = html + '</div>';
 }
 
 // ---------------------------------------------------------------
