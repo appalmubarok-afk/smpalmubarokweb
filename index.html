@@ -533,6 +533,7 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     </div>
 
     <button onclick="showSection('karya')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10">Karya</button>
+    <button onclick="showSection('donasi')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10"><i class="fas fa-hand-holding-heart mr-1.5 text-secondary"></i>Donasi</button>
     <button onclick="showSection('aplikasi')" class="block w-full text-left px-3 py-2.5 rounded-lg hover:bg-white/10">Aplikasi</button>
     <button id="nav-daftar-btn-mobile" onclick="klikPendaftaran()" class="block w-full text-left px-3 py-2.5 rounded-lg bg-secondary text-primary mt-2">Pendaftaran</button>
   </div>
@@ -1326,6 +1327,33 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     <div class="max-w-3xl mx-auto px-4 md:px-6 py-12">
       <button onclick="kembaliKeBeranda()" class="text-primary hover:text-primary-600 text-xs font-bold inline-flex items-center gap-1.5 mb-6"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
       <div id="sejarah-list"></div>
+    </div>
+  </section>
+
+  <!-- ================= DONASI ================= -->
+  <section id="section-donasi" class="app-section">
+    <div class="relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary to-primary-700 pt-14 pb-16 md:pt-16 md:pb-20 text-center px-4">
+      <div class="pointer-events-none absolute inset-0 opacity-[0.12]" style="background-image:radial-gradient(#fff 1px,transparent 1px);background-size:22px 22px"></div>
+      <div class="pointer-events-none absolute -top-20 -left-20 w-80 h-80 rounded-full bg-secondary/20 blur-3xl"></div>
+      <div class="pointer-events-none absolute -bottom-24 -right-16 w-96 h-96 rounded-full bg-white/10 blur-3xl"></div>
+      <i class="fas fa-hand-holding-heart pointer-events-none absolute left-[6%] top-12 text-6xl text-white/[0.06] -rotate-12 hidden md:block"></i>
+      <i class="fas fa-mosque pointer-events-none absolute right-[8%] top-16 text-7xl text-white/[0.06] hidden md:block"></i>
+      <i class="fas fa-heart pointer-events-none absolute right-[18%] bottom-8 text-5xl text-white/[0.06] rotate-6 hidden md:block"></i>
+      <div class="relative max-w-3xl mx-auto">
+        <span class="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-secondary text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full"><i class="fas fa-hand-holding-heart"></i> Infak &amp; Sedekah</span>
+        <h1 class="text-3xl md:text-5xl font-black text-white mt-4 leading-tight" id="donasi-judul">Donasi <span class="text-secondary">Sekolah</span></h1>
+        <p class="text-white/65 text-sm md:text-base mt-3 max-w-xl mx-auto" id="donasi-deskripsi">Mari berbagi kebaikan untuk kemajuan SMP Islam Terpadu Al Mubarok. Semoga menjadi amal jariyah yang terus mengalir.</p>
+        <p class="text-white/45 text-[11px] mt-4 font-semibold">Beranda / Donasi</p>
+      </div>
+    </div>
+    <div class="max-w-4xl mx-auto px-4 md:px-6 py-12">
+      <button onclick="kembaliKeBeranda()" class="text-primary hover:text-primary-600 text-xs font-bold inline-flex items-center gap-1.5 mb-6"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
+      <div id="donasi-ringkasan" class="mb-10"></div>
+      <h2 class="font-black text-primary text-lg md:text-xl mb-4"><i class="fas fa-building-columns text-secondary mr-2"></i>Rekening Donasi</h2>
+      <div id="donasi-rekening" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"></div>
+      <div id="donasi-konfirmasi" class="mb-12"></div>
+      <h2 class="font-black text-primary text-lg md:text-xl mb-4"><i class="fas fa-users text-secondary mr-2"></i>Donatur &amp; Hasil Donasi</h2>
+      <div id="donasi-daftar"></div>
     </div>
   </section>
 
@@ -2603,7 +2631,7 @@ function onDataLoaded(data) {
       }
     },
     renderGaleri, renderGaleriVideo, renderVirtualTour, renderVirtualTourBeranda, renderLiveStreaming,
-    renderKarya, renderKaryaBeranda, renderKepsek, renderFasilitas, renderLokasi, renderAkademik, renderSejarah
+    renderKarya, renderKaryaBeranda, renderKepsek, renderFasilitas, renderLokasi, renderAkademik, renderSejarah, renderDonasi
   ], function () {
     // Data YouTube diambil belakangan supaya tidak menghambat konten utama
     google.script.run.withSuccessHandler(onYoutubeDataLoaded).getYoutubeData();
@@ -2770,6 +2798,8 @@ function renderPengaturan() {
     if (!s.link) return;
     socialHtml += '<a href="' + s.link + '" target="_blank" rel="noopener" class="w-7 h-7 rounded-[9px] ' + s.bg + ' text-white flex items-center justify-center text-[11px] shadow-sm hover:scale-110 hover:shadow-md transition-transform"><i class="' + s.icon + '"></i></a>';
   });
+  // Tombol DONASI (setelah TikTok) -> buka halaman Donasi (rekening + daftar donatur)
+  socialHtml += '<button type="button" onclick="showSection(\'donasi\')" class="h-7 px-3 rounded-[9px] bg-secondary text-primary-800 flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider shadow-sm hover:scale-105 hover:shadow-md transition-transform"><i class="fas fa-hand-holding-heart"></i> Donasi</button>';
   document.getElementById('topbar-social').innerHTML = socialHtml;
   document.getElementById('footer-social').innerHTML = socialHtml;
 }
@@ -4705,6 +4735,7 @@ const SECTION_JUDUL = {
   ppdb: 'PPDB',
   aplikasi: 'Aplikasi',
   sejarah: 'Sejarah Sekolah',
+  donasi: 'Donasi',
   kalender: 'Kalender Akademik',
   jadwalpelajaran: 'Jadwal Pelajaran',
   jadwalujian: 'Jadwal Ujian',
@@ -5516,6 +5547,8 @@ const ADMIN_SHEETS = [
   { key: 'jadwal_ujian', sheet: 'JadwalUjian', label: 'Jadwal Ujian', icon: 'fas fa-file-pen', fields: ['jenis_ujian', 'kelas', 'tanggal', 'jam', 'mapel', 'ruang', 'pengawas'] },
   { key: 'dokumen_akademik', sheet: 'DokumenAkademik', label: 'Dokumen Akademik (PDF/Foto)', icon: 'fas fa-file-pdf', fields: ['jenis', 'judul', 'tahun_ajaran', 'kelas', 'file'] },
   { key: 'sejarah', sheet: 'Sejarah', label: 'Sejarah Sekolah', icon: 'fas fa-landmark', fields: ['tahun', 'judul', 'isi', 'foto'] },
+  { key: 'donasi', sheet: 'Donasi', label: 'Donasi (Daftar Donatur)', icon: 'fas fa-hand-holding-heart', fields: ['nama_donatur', 'jumlah', 'tanggal', 'keterangan'] },
+  { key: 'rekening_donasi', sheet: 'RekeningDonasi', label: 'Rekening Donasi', icon: 'fas fa-building-columns', fields: ['bank', 'nomor_rekening', 'atas_nama', 'keterangan'] },
   { key: 'guru', sheet: 'Guru', label: 'Guru & Staf', icon: 'fas fa-chalkboard-user', fields: ['nama', 'jabatan', 'mapel', 'nip', 'foto'] },
   { key: 'program', sheet: 'Program', label: 'Program', icon: 'fas fa-star', fields: ['nama_program', 'deskripsi', 'icon', 'foto'] },
   { key: 'ekstrakurikuler', sheet: 'Ekstrakurikuler', label: 'Ekstrakurikuler', icon: 'fas fa-futbol', fields: ['nama_ekskul', 'deskripsi', 'pembina', 'jadwal', 'foto'] },
@@ -5901,7 +5934,7 @@ function openAdminForm(row) {
     // KHUSUS FORM AGENDA (Kegiatan): tanggal & jam pakai date/time
     // picker bawaan browser, kategori pakai dropdown pilihan -> jadi
     // admin tinggal pilih, tidak perlu ketik manual lagi.
-    if (['kegiatan', 'kalender_akademik', 'jadwal_ujian'].indexOf(adminActiveSheet.key) !== -1 && ['tanggal', 'tanggal_mulai', 'tanggal_selesai', 'jam'].indexOf(f) !== -1) {
+    if (['kegiatan', 'kalender_akademik', 'jadwal_ujian', 'donasi'].indexOf(adminActiveSheet.key) !== -1 && ['tanggal', 'tanggal_mulai', 'tanggal_selesai', 'jam'].indexOf(f) !== -1) {
       const tipeInput = f === 'jam' ? 'time' : 'date';
       const valInput = f === 'jam' ? jamKeInputTime_(val) : tanggalKeInputDate_(val);
       return '<label class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1.5">' + f + '</label>' +
@@ -6054,7 +6087,7 @@ function terapkanDataSenyap_(data) {
   renderPengaturan(); renderStatistik(); renderMenuAplikasi(); renderProfil(); renderGuru(); renderProgram(); renderEkstrakurikuler();
   renderPrestasi(); renderAlumni(); renderKegiatan(); renderArtikel(); renderGaleri(); renderGaleriVideo();
   renderVirtualTour(); renderLiveStreaming();
-  renderKarya(); renderKaryaBeranda(); renderVirtualTourBeranda(); renderAkademik(); renderSejarah();
+  renderKarya(); renderKaryaBeranda(); renderVirtualTourBeranda(); renderAkademik(); renderSejarah(); renderDonasi();
   if (adminActiveSheet) {
     if (adminActiveSheet.khusus === 'splash') { renderSplashAdminPanel(); }
     else if (adminActiveSheet.khusus === 'pendaftaran') { renderPendaftaranAdminPanel(); }
@@ -6253,6 +6286,92 @@ function renderSejarah() {
     }).join('') + '</div>';
   }
   el.innerHTML = html;
+}
+
+// ---------------------------------------------------------------
+// DONASI (sheet Donasi: nama_donatur, jumlah, tanggal, keterangan
+//         + sheet RekeningDonasi: bank, nomor_rekening, atas_nama, keterangan)
+// Opsional di sheet Pengaturan: donasi_judul, donasi_deskripsi, donasi_target
+// ---------------------------------------------------------------
+function _rupiahDonasi_(n) { return 'Rp ' + (Number(n) || 0).toLocaleString('id-ID'); }
+function _angkaDonasi_(v) {
+  if (typeof v === 'number') return v;
+  return parseInt(String(v == null ? '' : v).replace(/[^\d]/g, ''), 10) || 0;
+}
+function salinRekeningDonasi(nomor, tombol) {
+  const sukses = function () {
+    if (!tombol) return;
+    const awal = tombol.innerHTML;
+    tombol.innerHTML = '<i class="fas fa-check mr-1"></i>Tersalin';
+    setTimeout(function () { tombol.innerHTML = awal; }, 1800);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(nomor).then(sukses, function () { prompt('Salin nomor rekening:', nomor); });
+  } else {
+    prompt('Salin nomor rekening:', nomor);
+  }
+}
+function renderDonasi() {
+  const elRingkas = document.getElementById('donasi-ringkasan'); if (!elRingkas) return;
+  const judul = cfg('donasi_judul', '');
+  if (judul) document.getElementById('donasi-judul').textContent = judul;
+  const desk = cfg('donasi_deskripsi', '');
+  if (desk) document.getElementById('donasi-deskripsi').textContent = desk;
+
+  const donasi = (DB.donasi || []).slice().sort(function (a, b) { return b._rowId - a._rowId; });
+  const rekening = DB.rekening_donasi || [];
+  const total = donasi.reduce(function (t, r) { return t + _angkaDonasi_(r.jumlah); }, 0);
+  const target = _angkaDonasi_(cfg('donasi_target', ''));
+
+  // Ringkasan: total terkumpul, jumlah donatur, progres target (kalau diisi)
+  let ring = '<div class="grid grid-cols-2 gap-4">' +
+    '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 text-center"><p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Donasi Terkumpul</p><p class="text-xl md:text-3xl font-black text-primary mt-1">' + _rupiahDonasi_(total) + '</p></div>' +
+    '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 text-center"><p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Jumlah Donatur</p><p class="text-xl md:text-3xl font-black text-primary mt-1">' + donasi.length + '</p></div></div>';
+  if (target > 0) {
+    const persen = Math.min(100, Math.round(total * 100 / target));
+    ring += '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mt-4"><div class="flex justify-between text-xs font-bold text-slate-500 mb-2"><span>Target: ' + _rupiahDonasi_(target) + '</span><span class="text-primary">' + persen + '%</span></div>' +
+      '<div class="w-full h-3 rounded-full bg-slate-100 overflow-hidden"><div class="h-full rounded-full bg-secondary" style="width:' + persen + '%"></div></div></div>';
+  }
+  elRingkas.innerHTML = ring;
+
+  // Rekening
+  const elRek = document.getElementById('donasi-rekening');
+  if (!rekening.length) {
+    elRek.innerHTML = '<div class="md:col-span-2">' + _kosongAk('Nomor rekening donasi belum tersedia.') + '</div>';
+  } else {
+    elRek.innerHTML = rekening.map(function (r, i) {
+      const nomor = String(r.nomor_rekening == null ? '' : r.nomor_rekening).trim();
+      return '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">' +
+        '<div class="flex items-center gap-3 mb-3"><span class="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center"><i class="fas fa-building-columns"></i></span>' +
+        '<span class="font-black text-primary text-base">' + _ak(r.bank) + '</span></div>' +
+        '<p class="text-2xl font-black text-slate-700 tracking-wider break-all">' + _ak(nomor) + '</p>' +
+        '<p class="text-xs text-slate-500 mt-1">a.n. <b>' + _ak(r.atas_nama) + '</b></p>' +
+        (r.keterangan ? '<p class="text-[11px] text-slate-400 mt-2 whitespace-pre-line">' + _ak(r.keterangan) + '</p>' : '') +
+        '<button type="button" data-rek-idx="' + i + '" class="mt-4 px-4 py-2 rounded-xl bg-primary hover:bg-primary-600 text-white text-[11px] font-black uppercase tracking-widest transition-colors"><i class="fas fa-copy mr-1"></i>Salin Nomor</button></div>';
+    }).join('');
+    elRek.querySelectorAll('[data-rek-idx]').forEach(function (btn) {
+      btn.onclick = function () { salinRekeningDonasi(String(rekening[btn.getAttribute('data-rek-idx')].nomor_rekening || '').trim(), btn); };
+    });
+  }
+
+  // Tombol konfirmasi via WhatsApp (pakai nomor wa_number yang sudah ada)
+  const wa = String(cfg('wa_number', '6285936157246')).replace(/\D/g, '');
+  const teksWa = encodeURIComponent('Assalamualaikum, saya sudah berdonasi untuk SMP IT Al Mubarok.\nNama: \nJumlah: Rp \nBank pengirim: \n(Bukti transfer saya lampirkan)');
+  document.getElementById('donasi-konfirmasi').innerHTML = wa ?
+    '<a href="https://wa.me/' + wa + '?text=' + teksWa + '" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-[#25D366] hover:brightness-95 text-white text-xs font-black uppercase tracking-widest shadow-sm transition"><i class="fab fa-whatsapp text-base"></i> Konfirmasi Donasi via WhatsApp</a>' : '';
+
+  // Daftar donatur (terbaru di atas)
+  const elDaftar = document.getElementById('donasi-daftar');
+  if (!donasi.length) { elDaftar.innerHTML = _kosongAk('Belum ada data donasi.'); return; }
+  elDaftar.innerHTML = '<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden divide-y divide-slate-100">' + donasi.map(function (r) {
+    const nama = String(r.nama_donatur || '').trim() || 'Hamba Allah';
+    return '<div class="flex items-start gap-3 p-4">' +
+      '<span class="w-10 h-10 flex-shrink-0 rounded-full bg-primary-50 text-primary flex items-center justify-center font-black text-sm">' + _ak(nama.charAt(0).toUpperCase()) + '</span>' +
+      '<div class="flex-1 min-w-0"><div class="flex justify-between gap-3 flex-wrap"><span class="font-black text-sm text-slate-700">' + _ak(nama) + '</span>' +
+      '<span class="font-black text-sm text-primary">' + _rupiahDonasi_(_angkaDonasi_(r.jumlah)) + '</span></div>' +
+      (r.tanggal ? '<p class="text-[11px] text-slate-400 mt-0.5">' + _ak(r.tanggal) + '</p>' : '') +
+      (r.keterangan ? '<p class="text-xs text-slate-500 mt-1.5 whitespace-pre-line">' + _ak(r.keterangan) + '</p>' : '') + '</div></div>';
+  }).join('') + '</div>';
 }
 
 // Link rahasia admin (?akses=KODE): tunggu splash selesai, lalu buka panel
