@@ -488,6 +488,16 @@ html,body{top:0!important;margin-top:0!important}
 .dn-empty h4{margin:14px 0 4px;font-size:16px;font-weight:900;color:#1f287d}
 .dn-empty p{margin:0 auto;max-width:26rem;font-size:13px;line-height:1.6;color:#64748b}
 .dn-empty .dn-btn{margin-top:16px}
+.dn-quote{display:block;text-align:center;padding:22px 24px}
+.dn-quote-ic{display:block;margin:0 auto 12px}
+.dn-quote .dn-ar{font-family:"Amiri","Scheherazade New","Traditional Arabic",serif;font-size:24px;line-height:2.1;color:#5c4500;font-weight:400;margin:0 0 12px}
+.dn-quote .dn-id{font-size:14px;line-height:1.7;color:#6b5400;font-weight:600}
+.dn-quote .dn-id span{margin-top:4px}
+.dn-quote-sep{height:1px;background:#f3dd8a;margin:18px auto;width:60%}
+@media(max-width:640px){.dn-quote{padding:18px 16px}.dn-quote .dn-ar{font-size:20px}}
+body.mode-gelap #section-donasi .dn-quote .dn-ar{color:#ffe58a}
+body.mode-gelap #section-donasi .dn-quote .dn-id{color:#ffe58a}
+body.mode-gelap #section-donasi .dn-quote-sep{background:#4a3e12}
 /* mode gelap */
 body.mode-gelap #section-donasi{background:linear-gradient(180deg,#0b1020 0,#0f172a 420px)}
 body.mode-gelap #section-donasi .dn-step,body.mode-gelap #section-donasi .dn-empty,body.mode-gelap #section-donasi .dn-chip{background:#161f36;border-color:#24304f}
@@ -1520,7 +1530,13 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
     <div class="dn-wrap">
       <button onclick="kembaliKeBeranda()" class="text-primary hover:text-primary-600 text-xs font-bold inline-flex items-center gap-1.5 mb-6"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</button>
       <div id="donasi-ringkasan"></div>
-      <div class="dn-quote"><i class="fas fa-quote-left"></i><p>&ldquo;Sedekah tidak akan mengurangi harta.&rdquo;<span>(HR. Muslim)</span></p></div>
+      <div class="dn-quote">
+        <i class="fas fa-quote-left dn-quote-ic"></i>
+        <p class="dn-ar" dir="rtl" lang="ar">&#x645;&#x64E;&#x651;&#x62B;&#x64E;&#x644;&#x64F; &#x671;&#x644;&#x64E;&#x651;&#x630;&#x650;&#x64A;&#x646;&#x64E; &#x64A;&#x64F;&#x646;&#x641;&#x650;&#x642;&#x64F;&#x648;&#x646;&#x64E; &#x623;&#x64E;&#x645;&#x652;&#x648;&#x64E;&#x670;&#x644;&#x64E;&#x647;&#x64F;&#x645;&#x652; &#x641;&#x650;&#x649; &#x633;&#x64E;&#x628;&#x650;&#x64A;&#x644;&#x650; &#x671;&#x644;&#x644;&#x64E;&#x651;&#x647;&#x650; &#x643;&#x64E;&#x645;&#x64E;&#x62B;&#x64E;&#x644;&#x650; &#x62D;&#x64E;&#x628;&#x64E;&#x651;&#x629;&#x64D; &#x623;&#x64E;&#x646;&#x6E2;&#x628;&#x64E;&#x62A;&#x64E;&#x62A;&#x652; &#x633;&#x64E;&#x628;&#x652;&#x639;&#x64E; &#x633;&#x64E;&#x646;&#x64E;&#x627;&#x628;&#x650;&#x644;&#x64E; &#x641;&#x650;&#x649; &#x643;&#x64F;&#x644;&#x650;&#x651; &#x633;&#x64F;&#x646;&#x6E2;&#x628;&#x64F;&#x644;&#x64E;&#x629;&#x64D; &#x645;&#x650;&#x651;&#x627;&#x6DF;&#x626;&#x64E;&#x629;&#x64F; &#x62D;&#x64E;&#x628;&#x64E;&#x651;&#x629;&#x64D; &#x6D7; &#x648;&#x64E;&#x671;&#x644;&#x644;&#x64E;&#x651;&#x647;&#x64F; &#x64A;&#x64F;&#x636;&#x64E;&#x640;&#x670;&#x639;&#x650;&#x641;&#x64F; &#x644;&#x650;&#x645;&#x64E;&#x646; &#x64A;&#x64E;&#x634;&#x64E;&#x622;&#x621;&#x64F; &#x6D7; &#x648;&#x64E;&#x671;&#x644;&#x644;&#x64E;&#x651;&#x647;&#x64F; &#x648;&#x64E;&#x670;&#x633;&#x650;&#x639;&#x64C; &#x639;&#x64E;&#x644;&#x650;&#x64A;&#x645;&#x64C;</p>
+        <p class="dn-id">&ldquo;Perumpamaan orang yang menginfakkan hartanya di jalan Allah seperti sebutir biji yang menumbuhkan tujuh tangkai, pada setiap tangkai ada seratus biji. Allah melipatgandakan (pahala) bagi siapa yang Dia kehendaki, dan Allah Maha Luas, Maha Mengetahui.&rdquo;<span>(QS. Al-Baqarah: 261)</span></p>
+        <div class="dn-quote-sep"></div>
+        <p class="dn-id">&ldquo;Apabila manusia meninggal dunia, terputuslah amalnya kecuali tiga: sedekah jariyah, ilmu yang bermanfaat, atau anak saleh yang mendoakannya.&rdquo;<span>(HR. Muslim)</span></p>
+      </div>
 
       <h2 class="dn-h2"><i class="fas fa-route"></i>Berdonasi dalam 3 Langkah Mudah</h2>
       <div class="dn-steps">
