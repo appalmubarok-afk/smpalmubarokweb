@@ -2339,7 +2339,7 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
   <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
     <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
       <i class="fas fa-magnifying-glass text-slate-400"></i>
-      <input id="input-pencarian" type="text" placeholder="Cari artikel, agenda, program, ekskul, prestasi..." class="flex-1 min-w-0 text-sm focus:outline-none" oninput="prosesPencarian(this.value)">
+      <input id="input-pencarian" type="text" placeholder="Cari apa saja: aplikasi, artikel, guru, program, jadwal..." autocomplete="off" class="flex-1 min-w-0 text-sm focus:outline-none" oninput="prosesPencarian(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();jalankanHasilCari_(0);}else if(event.key==='Escape'){tutupPencarian();}">
       <button onclick="tutupPencarian()" class="text-slate-400 hover:text-slate-600 text-xl leading-none">&times;</button>
     </div>
     <div id="hasil-pencarian" class="max-h-[60vh] overflow-y-auto divide-y divide-slate-100">
@@ -5212,47 +5212,179 @@ function toggleModeGelap() {
 })();
 
 // ---------------------------------------------------------------
-// PENCARIAN CEPAT (Artikel, Kegiatan, Program, Ekstrakurikuler, Prestasi)
+// PENCARIAN MENYELURUH (semua data + halaman website)
 // ---------------------------------------------------------------
 function bukaPencarian() {
   document.getElementById('modal-pencarian').classList.remove('hidden');
   const input = document.getElementById('input-pencarian');
   input.value = '';
-  document.getElementById('hasil-pencarian').innerHTML = '<p class="text-xs text-slate-400 text-center py-8">Ketik untuk mulai mencari.</p>';
+  prosesPencarian('');
   setTimeout(function () { input.focus(); }, 50);
 }
 function tutupPencarian() {
   document.getElementById('modal-pencarian').classList.add('hidden');
 }
+
+// Pencarian menyeluruh: SEMUA data (aplikasi, artikel, agenda, guru, program, ekskul, prestasi, alumni,
+// fasilitas, galeri, video, karya, jadwal, kalender, sejarah, profil) + halaman-halaman website.
+// Mencari di judul DAN isi, tidak peduli huruf besar/kecil atau tanda baca, dan boleh lebih dari satu kata.
+let _hasilCari_ = [];
+function _normCari_(t) {
+  return String(t == null ? '' : t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\u0600-\u06ff\s]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function _teksBarisCari_(r) {
+  const abaikanKey = /^(_|password|username|foto|gambar|file|link|url|icon|ikon|token|tampil|urutan|suka|dilihat)/i;
+  let out = [];
+  Object.keys(r || {}).forEach(function (k) {
+    if (abaikanKey.test(k)) return;
+    const v = r[k];
+    if (v == null || typeof v === 'object') return;
+    const t = String(v);
+    if (!t || /^(https?:|data:|blob:)/i.test(t) || /^[\w-]{28,}$/.test(t)) return;
+    out.push(t.length > 1500 ? t.slice(0, 1500) : t);
+  });
+  return out.join(' \u00b7 ');
+}
+function _sumberCari_() {
+  const bukaDetail = function (jenis) { return function (r) { return function () { bukaDetailUmum(jenis, r._rowId); }; }; };
+  const keSection = function (nm) { return function () { showSection(nm); }; };
+  const dgnPencarian = function (nm, inputId, fn, field) {
+    return function (r) { return function () {
+      showSection(nm);
+      const el = document.getElementById(inputId);
+      if (el) { el.value = field(r); }
+      try { window[fn](field(r)); } catch (e) {}
+    }; };
+  };
+  return [
+    { label: 'Aplikasi', ikon: 'fa-table-cells-large', rows: (DB.menu || []).filter(function (m) { const t = (m.tampil || '').toString().toLowerCase(); return t !== 'tidak' && t !== 'no' && t !== '0' && t !== 'false'; }),
+      judul: function (r) { return r.nama_menu; },
+      aksi: function (r) { return function () {
+        const link = (r.link || '').toString().trim();
+        if (link) { window.open(link, '_blank', 'noopener'); return; }
+        showSection('aplikasi');
+        const el = document.getElementById('aplikasi-cari'); if (el) el.value = r.nama_menu || '';
+        setCariAplikasi_(r.nama_menu || '');
+      }; } },
+    { label: 'Artikel', ikon: 'fa-newspaper', rows: DB.artikel, judul: function (r) { return r.judul; }, aksi: function (r) { return function () { openArtikelDetail(r._rowId); }; } },
+    { label: 'Agenda', ikon: 'fa-calendar-days', rows: DB.kegiatan, judul: function (r) { return r.judul; }, aksi: bukaDetail('kegiatan') },
+    { label: 'Program', ikon: 'fa-star', rows: DB.program, judul: function (r) { return r.nama_program; }, aksi: bukaDetail('program') },
+    { label: 'Ekstrakurikuler', ikon: 'fa-futbol', rows: DB.ekstrakurikuler, judul: function (r) { return r.nama_ekskul || r.nama; }, aksi: bukaDetail('ekstrakurikuler') },
+    { label: 'Prestasi', ikon: 'fa-trophy', rows: DB.prestasi, judul: function (r) { return r.nama_prestasi || r.judul; }, aksi: bukaDetail('prestasi') },
+    { label: 'Alumni', ikon: 'fa-user-graduate', rows: DB.alumni, judul: function (r) { return r.nama; }, aksi: bukaDetail('alumni') },
+    { label: 'Guru & Staf', ikon: 'fa-chalkboard-user', rows: DB.guru, judul: function (r) { return r.nama; }, aksi: function () { return keSection('guru'); } },
+    { label: 'Fasilitas', ikon: 'fa-school', rows: DB.fasilitas, judul: function (r) { return r.nama_fasilitas; }, aksi: function () { return keSection('fasilitas'); } },
+    { label: 'Galeri Foto', ikon: 'fa-images', rows: DB.galeri, judul: function (r) { return r.judul; }, aksi: function () { return keSection('galeri'); } },
+    { label: 'Galeri Video', ikon: 'fa-video', rows: DB.galeri_video, judul: function (r) { return r.judul; }, aksi: function () { return keSection('galerivideo'); } },
+    { label: 'Virtual Tour', ikon: 'fa-street-view', rows: DB.virtual_tour, judul: function (r) { return r.judul; }, aksi: function () { return keSection('virtualtour'); } },
+    { label: 'Live Streaming', ikon: 'fa-tower-broadcast', rows: DB.live_streaming, judul: function (r) { return r.judul; }, aksi: function () { return keSection('livestreaming'); } },
+    { label: 'Karya', ikon: 'fa-palette', rows: DB.karya, judul: function (r) { return r.judul_karya; },
+      aksi: function (r) { return function () {
+        showSection('karya');
+        const el = document.getElementById('karya-cari'); if (el) el.value = r.judul_karya || '';
+        try { setCariKarya_(r.judul_karya || ''); } catch (e) {}
+      }; } },
+    { label: 'Kalender Akademik', ikon: 'fa-calendar-check', rows: DB.kalender_akademik, judul: function (r) { return r.kegiatan; }, aksi: function () { return keSection('kalender'); } },
+    { label: 'Jadwal Pelajaran', ikon: 'fa-table-list', rows: DB.jadwal_pelajaran, judul: function (r) { return [r.mapel, r.kelas ? ('Kelas ' + r.kelas) : '', r.hari].filter(Boolean).join(' - '); }, aksi: function () { return keSection('jadwalpelajaran'); } },
+    { label: 'Jadwal Ujian', ikon: 'fa-file-pen', rows: DB.jadwal_ujian, judul: function (r) { return [r.jenis_ujian, r.mapel, r.kelas ? ('Kelas ' + r.kelas) : ''].filter(Boolean).join(' - '); }, aksi: function () { return keSection('jadwalujian'); } },
+    { label: 'Sejarah', ikon: 'fa-landmark', rows: DB.sejarah, judul: function (r) { return (r.tahun ? (r.tahun + ' - ') : '') + (r.judul || ''); }, aksi: function () { return keSection('sejarah'); } },
+    { label: 'Profil', ikon: 'fa-building-columns', rows: DB.profil, judul: function (r) { return String(r.section || 'Profil Sekolah').replace(/_/g, ' '); }, aksi: function () { return keSection('sambutan'); } }
+  ];
+}
+const _HALAMAN_CARI_ = [
+  { judul: 'Beranda', kunci: 'home utama banner', ikon: 'fa-house', aksi: function () { showSection('beranda'); } },
+  { judul: 'Pendaftaran Siswa Baru (PPDB)', kunci: 'daftar ppdb spmb siswa baru registrasi', ikon: 'fa-user-plus', aksi: function () { klikPendaftaran(); } },
+  { judul: 'Donasi', kunci: 'infak sedekah amal rekening transfer donatur konfirmasi', ikon: 'fa-hand-holding-heart', aksi: function () { showSection('donasi'); } },
+  { judul: 'Aplikasi Sekolah', kunci: 'aplikasi menu layanan link', ikon: 'fa-table-cells-large', aksi: function () { showSection('aplikasi'); } },
+  { judul: 'Jadwal Sholat', kunci: 'sholat salat shalat adzan waktu subuh dzuhur ashar maghrib isya rakaat', ikon: 'fa-mosque', aksi: function () { showSection('beranda'); setTimeout(function () { scrollToId('jadwal-sholat-grid'); }, 250); } },
+  { judul: 'Sambutan, Visi & Misi', kunci: 'kepala sekolah visi misi profil tentang', ikon: 'fa-building-columns', aksi: function () { showSection('sambutan'); } },
+  { judul: 'Sejarah Sekolah', kunci: 'sejarah berdiri', ikon: 'fa-landmark', aksi: function () { showSection('sejarah'); } },
+  { judul: 'Guru & Staf', kunci: 'guru staf pengajar tenaga pendidik', ikon: 'fa-chalkboard-user', aksi: function () { showSection('guru'); } },
+  { judul: 'Fasilitas', kunci: 'fasilitas sarana prasarana', ikon: 'fa-school', aksi: function () { showSection('fasilitas'); } },
+  { judul: 'Program Unggulan', kunci: 'program unggulan', ikon: 'fa-star', aksi: function () { showSection('program'); } },
+  { judul: 'Ekstrakurikuler', kunci: 'ekskul ekstrakurikuler kegiatan siswa pramuka', ikon: 'fa-futbol', aksi: function () { showSection('ekstrakurikuler'); } },
+  { judul: 'Prestasi', kunci: 'prestasi juara lomba', ikon: 'fa-trophy', aksi: function () { showSection('prestasi'); } },
+  { judul: 'Alumni', kunci: 'alumni lulusan', ikon: 'fa-user-graduate', aksi: function () { showSection('alumni'); } },
+  { judul: 'Agenda Kegiatan', kunci: 'agenda kegiatan acara', ikon: 'fa-calendar-days', aksi: function () { showSection('kegiatan'); } },
+  { judul: 'Artikel & Berita', kunci: 'artikel berita info', ikon: 'fa-newspaper', aksi: function () { showSection('artikel'); } },
+  { judul: 'Kalender Akademik', kunci: 'kalender akademik libur semester tahun ajaran', ikon: 'fa-calendar-check', aksi: function () { showSection('kalender'); } },
+  { judul: 'Jadwal Pelajaran', kunci: 'jadwal pelajaran mapel kelas', ikon: 'fa-table-list', aksi: function () { showSection('jadwalpelajaran'); } },
+  { judul: 'Jadwal Ujian', kunci: 'jadwal ujian pts pas asesmen', ikon: 'fa-file-pen', aksi: function () { showSection('jadwalujian'); } },
+  { judul: 'Galeri Foto', kunci: 'galeri foto gambar', ikon: 'fa-images', aksi: function () { showSection('galeri'); } },
+  { judul: 'Galeri Video', kunci: 'video youtube', ikon: 'fa-video', aksi: function () { showSection('galerivideo'); } },
+  { judul: 'Virtual Tour 360\u00b0', kunci: 'virtual tour 360 keliling sekolah', ikon: 'fa-street-view', aksi: function () { showSection('virtualtour'); } },
+  { judul: 'Live Streaming', kunci: 'live streaming siaran langsung', ikon: 'fa-tower-broadcast', aksi: function () { showSection('livestreaming'); } },
+  { judul: 'Karya Siswa', kunci: 'karya siswa cerpen puisi', ikon: 'fa-palette', aksi: function () { showSection('karya'); } },
+  { judul: 'Pengaturan Aksesibilitas', kunci: 'aksesibilitas teks besar kontras font disleksia suara', ikon: 'fa-universal-access', aksi: function () { try { document.getElementById('a11y-fab').click(); } catch (e) {} } }
+];
 function prosesPencarian(kata) {
   const hasilEl = document.getElementById('hasil-pencarian');
-  const q = (kata || '').toLowerCase().trim();
-  if (!q) { hasilEl.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">Ketik untuk mulai mencari.</p>'; return; }
+  const qn = _normCari_(kata);
+  const tokens = qn ? qn.split(' ') : [];
+  _hasilCari_ = [];
 
-  const sumberPencarian = [
-    { jenis: 'artikel', label: 'Artikel', rows: DB.artikel || [], judulField: 'judul', aksi: function (r) { return 'openArtikelDetail(' + r._rowId + ')'; } },
-    { jenis: 'kegiatan', label: 'Agenda', rows: DB.kegiatan || [], judulField: 'judul', aksi: function (r) { return 'bukaDetailUmum(\'kegiatan\',' + r._rowId + ')'; } },
-    { jenis: 'program', label: 'Program', rows: DB.program || [], judulField: 'nama_program', aksi: function (r) { return 'bukaDetailUmum(\'program\',' + r._rowId + ')'; } },
-    { jenis: 'ekstrakurikuler', label: 'Ekstrakurikuler', rows: DB.ekstrakurikuler || [], judulField: 'nama_ekskul', aksi: function (r) { return 'bukaDetailUmum(\'ekstrakurikuler\',' + r._rowId + ')'; } },
-    { jenis: 'prestasi', label: 'Prestasi', rows: DB.prestasi || [], judulField: 'nama_prestasi', aksi: function (r) { return 'bukaDetailUmum(\'prestasi\',' + r._rowId + ')'; } }
-  ];
+  if (!tokens.length) {
+    const pintasan = ['Pendaftaran Siswa Baru (PPDB)', 'Aplikasi Sekolah', 'Jadwal Sholat', 'Donasi', 'Artikel & Berita', 'Guru & Staf'];
+    _hasilCari_ = _HALAMAN_CARI_.filter(function (h) { return pintasan.indexOf(h.judul) !== -1; }).map(function (h) { return { label: 'Halaman', ikon: h.ikon, judul: h.judul, cuplikan: '', aksi: h.aksi }; });
+    hasilEl.innerHTML = '<p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest px-4 pt-4 pb-2">Pintasan</p>' + _renderHasilCari_();
+    return;
+  }
 
-  let hasil = [];
-  sumberPencarian.forEach(function (sumber) {
-    sumber.rows.forEach(function (r) {
-      const judul = (r[sumber.judulField] || r.judul || '-').toString();
-      if (judul.toLowerCase().indexOf(q) !== -1) hasil.push({ label: sumber.label, judul: judul, aksi: sumber.aksi(r) });
+  const cocok = function (teks) { return tokens.every(function (t) { return teks.indexOf(t) !== -1; }); };
+  const kandidat = [];
+
+  _HALAMAN_CARI_.forEach(function (h) {
+    const tj = _normCari_(h.judul), tk = _normCari_(h.judul + ' ' + h.kunci);
+    if (cocok(tk)) kandidat.push({ skor: tokens.every(function (t) { return tj.indexOf(t) !== -1; }) ? 5 : 3, label: 'Halaman', ikon: h.ikon, judul: h.judul, cuplikan: '', aksi: h.aksi });
+  });
+
+  _sumberCari_().forEach(function (sumber) {
+    (sumber.rows || []).forEach(function (r) {
+      const judul = String(sumber.judul(r) || '').trim() || '-';
+      const tj = _normCari_(judul);
+      const semua = _teksBarisCari_(r);
+      const ts = _normCari_(semua);
+      if (!cocok(tj + ' ' + ts)) return;
+      let skor = 1, cuplikan = '';
+      if (tj === qn) skor = 6;
+      else if (tj.indexOf(qn) === 0) skor = 5;
+      else if (tj.indexOf(qn) !== -1) skor = 4;
+      else if (cocok(tj)) skor = 3;
+      else {
+        const pos = semua.toLowerCase().indexOf(tokens[0]);
+        if (pos >= 0) {
+          const mulai = Math.max(0, pos - 30);
+          cuplikan = (mulai > 0 ? '\u2026' : '') + semua.slice(mulai, mulai + 90).replace(/\s+/g, ' ') + '\u2026';
+        }
+      }
+      kandidat.push({ skor: skor, label: sumber.label, ikon: sumber.ikon, judul: judul, cuplikan: cuplikan, aksi: sumber.aksi(r) });
     });
   });
-  hasil = hasil.slice(0, 20);
 
-  if (!hasil.length) { hasilEl.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">Tidak ada hasil untuk "' + kata + '".</p>'; return; }
+  kandidat.sort(function (a, b) { return b.skor - a.skor; });
+  _hasilCari_ = kandidat.slice(0, 30);
 
-  hasilEl.innerHTML = hasil.map(function (h) {
-    return '<button onclick="tutupPencarian();' + h.aksi + '" class="w-full text-left px-4 py-3 hover:bg-slate-50 flex items-center justify-between gap-3">' +
-      '<span class="text-xs font-bold text-primary truncate">' + h.judul + '</span>' +
-      '<span class="text-[10px] text-slate-400 uppercase tracking-widest flex-shrink-0">' + h.label + '</span></button>';
+  if (!_hasilCari_.length) {
+    hasilEl.innerHTML = '<div class="text-center py-8 px-4"><p class="text-sm font-bold text-slate-500">Tidak ada hasil untuk &quot;' + _ak(kata) + '&quot;</p>' +
+      '<p class="text-xs text-slate-400 mt-1">Coba kata kunci lain yang lebih singkat, atau periksa ejaannya.</p></div>';
+    return;
+  }
+  hasilEl.innerHTML = '<p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest px-4 pt-3 pb-1">' + _hasilCari_.length + ' hasil ditemukan</p>' + _renderHasilCari_();
+}
+function _renderHasilCari_() {
+  return _hasilCari_.map(function (h, i) {
+    return '<button type="button" onclick="jalankanHasilCari_(' + i + ')" class="w-full text-left px-4 py-3 hover:bg-slate-50 focus:bg-slate-50 focus:outline-none flex items-center gap-3">' +
+      '<span class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0"><i class="fas ' + _ak(h.ikon || 'fa-magnifying-glass') + ' text-sm"></i></span>' +
+      '<span class="flex-1 min-w-0"><span class="block text-xs font-bold text-primary truncate">' + _ak(h.judul) + '</span>' +
+      (h.cuplikan ? '<span class="block text-[11px] text-slate-400 truncate mt-0.5">' + _ak(h.cuplikan) + '</span>' : '') + '</span>' +
+      '<span class="text-[10px] text-slate-400 uppercase tracking-widest flex-shrink-0">' + _ak(h.label) + '</span></button>';
   }).join('');
+}
+function jalankanHasilCari_(i) {
+  const h = _hasilCari_[i];
+  if (!h) return;
+  tutupPencarian();
+  try { h.aksi(); } catch (e) { console.error(e); }
 }
 function scrollToId(id) { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 function closeModal(id) { const el = document.getElementById(id); el.classList.add('hidden'); el.classList.remove('flex'); }
