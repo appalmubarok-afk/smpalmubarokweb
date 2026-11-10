@@ -3,6 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- MODE CMS: alamat ?page=cms membuka halaman login + dashboard CMS tersendiri.
+     Hanya menambah kelas pada <html>; tanpa ?page=cms website tampil seperti biasa. -->
+<script>
+(function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    if (q.get('page') === 'cms') {
+      var h = document.documentElement;
+      h.classList.add('mode-cms');
+      if (sessionStorage.getItem('smpAdminSesiV1')) h.classList.add('cms-masuk');
+      var m = document.createElement('meta');
+      m.name = 'robots'; m.content = 'noindex,nofollow';
+      document.head.appendChild(m);
+    }
+  } catch (e) {}
+})();
+</script>
 
 <!-- Favicon -->
 <link rel="icon" type="image/png" href="/logo.png">
@@ -642,6 +659,33 @@ body.mode-gelap .ju-stop .ju-card.aktif{border-color:#b7860b}
      yang mengunduh ratusan KB JavaScript & mengompilasi CSS di browser tiap kunjungan.
      Kalau kelas Tailwind baru ditambahkan di halaman ini, file tailwind.css harus dibuat ulang. -->
 <link rel="stylesheet" href="/tailwind.css">
+
+<!-- Gaya khusus MODE CMS (?page=cms). Semua selektor diawali html.mode-cms / #cms-gate,
+     jadi tidak berpengaruh sama sekali pada tampilan website publik. -->
+<style id="css-cms">
+  html.mode-cms body > *:not(#cms-gate):not(#admin-panel):not(#modal-admin-form):not(script):not(style):not(link):not(noscript):not(.swal2-container) { display:none !important; }
+  html.mode-cms body { background:#f1f5f9; overflow:hidden; }
+  #cms-gate { display:none; position:fixed; inset:0; z-index:9995; overflow-y:auto; align-items:center; justify-content:center; padding:20px;
+    background:radial-gradient(circle at 50% 30%, #2b3499 0%, #171d5c 50%, #0b0e2d 100%); }
+  html.mode-cms:not(.cms-masuk) #cms-gate { display:flex; }
+  #cms-gate .cms-card { width:100%; max-width:380px; background:#fff; border-radius:28px; box-shadow:0 25px 60px rgba(0,0,0,.35); overflow:hidden; }
+  #cms-gate .cms-head { background:#1f287d; text-align:center; padding:28px 24px 24px; }
+  #cms-gate .cms-logo { width:64px; height:64px; object-fit:contain; margin:0 auto 10px; display:block; }
+  #cms-gate .cms-head h1 { color:#fff; font-weight:900; font-size:15px; letter-spacing:.14em; text-transform:uppercase; margin:0; }
+  #cms-gate .cms-head p { color:#e7b10a; font-size:10px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; margin:6px 0 0; }
+  #cms-gate form { padding:24px; display:flex; flex-direction:column; gap:12px; }
+  #cms-gate label { font-size:11px; font-weight:700; color:#64748b; margin-bottom:-6px; }
+  #cms-gate input { width:100%; box-sizing:border-box; border:1px solid #e2e8f0; border-radius:12px; padding:12px 16px; font-size:14px; outline:none; }
+  #cms-gate input:focus { border-color:#1f287d; }
+  #cms-gate .cms-pw { position:relative; }
+  #cms-gate .cms-pw input { padding-right:44px; }
+  #cms-gate .cms-pw button { position:absolute; right:4px; top:50%; transform:translateY(-50%); background:none; border:0; color:#94a3b8; width:40px; height:40px; cursor:pointer; }
+  #cms-gate .cms-error { min-height:16px; margin:0; font-size:12px; font-weight:700; color:#dc2626; }
+  #cms-gate #cms-btn { background:#1f287d; color:#fff; border:0; border-radius:12px; padding:14px; font-size:12px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; cursor:pointer; box-shadow:0 4px 12px rgba(31,40,125,.3); }
+  #cms-gate #cms-btn:disabled { opacity:.6; cursor:wait; }
+  #cms-gate .cms-back { display:block; text-align:center; padding:0 24px 22px; font-size:12px; font-weight:700; color:#94a3b8; text-decoration:none; }
+  #cms-gate .cms-back:hover { color:#1f287d; }
+</style>
 
 </head>
 <body class="text-slate-700 splash-aktif">
@@ -2458,6 +2502,31 @@ window.SPLASH_BG_DEFAULT_B64 = "splash-bg.webp";
 </div>
 
 <!-- ============================================================ -->
+<!-- ============================================================ -->
+<!-- CMS: halaman login tersendiri (hanya tampil di ?page=cms) -->
+<!-- ============================================================ -->
+<div id="cms-gate" role="main" aria-label="Login CMS">
+  <div class="cms-card">
+    <div class="cms-head">
+      <img src="/logo.png" alt="Logo SMP IT Al Mubarok" class="cms-logo">
+      <h1>Login CMS</h1>
+      <p>SMP IT Al Mubarok</p>
+    </div>
+    <form id="cms-form" onsubmit="cmsLogin(event);return false;">
+      <label for="cms-username">Username</label>
+      <input required id="cms-username" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Username">
+      <label for="cms-password">Password</label>
+      <div class="cms-pw">
+        <input required type="password" id="cms-password" autocomplete="current-password" placeholder="Password">
+        <button type="button" onclick="cmsLihatSandi()" aria-label="Tampilkan/sembunyikan password"><i class="fas fa-eye"></i></button>
+      </div>
+      <p id="cms-error" class="cms-error" role="alert"></p>
+      <button type="submit" id="cms-btn">Masuk</button>
+    </form>
+    <a href="/" class="cms-back">&larr; Kembali ke website</a>
+  </div>
+</div>
+
 <!-- MODAL PENCARIAN -->
 <!-- ============================================================ -->
 <div id="modal-pencarian" class="hidden fixed inset-0 bg-black/50 z-[999999] flex items-start justify-center p-4 pt-20 md:pt-28">
@@ -2605,6 +2674,8 @@ let _navAbaikanScrollSampai_ = 0;
 // hanya dibaca dari URL lalu dikirim ke server untuk dicek. Keamanan lainnya:
 // semua aksi tulis butuh token hasil login.
 const ADMIN_SESI_KEY_ = 'smpAdminSesiV1';
+// MODE CMS: true hanya kalau dibuka lewat ?page=cms (kelas dipasang skrip awal di <head>).
+const MODE_CMS_ = document.documentElement.classList.contains('mode-cms');
 const _KODE_AKSES_DARI_LINK_ = (function () {
   try { return (new URLSearchParams(location.search).get('akses') || '').slice(0, 100); } catch (e) { return ''; }
 })();
@@ -2982,6 +3053,10 @@ function onDataLoaded(data) {
     renderGaleri, renderGaleriVideo, renderVirtualTour, renderVirtualTourBeranda, renderLiveStreaming,
     renderKarya, renderKaryaBeranda, renderKepsek, renderFasilitas, renderLokasi, renderAkademik, renderSejarah, renderDonasi
   ], function () {
+    if (MODE_CMS_) {   // CMS: tak perlu data YouTube; cukup segarkan tabel admin yang mungkin sudah terbuka
+      if (adminActiveSheet) adminSelectSheet(adminActiveSheet.key);
+      return;
+    }
     // Data YouTube diambil belakangan supaya tidak menghambat konten utama
     google.script.run.withSuccessHandler(onYoutubeDataLoaded).getYoutubeData();
   });
@@ -5143,6 +5218,7 @@ function _samaNavState_(a, b) {
   return (a.page || '') === (b.page || '') && (a.berita_id || '') === (b.berita_id || '');
 }
 function _updateUrlBarSendiri_(data) {
+  if (MODE_CMS_) return;   // mode CMS: biarkan alamat tetap ?page=cms
   const usp = new URLSearchParams();
   if (data.page && data.page !== 'home') usp.set('page', data.page);
   if (data.berita_id) usp.set('berita_id', data.berita_id);
@@ -5703,6 +5779,7 @@ function tutupPanduanOnboarding() {
 // Dipanggil dari sembunyikanSplash_() setelah splash BENAR-BENAR hilang,
 // supaya panduan tidak numpuk/muncul di atas splash screen untuk akun baru.
 function jadwalkanOnboardingPertama_() {
+  if (MODE_CMS_) return;   // panduan pengunjung tidak relevan di halaman CMS
   let sudahMuncul = '0';
   try { sudahMuncul = localStorage.getItem('smpOnboardingSudahMuncul') || '0'; } catch (e) {}
   if (sudahMuncul !== '1') {
@@ -6001,7 +6078,44 @@ function sendChatbotMessage(e) {
 // ---------------------------------------------------------------
 // ADMIN: LOGIN / LOGOUT
 // ---------------------------------------------------------------
-function openAdminLogin() { openModal('modal-login'); }
+function openAdminLogin() {
+  if (MODE_CMS_) { _cmsTampilkanGate_(); return; }   // CMS: pakai halaman login tersendiri
+  openModal('modal-login');
+}
+// --- MODE CMS: halaman login tersendiri (?page=cms) ---
+function _cmsTampilkanGate_() {
+  document.documentElement.classList.remove('cms-masuk');
+  const pw = document.getElementById('cms-password'); if (pw) pw.value = '';
+  const us = document.getElementById('cms-username'); if (us) setTimeout(function () { try { us.focus(); } catch (e) {} }, 50);
+}
+function cmsLihatSandi() {
+  const pw = document.getElementById('cms-password');
+  if (pw) pw.type = (pw.type === 'password') ? 'text' : 'password';
+}
+function cmsLogin(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const u = document.getElementById('cms-username').value;
+  const p = document.getElementById('cms-password').value;
+  const btn = document.getElementById('cms-btn');
+  const err = document.getElementById('cms-error');
+  err.textContent = '';
+  btn.disabled = true; btn.textContent = 'Memeriksa...';
+  const selesai = function () { btn.disabled = false; btn.textContent = 'Masuk'; };
+  google.script.run.withSuccessHandler(function (res) {
+    selesai();
+    if (res && res.sukses && res.token) {
+      currentAdmin = res;
+      try { sessionStorage.setItem(ADMIN_SESI_KEY_, JSON.stringify({ token: res.token, nama: res.nama })); } catch (x) {}
+      document.getElementById('cms-password').value = '';
+      openAdminPanel();
+    } else {
+      err.textContent = (res && res.pesan) || 'Login gagal.';
+    }
+  }).withFailureHandler(function () {
+    selesai();
+    err.textContent = 'Tidak bisa terhubung ke server. Coba lagi.';
+  }).loginAdmin(u, p);
+}
 function doLoginAdmin(e) {
   const u = document.getElementById('login-username').value;
   const p = document.getElementById('login-password').value;
@@ -6027,6 +6141,7 @@ function _sesiAdminBerakhir_(err) {
   try { sessionStorage.removeItem(ADMIN_SESI_KEY_); } catch (e) {}
   document.getElementById('admin-panel').classList.add('hidden');
   _navBawahAdmin_(false);
+  if (MODE_CMS_) _cmsTampilkanGate_();
   Swal.fire({ icon: 'warning', title: 'Sesi berakhir', text: 'Silakan login admin ulang.' }).then(openAdminLogin);
   return true;
 }
@@ -6038,8 +6153,12 @@ function logoutAdmin() {
   if (t) google.script.run.logoutAdmin(t);
   document.getElementById('admin-panel').classList.add('hidden');
   _navBawahAdmin_(false);
+  if (MODE_CMS_) _cmsTampilkanGate_();   // CMS: keluar -> kembali ke halaman login
 }
-function closeAdminPanel() { document.getElementById('admin-panel').classList.add('hidden'); _navBawahAdmin_(false); }
+function closeAdminPanel() {
+  if (MODE_CMS_) { location.href = location.pathname; return; }   // CMS: tombol X -> kembali ke website
+  document.getElementById('admin-panel').classList.add('hidden'); _navBawahAdmin_(false);
+}
 
 // ---------------------------------------------------------------
 // ADMIN: DASHBOARD CRUD GENERIK
@@ -6088,6 +6207,7 @@ let adminActiveSheet = null;
 let adminTableRows = [];
 
 function openAdminPanel() {
+  if (MODE_CMS_) document.documentElement.classList.add('cms-masuk');
   document.getElementById('admin-panel').classList.remove('hidden');
   _navBawahAdmin_(true);
   const menu = document.getElementById('admin-sidebar-menu');
@@ -7246,6 +7366,22 @@ else renderSwitchBahasa_();
         .cekKodeAkses(_KODE_AKSES_DARI_LINK_);
     }
   }, 300);
+})();
+
+// MODE CMS (?page=cms): pulihkan sesi admin tab ini (kalau masih berlaku) atau tampilkan login.
+(function _cmsInit_() {
+  if (!MODE_CMS_) return;
+  document.title = 'CMS - ' + JUDUL_WEBSITE_DASAR;
+  let sesi = null;
+  try { sesi = JSON.parse(sessionStorage.getItem(ADMIN_SESI_KEY_) || 'null'); } catch (e) {}
+  if (sesi && sesi.token) {
+    google.script.run.withSuccessHandler(function (res) {
+      if (res && res.sukses) { currentAdmin = { sukses: true, nama: sesi.nama, token: sesi.token }; openAdminPanel(); }
+      else { try { sessionStorage.removeItem(ADMIN_SESI_KEY_); } catch (e) {} _cmsTampilkanGate_(); }
+    }).withFailureHandler(function () { _cmsTampilkanGate_(); }).cekSesiAdmin(sesi.token);
+  } else {
+    _cmsTampilkanGate_();
+  }
 })();
 
 loadDataDenganCache_();
